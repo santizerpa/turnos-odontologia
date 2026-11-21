@@ -83,6 +83,10 @@ No se usaron portales de comparación, reseñas de terceros ni notas de prensa c
 **SimplyBook.me**
 - https://simplybook.me/en/pricing — planes y features por plan.
 
+### Fuente secundaria de corrección
+
+- **Odonthia (no oficial)**: https://odonthia.com/blog/mejores-software-odontologicos-argentina-2026 — consultado 2026-11-21. Solo sirve como verificación secundaria de DentalSoft; prevalece el sitio oficial.
+
 ## 2. Enlaces oficiales citados pero no consultados en esta ronda
 
 Se listan para que una segunda pasada pueda verificarlos. Ninguna afirmación del informe se apoya en ellos.

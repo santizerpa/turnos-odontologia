@@ -46,6 +46,22 @@
 
 Dentaltap, Dentrix y Curve Dental no se consultaron dentro del presupuesto de esta investigación. Fresha quedó inaccesible. No se completaron datos por inferencia ni se usaron sitios de comparación de terceros como evidencia.
 
-## 4. Advertencia sobre cifras de adopción
+## 4. Correcciones aplicadas (2026-11-21)
+
+| Ítem | Valor anterior | Valor corregido | Fuente de verificación |
+|---|---|---|---|
+| DentalSoft precio | ARS 30.000/60.000 presentado como fijo | Se conserva el precio, aclarado como base para 1 profesional; fuente secundaria Odonthia coincide, pero el sitio oficial no publica una sección de precios clara | https://www.dentalsoft.com.ar/ ; https://odonthia.com/blog/mejores-software-odontologicos-argentina-2026 |
+| AgendaPro IVA | ARS 9.900/19.900/39.900/129.900 + IVA | IVA incluido | https://agendapro.com/ar/planes |
+| AgendaPro origen | Chile declarado | País de origen no evidenciado en la página argentina | https://agendapro.com/ar/planes |
+| Doctoralia web profesional | Web ARS 4.000 atribuida como costo confirmado | El plan muestra 4.000 ARS como costo adicional en el comparador; no se presenta como factura separada confiable, ni alta/costo mensual completo | https://pro.doctoralia.com/ar/precio |
+| Citalo odontograma | Sin odontograma evidenciado | Odontograma digital comprobado | https://www.citalo.app/ar/software-turnos-odontologos |
+| OdontoApp reserva | Reserva online no evidenciada | Reserva online comprobada en Todos los planes | https://odontoapp.com.ar/ |
+| Nubimed usuarios | EUR 27,40/50,10 sin costos adicionales | 1 usuario con agenda incluido; +EUR 2,40/+5,10 por usuario adicional con agenda (+IVA); recepción/admin sin agenda ilimitados y gratis | https://www.nubimed.com/planes-precios/ |
+| Clinic Cloud precio | EUR 29/49/79 + IVA | EUR 49/79/109 + IVA (Mini/Pro/Max); descuento Black Friday excluido | https://clinic-cloud.com/tarifas |
+| iClinic público | Médico/consultorio/red | Consultorios y clínicas pequeñas; para redes/múltiples unidades remite a Shosp | https://iclinic.com.br/precos/ |
+| Calendly precio | USD 0/10/16 por asiento | La página live consultada sigue mostrando Free USD 0, Standard USD 10 y Teams USD 16; Enterprise desde USD 15.000/año (50 asientos) | https://calendly.com/pricing |
+| Campos faltantes | Operación/seguridad/diferenciales incompletos | Agregada tabla A2 por 17 sistemas; faltantes marcados `No evidenciado` | URLs oficiales listadas en fuentes.md |
+
+## 5. Advertencia sobre cifras de adopción
 
 Las cantidades de clientes, profesionales o países que aparecen en la sección A son **afirmaciones del proveedor** y se marcan como tales. No se usaron para calcular el puntaje de "Precio y adopción" salvo como señal cualitativa de presencia comercial, y nunca se presentan como dato auditado.

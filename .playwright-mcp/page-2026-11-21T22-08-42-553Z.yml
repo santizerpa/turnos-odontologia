@@ -1,0 +1,446 @@
+- generic [ref=e3]:
+  - navigation "Navegación principal" [ref=e4]:
+    - generic [ref=e5]:
+      - img "Logo de OdontoApp" [ref=e6]
+      - link "OdontoApp" [ref=e7] [cursor=pointer]:
+        - /url: "#inicio"
+    - generic [ref=e8]:
+      - link "Funcionalidades" [ref=e9] [cursor=pointer]:
+        - /url: "#funcionalidades"
+      - link "Precios" [ref=e10] [cursor=pointer]:
+        - /url: "#planes"
+      - link "FAQ" [ref=e11] [cursor=pointer]:
+        - /url: "#faq"
+      - link "Soporte" [ref=e12] [cursor=pointer]:
+        - /url: "#soporte"
+      - link "Blog" [ref=e13] [cursor=pointer]:
+        - /url: /blog
+    - generic [ref=e14]:
+      - link "Iniciar sesión" [ref=e15] [cursor=pointer]:
+        - /url: https://www.odontoapp.online/login?oa_lp=%2F&oa_ab=a
+      - link "Empezar gratis" [ref=e16] [cursor=pointer]:
+        - /url: https://www.odontoapp.online/register?oa_lp=%2F&oa_ab=a
+  - main [ref=e17]:
+    - region "Sección principal" [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Menos inasistencias en tu consultorio odontológico. Más tiempo para atender." [level=1] [ref=e21]: Menos inasistencias en tu consultorio odontológico.Más tiempo para atender.
+          - paragraph [ref=e22]: El software odontológico que pone la agenda, los pacientes, la historia clínica digital y las radiografías en un solo lugar — con recordatorios automáticos.
+          - paragraph [ref=e24]: +100 odontólogos y clínicas ya usan OdontoApp
+          - link "Empezar ahora — gratis 14 días" [ref=e26] [cursor=pointer]:
+            - /url: https://www.odontoapp.online/register?oa_lp=%2F&oa_ab=a
+          - paragraph [ref=e27]: 14 días de prueba con todas las funciones, sin tarjeta de crédito. Después seguís con el plan gratuito o elegís uno pago.
+        - img "Odontólogo usando OdontoApp en consultorio" [ref=e31]
+    - region "Funcionalidades de OdontoApp" [ref=e32]:
+      - heading "Todo lo que necesitás para gestionar tu consultorio" [level=2] [ref=e33]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - heading "Gestión de Pacientes" [level=3] [ref=e36]
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - generic [ref=e40]: Datos personales, historia clínica y cobertura en un solo lugar.
+            - listitem [ref=e41]:
+              - generic [ref=e43]: Evolución y tratamientos ordenados cronológicamente.
+            - listitem [ref=e44]:
+              - generic [ref=e46]: Notas clínicas rápidas para cada consulta.
+            - listitem [ref=e47]:
+              - generic [ref=e49]: Historial unificado para todo el equipo.
+        - generic [ref=e50]:
+          - heading "Turnos y Agenda" [level=3] [ref=e51]
+          - list [ref=e52]:
+            - listitem [ref=e53]:
+              - generic [ref=e55]: Vista diaria, semanal y mensual en un calendario claro.
+            - listitem [ref=e56]:
+              - generic [ref=e58]: Gestión por sillón, profesional o tipo de práctica.
+            - listitem [ref=e59]:
+              - generic [ref=e61]: Recordatorios automáticos para reducir ausencias.
+            - listitem [ref=e62]:
+              - generic [ref=e64]: Múltiples sedes desde un solo sistema.
+        - generic [ref=e65]:
+          - heading "Recordatorios integrados" [level=3] [ref=e66]
+          - list [ref=e67]:
+            - listitem [ref=e68]:
+              - generic [ref=e70]: Recordatorios de turno enviados directo al celular del paciente.
+            - listitem [ref=e71]:
+              - generic [ref=e73]: Menos inasistencias, menos llamadas manuales.
+            - listitem [ref=e74]:
+              - generic [ref=e76]: Configuración sencilla sin aplicaciones externas.
+        - generic [ref=e77]:
+          - heading "Imágenes y Radiografías" [level=3] [ref=e78]
+          - list [ref=e79]:
+            - listitem [ref=e80]:
+              - generic [ref=e82]: Subí radiografías y fotos clínicas desde el celular o la PC.
+            - listitem [ref=e83]:
+              - generic [ref=e85]: Organizá por paciente, tipo de estudio o fecha.
+            - listitem [ref=e86]:
+              - generic [ref=e88]: Almacenamiento en la nube, acceso desde cualquier dispositivo.
+        - generic [ref=e89]:
+          - heading "Odontograma Completo" [level=3] [ref=e90]
+          - list [ref=e91]:
+            - listitem [ref=e92]:
+              - generic [ref=e94]: "32 dientes con estados: corona, sellador, extracción, conducto."
+            - listitem [ref=e95]:
+              - generic [ref=e97]: Periodontograma con gráfico visual.
+            - listitem [ref=e98]:
+              - generic [ref=e100]: Registro cronológico de todas las prácticas realizadas.
+        - generic [ref=e101]:
+          - heading "Panel Administrativo" [level=3] [ref=e102]
+          - list [ref=e103]:
+            - listitem [ref=e104]:
+              - generic [ref=e106]: Producción por odontólogo y por práctica.
+            - listitem [ref=e107]:
+              - generic [ref=e109]: Actividad mensual y evolución del consultorio.
+            - listitem [ref=e110]:
+              - generic [ref=e112]: Pacientes nuevos, recurrencia y métricas clave.
+            - listitem [ref=e113]:
+              - generic [ref=e115]: Analíticas del consultorio disponibles en el plan Profesional.
+    - region "Funcionalidades en detalle" [ref=e116]:
+      - generic [ref=e117]:
+        - heading "Mirá cómo funciona" [level=2] [ref=e118]
+        - paragraph [ref=e119]: Cada herramienta diseñada para el día a día del consultorio.
+      - generic [ref=e122]:
+        - img "Agenda de turnos en OdontoApp" [ref=e125]
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - generic [ref=e128]: Agenda inteligente
+            - heading "Agenda de turnos" [level=3] [ref=e129]
+            - paragraph [ref=e130]: Organizá tu día sin complicaciones. Un calendario claro para vos y tu equipo.
+            - list [ref=e131]:
+              - listitem [ref=e132]: Vista diaria, semanal y mensual en un solo lugar
+              - listitem [ref=e134]: Gestión por sillón, profesional o tipo de práctica
+              - listitem [ref=e136]: Múltiples sedes desde un solo sistema
+          - generic [ref=e138]:
+            - button "Anterior" [ref=e139] [cursor=pointer]
+            - generic [ref=e142]:
+              - button "Ir a Agenda de turnos" [ref=e143] [cursor=pointer]
+              - button "Ir a Odontograma completo" [ref=e144] [cursor=pointer]
+              - button "Ir a Periodontograma visual" [ref=e145] [cursor=pointer]
+              - button "Ir a Recordatorios por WhatsApp" [ref=e146] [cursor=pointer]
+              - button "Ir a Impacto de los recordatorios" [ref=e147] [cursor=pointer]
+              - button "Ir a Evoluciones del paciente" [ref=e148] [cursor=pointer]
+              - button "Ir a Métricas del consultorio" [ref=e149] [cursor=pointer]
+            - button "Siguiente" [ref=e150] [cursor=pointer]
+    - region "Testimonios de odontólogos" [ref=e153]:
+      - generic [ref=e154]:
+        - heading "Lo que dicen los odontólogos" [level=2] [ref=e155]
+        - paragraph [ref=e156]: Más de 10 consultorios ya gestionan su día a día con OdontoApp.
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - paragraph [ref=e159]: "\"Las historias clínicas digitales me agilizaron un montón, con papel perdía mucho tiempo. La agenda y poder acceder desde el teléfono en cualquier momento son clave. Los recordatorios bajaron las ausencias, y algo que valoro mucho es que si pedís algo al equipo la respuesta es casi inmediata.\""
+          - generic [ref=e160]:
+            - img "Dr. Nicolás Lista" [ref=e162]
+            - generic [ref=e163]:
+              - paragraph [ref=e164]: Dr. Nicolás Lista
+              - paragraph [ref=e165]: Odontólogo · San Martín de los Andes, Neuquén
+        - generic [ref=e166]:
+          - paragraph [ref=e167]: "\"Empecé a usar OdontoApp hace unos meses y el cambio fue inmediato. Antes anotaba todo a mano y perdía tiempo buscando datos de cada paciente. Ahora tengo la historia clínica completa en segundos, la agenda organizada y los recordatorios por WhatsApp se mandan solos. Es una herramienta simple pero que te transforma el consultorio.\""
+          - generic [ref=e168]:
+            - img "Dra. Jorgelina Torres" [ref=e170]
+            - generic [ref=e171]:
+              - paragraph [ref=e172]: Dra. Jorgelina Torres
+              - paragraph [ref=e173]: Odontóloga · Río Cuarto, Córdoba
+        - generic [ref=e174]:
+          - paragraph [ref=e175]: "\"Desde que uso OdontoApp me olvidé de mandar recordatorios manualmente. Tengo las historias clínicas en un solo lugar con seguimiento de tratamientos, y el periodontograma —que pocas apps tienen— me ayuda mucho con mis pacientes periodontales. Además puedo cargar radiografías y fotos directo en la nube, sin depender del celular.\""
+          - generic [ref=e176]:
+            - img "Ccopadent · Clínica Dental" [ref=e178]
+            - generic [ref=e179]:
+              - paragraph [ref=e180]: Ccopadent · Clínica Dental
+              - paragraph [ref=e181]: Florencio Varela, Buenos Aires
+    - region "Planes y precios de OdontoApp" [ref=e182]:
+      - generic [ref=e183]:
+        - heading "Planes simples, sin sorpresas" [level=2] [ref=e184]
+        - paragraph [ref=e185]: Empezá gratis y escalá cuando lo necesites. Sin contrato anual, cancelás cuando quieras.
+      - generic [ref=e186]:
+        - generic [ref=e187]:
+          - generic [ref=e188]:
+            - paragraph [ref=e189]: Gratuito
+            - generic [ref=e190]: $0
+            - paragraph [ref=e192]: Para dar el primer paso. Sin tarjeta, sin compromiso.
+          - list [ref=e193]:
+            - listitem [ref=e194]:
+              - generic [ref=e195]: ✓
+              - generic [ref=e196]: Hasta 10 pacientes
+            - listitem [ref=e197]:
+              - generic [ref=e198]: ✓
+              - generic [ref=e199]: 30 turnos por mes
+            - listitem [ref=e200]:
+              - generic [ref=e201]: ✓
+              - generic [ref=e202]: 1 sede
+            - listitem [ref=e203]:
+              - generic [ref=e204]: ✓
+              - generic [ref=e205]: Fotos y radiografías en la nube
+            - listitem [ref=e206]:
+              - generic [ref=e207]: ✕
+              - generic [ref=e208]: Avisos de turno por WhatsApp
+            - listitem [ref=e209]:
+              - generic [ref=e210]: ✕
+              - generic [ref=e211]: Registro de cambios en historias
+            - listitem [ref=e212]:
+              - generic [ref=e213]: ✕
+              - generic [ref=e214]: Evolución de pacientes
+            - listitem [ref=e215]:
+              - generic [ref=e216]: ✕
+              - generic [ref=e217]: Estadísticas del consultorio
+          - link "Empezar gratis" [ref=e218] [cursor=pointer]:
+            - /url: https://www.odontoapp.online/register?oa_lp=%2F&oa_ab=a
+        - generic [ref=e219]:
+          - generic [ref=e220]:
+            - paragraph [ref=e221]: Básico
+            - generic [ref=e222]:
+              - generic [ref=e223]: $36.000
+              - generic [ref=e224]: ARS/mes
+            - paragraph [ref=e225]:
+              - generic [ref=e226]: USD 20/mes
+              - text: si estás fuera de Argentina. Se convierte a tu moneda local.
+            - paragraph [ref=e227]: Todo lo que necesitás para atender bien, sin pagar de más.
+          - list [ref=e228]:
+            - listitem [ref=e229]:
+              - generic [ref=e230]: ✓
+              - generic [ref=e231]: Hasta 100 pacientes
+            - listitem [ref=e232]:
+              - generic [ref=e233]: ✓
+              - generic [ref=e234]: 120 turnos por mes
+            - listitem [ref=e235]:
+              - generic [ref=e236]: ✓
+              - generic [ref=e237]: Recordatorios automáticos por WhatsApp
+            - listitem [ref=e238]:
+              - generic [ref=e239]: ✓
+              - generic [ref=e240]: Almacenamiento de fotos y radiografías
+            - listitem [ref=e241]:
+              - generic [ref=e242]: ✓
+              - generic [ref=e243]: 1 sede
+            - listitem [ref=e244]:
+              - generic [ref=e245]: ✓
+              - generic [ref=e246]: Conexión con WhatsApp Business
+            - listitem [ref=e247]:
+              - generic [ref=e248]: ✓
+              - generic [ref=e249]: Evolución de pacientes
+            - listitem [ref=e250]:
+              - generic [ref=e251]: ✓
+              - generic [ref=e252]: Registro de cambios en historias
+            - listitem [ref=e253]:
+              - generic [ref=e254]: ✕
+              - generic [ref=e255]: Estadísticas del consultorio
+          - link "Empezar ahora" [ref=e256] [cursor=pointer]:
+            - /url: https://www.odontoapp.online/register?oa_lp=%2F&oa_ab=a
+        - generic [ref=e257]:
+          - generic [ref=e258]: Más elegido
+          - generic [ref=e260]:
+            - paragraph [ref=e261]: Profesional
+            - generic [ref=e262]:
+              - generic [ref=e263]: $48.500
+              - generic [ref=e264]: ARS/mes
+            - paragraph [ref=e265]:
+              - generic [ref=e266]: USD 30/mes
+              - text: si estás fuera de Argentina. Se convierte a tu moneda local.
+            - paragraph [ref=e267]: Tu consultorio a otro nivel. Todo incluido, sin excusas.
+          - list [ref=e268]:
+            - listitem [ref=e269]:
+              - generic [ref=e270]: ✓
+              - generic [ref=e271]: Pacientes ilimitados
+            - listitem [ref=e272]:
+              - generic [ref=e273]: ✓
+              - generic [ref=e274]: Turnos ilimitados
+            - listitem [ref=e275]:
+              - generic [ref=e276]: ✓
+              - generic [ref=e277]: Recordatorios automáticos por WhatsApp
+            - listitem [ref=e278]:
+              - generic [ref=e279]: ✓
+              - generic [ref=e280]: Almacenamiento de fotos y radiografías
+            - listitem [ref=e281]:
+              - generic [ref=e282]: ✓
+              - generic [ref=e283]: Sedes ilimitadas
+            - listitem [ref=e284]:
+              - generic [ref=e285]: ✓
+              - generic [ref=e286]: Conexión con WhatsApp Business
+            - listitem [ref=e287]:
+              - generic [ref=e288]: ✓
+              - generic [ref=e289]: Registro de quién modificó cada historia clínica
+            - listitem [ref=e290]:
+              - generic [ref=e291]: ✓
+              - generic [ref=e292]: Evolución de pacientes
+            - listitem [ref=e293]:
+              - generic [ref=e294]: ✓
+              - generic [ref=e295]: Estadísticas del consultorio
+          - link "Empezar ahora" [ref=e296] [cursor=pointer]:
+            - /url: https://www.odontoapp.online/register?oa_lp=%2F&oa_ab=a
+        - generic [ref=e297]:
+          - generic [ref=e298]: Para clínicas
+          - generic [ref=e300]:
+            - paragraph [ref=e301]: Clínica
+            - generic [ref=e302]: A medida
+            - paragraph [ref=e304]: Para clínicas con varios odontólogos. El precio se define según tu equipo.
+          - list [ref=e305]:
+            - listitem [ref=e306]:
+              - generic [ref=e307]: ✓
+              - generic [ref=e308]: Odontólogos ilimitados
+            - listitem [ref=e309]:
+              - generic [ref=e310]: ✓
+              - generic [ref=e311]: Pacientes ilimitados
+            - listitem [ref=e312]:
+              - generic [ref=e313]: ✓
+              - generic [ref=e314]: Turnos ilimitados
+            - listitem [ref=e315]:
+              - generic [ref=e316]: ✓
+              - generic [ref=e317]: Avisos de turno por WhatsApp
+            - listitem [ref=e318]:
+              - generic [ref=e319]: ✓
+              - generic [ref=e320]: Almacenamiento personalizado
+            - listitem [ref=e321]:
+              - generic [ref=e322]: ✓
+              - generic [ref=e323]: Sedes ilimitadas
+            - listitem [ref=e324]:
+              - generic [ref=e325]: ✓
+              - generic [ref=e326]: Registro de cambios en historias
+            - listitem [ref=e327]:
+              - generic [ref=e328]: ✓
+              - generic [ref=e329]: Estadísticas por odontólogo
+            - listitem [ref=e330]:
+              - generic [ref=e331]: ✓
+              - generic [ref=e332]: Onboarding personalizado
+          - link "Consultar precio" [ref=e333] [cursor=pointer]:
+            - /url: https://wa.me/5493584019801?text=Hola%2C%20tengo%20una%20cl%C3%ADnica%20odontol%C3%B3gica%20con%20varios%20profesionales%20y%20quiero%20consultar%20sobre%20el%20plan%20Cl%C3%ADnica.%20%C2%BFPodemos%20hablar%3F
+      - generic [ref=e334]:
+        - paragraph [ref=e335]: Todos los planes incluyen
+        - list [ref=e336]:
+          - listitem [ref=e337]:
+            - generic [ref=e338]: ✓
+            - text: Odontograma
+          - listitem [ref=e339]:
+            - generic [ref=e340]: ✓
+            - text: Periodontograma
+          - listitem [ref=e341]:
+            - generic [ref=e342]: ✓
+            - text: Ortodoncia
+          - listitem [ref=e343]:
+            - generic [ref=e344]: ✓
+            - text: Presupuestos
+          - listitem [ref=e345]:
+            - generic [ref=e346]: ✓
+            - text: Planes de pago
+          - listitem [ref=e347]:
+            - generic [ref=e348]: ✓
+            - text: Facturación
+          - listitem [ref=e349]:
+            - generic [ref=e350]: ✓
+            - text: Recetas
+          - listitem [ref=e351]:
+            - generic [ref=e352]: ✓
+            - text: Consentimientos informados
+          - listitem [ref=e353]:
+            - generic [ref=e354]: ✓
+            - text: Reserva online de turnos para tus pacientes
+      - paragraph [ref=e355]:
+        - text: Tus datos y los de tus pacientes se almacenan de forma segura en la nube, con acceso restringido a tu equipo, conforme a la
+        - link "Ley 25.326 de Protección de Datos Personales" [ref=e356] [cursor=pointer]:
+          - /url: /privacidad.html
+        - text: .
+    - region "Preguntas frecuentes" [ref=e357]:
+      - generic [ref=e358]:
+        - heading "Preguntas frecuentes" [level=2] [ref=e359]
+        - paragraph [ref=e360]: Si tu duda no está acá, escribinos por WhatsApp y te respondemos en el momento.
+      - generic [ref=e361]:
+        - group [ref=e362]:
+          - generic "¿Qué es OdontoApp?" [ref=e363] [cursor=pointer]
+        - group [ref=e366]:
+          - generic "¿Cuánto cuesta OdontoApp?" [ref=e367] [cursor=pointer]
+        - group [ref=e370]:
+          - generic "¿Cómo funcionan los recordatorios por WhatsApp?" [ref=e371] [cursor=pointer]
+        - group [ref=e374]:
+          - generic "¿Sirve para consultorios individuales y para clínicas?" [ref=e375] [cursor=pointer]
+        - group [ref=e378]:
+          - generic "¿Mis datos y los de mis pacientes están seguros?" [ref=e379] [cursor=pointer]
+        - group [ref=e382]:
+          - generic "¿Necesito instalar algo?" [ref=e383] [cursor=pointer]
+        - group [ref=e386]:
+          - generic "¿Puedo cancelar cuando quiera?" [ref=e387] [cursor=pointer]
+  - region "Soporte y contacto" [ref=e391]:
+    - generic [ref=e392]:
+      - heading "¿Tenés dudas? Escribinos por WhatsApp" [level=2] [ref=e393]
+      - paragraph [ref=e394]: Respondemos en el momento. Si querés una demo, una consulta sobre precios o necesitás ayuda para empezar, estamos disponibles.
+      - generic [ref=e395]:
+        - link "Chatear por WhatsApp" [ref=e396] [cursor=pointer]:
+          - /url: https://wa.me/5493584019801?text=Hola!%20Quiero%20saber%20m%C3%A1s%20sobre%20OdontoApp.
+        - link "Enviar un email" [ref=e397] [cursor=pointer]:
+          - /url: mailto:villegasfederico86@gmail.com
+  - region "Últimos artículos del blog" [ref=e398]:
+    - generic [ref=e399]:
+      - heading "Del blog" [level=2] [ref=e400]
+      - link "Ver todos →" [ref=e401] [cursor=pointer]:
+        - /url: /blog
+    - generic [ref=e402]:
+      - 'link "7 de octubre de 2026 Caras del diente en el odontograma: vestibular, mesial, distal, oclusal y palatina Qué es cada cara del diente en un odontograma: vestibular, lingual, palatina, mesial, distal, oclusal e incisal. Cómo identificarlas, cómo se anotan y cómo leer un odontograma paso a paso. Leer artículo →" [ref=e403] [cursor=pointer]':
+        - /url: /blog/caras-del-diente-odontograma-vestibular-mesial-distal-oclusal
+        - time [ref=e404]: 7 de octubre de 2026
+        - 'heading "Caras del diente en el odontograma: vestibular, mesial, distal, oclusal y palatina" [level=3] [ref=e405]'
+        - paragraph [ref=e406]: "Qué es cada cara del diente en un odontograma: vestibular, lingual, palatina, mesial, distal, oclusal e incisal. Cómo identificarlas, cómo se anotan y cómo leer un odontograma paso a paso."
+        - generic [ref=e407]: Leer artículo →
+      - 'link "6 de octubre de 2026 Software para consultorio odontológico en Argentina: cómo elegir el correcto Qué mirar antes de elegir un software para tu consultorio odontológico en Argentina: funciones que sí importan, precio en pesos, WhatsApp, datos de pacientes, prueba gratis y cómo migrar sin perder información. Leer artículo →" [ref=e408] [cursor=pointer]':
+        - /url: /blog/software-consultorio-odontologico-argentina-como-elegir
+        - time [ref=e409]: 6 de octubre de 2026
+        - 'heading "Software para consultorio odontológico en Argentina: cómo elegir el correcto" [level=3] [ref=e410]'
+        - paragraph [ref=e411]: "Qué mirar antes de elegir un software para tu consultorio odontológico en Argentina: funciones que sí importan, precio en pesos, WhatsApp, datos de pacientes, prueba gratis y cómo migrar sin perder información."
+        - generic [ref=e412]: Leer artículo →
+      - 'link "18 de agosto de 2026 Cancelaciones de último momento: qué hacer cuando el paciente responde el recordatorio El recordatorio avisa, pero no salva el turno. Qué hacer cuando el paciente contesta que no puede venir, cómo convertir la cancelación en reprogramación y cómo tapar el hueco que queda. Leer artículo →" [ref=e413] [cursor=pointer]':
+        - /url: /blog/cancelaciones-ultimo-momento-turnos-odontologicos
+        - time [ref=e414]: 18 de agosto de 2026
+        - 'heading "Cancelaciones de último momento: qué hacer cuando el paciente responde el recordatorio" [level=3] [ref=e415]'
+        - paragraph [ref=e416]: El recordatorio avisa, pero no salva el turno. Qué hacer cuando el paciente contesta que no puede venir, cómo convertir la cancelación en reprogramación y cómo tapar el hueco que queda.
+        - generic [ref=e417]: Leer artículo →
+  - region [ref=e418]:
+    - heading "Disponible en toda Latinoamérica" [level=2] [ref=e419]
+    - list [ref=e420]:
+      - listitem [ref=e421]:
+        - img "Argentina" [ref=e422]
+      - listitem [ref=e423]:
+        - img "Bolivia" [ref=e424]
+      - listitem [ref=e425]:
+        - img "Brasil" [ref=e426]
+      - listitem [ref=e427]:
+        - img "Chile" [ref=e428]
+      - listitem [ref=e429]:
+        - img "Colombia" [ref=e430]
+      - listitem [ref=e431]:
+        - img "Costa Rica" [ref=e432]
+      - listitem [ref=e433]:
+        - img "Cuba" [ref=e434]
+      - listitem [ref=e435]:
+        - img "Ecuador" [ref=e436]
+      - listitem [ref=e437]:
+        - img "El Salvador" [ref=e438]
+      - listitem [ref=e439]:
+        - img "Guatemala" [ref=e440]
+      - listitem [ref=e441]:
+        - img "Honduras" [ref=e442]
+      - listitem [ref=e443]:
+        - img "México" [ref=e444]
+      - listitem [ref=e445]:
+        - img "Nicaragua" [ref=e446]
+      - listitem [ref=e447]:
+        - img "Panamá" [ref=e448]
+      - listitem [ref=e449]:
+        - img "Paraguay" [ref=e450]
+      - listitem [ref=e451]:
+        - img "Perú" [ref=e452]
+      - listitem [ref=e453]:
+        - img "República Dominicana" [ref=e454]
+      - listitem [ref=e455]:
+        - img "Uruguay" [ref=e456]
+      - listitem [ref=e457]:
+        - img "Venezuela" [ref=e458]
+    - paragraph [ref=e459]: OdontoApp, el software para consultorios odontológicos, está disponible en Argentina, Bolivia, Brasil, Chile, Colombia, Costa Rica, Cuba, Ecuador, El Salvador, Guatemala, Honduras, México, Nicaragua, Panamá, Paraguay, Perú, República Dominicana, Uruguay y Venezuela.
+  - contentinfo "Pie de página" [ref=e460]:
+    - paragraph [ref=e461]: © 2026 Sovil. Todos los derechos reservados.
+    - paragraph [ref=e462]: Software de gestión odontológica para consultorios y clínicas odontológicas en Latinoamérica.
+    - generic [ref=e463]:
+      - link "Política de privacidad" [ref=e464] [cursor=pointer]:
+        - /url: /privacidad.html
+      - generic [ref=e465]: ·
+      - link "Términos y condiciones" [ref=e466] [cursor=pointer]:
+        - /url: /terminos.html
+    - paragraph [ref=e467]:
+      - text: Desarrollado por
+      - link "Sovil" [ref=e468] [cursor=pointer]:
+        - /url: https://sovil.com.ar
+  - link "Contactar por WhatsApp" [ref=e469] [cursor=pointer]:
+    - /url: https://wa.me/5493584019801?text=Hola!%20Quiero%20saber%20m%C3%A1s%20sobre%20OdontoApp.

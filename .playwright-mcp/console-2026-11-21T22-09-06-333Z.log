@@ -1,0 +1,10 @@
+[    1593ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'location'. @ :0
+[    3653ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rG (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:46791)
+    at https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:143837
+    at sh (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:147405)
+    at sd (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:138718)
+    at https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:133523
+    at se (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:133624)
+    at s$ (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:160214)
+    at MessagePort.O (https://www.citalo.app/_next/static/chunks/a7e3ac86f33d9731.js:1:7704)

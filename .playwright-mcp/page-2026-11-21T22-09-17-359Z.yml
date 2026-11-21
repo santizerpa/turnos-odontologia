@@ -1,0 +1,187 @@
+- generic [active] [ref=f5e1]:
+  - main [ref=f5e2]:
+    - generic [ref=f5e6]:
+      - link [ref=f5e8] [cursor=pointer]:
+        - /url: /ar/
+        - img "Citalo - Sistema de reservas online para Latinoamérica" [ref=f5e10]
+      - navigation [ref=f5e11]:
+        - generic [ref=f5e12]:
+          - button "Nuestras soluciones" [ref=f5e14] [cursor=pointer]
+          - button "Funcionalidades" [ref=f5e20] [cursor=pointer]
+          - link "Precios" [ref=f5e25] [cursor=pointer]:
+            - /url: /ar/precios
+          - link "Blog" [ref=f5e28] [cursor=pointer]:
+            - /url: /blog
+      - generic [ref=f5e31]:
+        - link "Iniciar sesión" [ref=f5e32] [cursor=pointer]:
+          - /url: https://app.citalo.app/login
+        - button "Crear mi página gratis" [ref=f5e34] [cursor=pointer]
+    - generic [ref=f5e40]:
+      - navigation "Breadcrumb" [ref=f5e42]:
+        - list [ref=f5e43]:
+          - listitem [ref=f5e44]:
+            - link "Inicio" [ref=f5e45] [cursor=pointer]:
+              - /url: /ar
+          - listitem [ref=f5e50]:
+            - generic [ref=f5e53]: Software de Turnos para Odontólogos
+      - generic [ref=f5e57]:
+        - heading "Software de Turnos para Odontólogos en Argentina - Agenda Dental sin Complicaciones" [level=1] [ref=f5e58]
+        - paragraph [ref=f5e59]: Gestioná tu clínica dental en Buenos Aires, CABA, Córdoba o Rosario con un sistema que entiende las obras sociales y el ritmo de la odontología. Bajá las ausencias.
+        - generic [ref=f5e60]:
+          - button "Crear mi página gratis" [ref=f5e61] [cursor=pointer]
+          - link "WhatsApp icon Escribinos por WhatsApp" [ref=f5e69] [cursor=pointer]:
+            - /url: https://wa.me/+59899651358?text=Hola, soy odontólogo en Argentina y quiero conocer cómo Citalo puede simplificar la gestión de turnos en mi consultorio.
+            - img "WhatsApp icon" [ref=f5e71]
+            - generic [ref=f5e73]: Escribinos por WhatsApp
+      - generic [ref=f5e75]:
+        - generic [ref=f5e76]:
+          - generic [ref=f5e77]: Realidades de la práctica dental argentina
+          - heading "Dolores de cabeza frecuentes en consultorios dentales" [level=2] [ref=f5e82]
+          - paragraph [ref=f5e83]: Lo que enfrentan a diario los dentistas en CABA, Buenos Aires y el interior
+        - generic [ref=f5e84]:
+          - generic [ref=f5e88]:
+            - heading "El teléfono suena mientras estás con un paciente" [level=3] [ref=f5e95]
+            - paragraph [ref=f5e96]: Cada llamada para sacar turno te distrae en medio de una extracción o un tratamiento de conducto en tu consultorio.
+          - generic [ref=f5e100]:
+            - heading "Turnos perdidos que nadie cancela a tiempo" [level=3] [ref=f5e107]
+            - paragraph [ref=f5e108]: Las inasistencias de último momento son un clásico en Argentina y te dejan espacios vacíos que no podés recuperar.
+          - generic [ref=f5e112]:
+            - heading "Malabarismo con obras sociales y pacientes privados" [level=3] [ref=f5e118]
+            - paragraph [ref=f5e119]: Coordinar tratamientos de ortodoncia o implantes con pacientes de distintas coberturas genera un caos administrativo.
+          - generic [ref=f5e123]:
+            - heading "La administración te roba horas de atención" [level=3] [ref=f5e133]
+            - paragraph [ref=f5e134]: Entre agendar, reconfirmar y mover turnos, perdés tiempo valioso que podrías dedicar a facturar más.
+      - generic [ref=f5e136]:
+        - generic [ref=f5e137]:
+          - generic [ref=f5e138]: Beneficios para dentistas argentinos
+          - heading "Un sistema de turnos pensado para la odontología" [level=2] [ref=f5e143]
+          - paragraph [ref=f5e144]: Prestaciones que se adaptan a consultorios de todos los tamaños en Argentina
+        - generic [ref=f5e145]:
+          - generic [ref=f5e149]:
+            - heading "Tiempos personalizados por práctica dental" [level=3] [ref=f5e158]
+            - paragraph [ref=f5e159]: Asigná duraciones diferentes a controles, limpiezas, perno y corona o cirugías según tu forma de trabajar.
+          - generic [ref=f5e163]:
+            - heading "Recordatorios que reducen las faltas" [level=3] [ref=f5e171]
+            - paragraph [ref=f5e172]: Mensajes automáticos que llegan a tus pacientes argentinos con indicaciones previas al procedimiento.
+          - generic [ref=f5e176]:
+            - heading "Coordinación de múltiples boxes dentales" [level=3] [ref=f5e182]
+            - paragraph [ref=f5e183]: Manejá varios sillones y profesionales en la misma clínica sin que se pisen los horarios.
+          - generic [ref=f5e187]:
+            - heading "Listado completo de servicios con obras sociales" [level=3] [ref=f5e192]
+            - paragraph [ref=f5e193]: Cargá tus prácticas con aranceles diferentes para OSDE, Swiss Medical, PAMI y pacientes particulares.
+          - generic [ref=f5e197]:
+            - heading "Cobranza digital al momento de reservar" [level=3] [ref=f5e204]
+            - paragraph [ref=f5e205]: Tus pacientes pueden abonar la consulta online con los medios de pago más usados en Argentina.
+          - generic [ref=f5e209]:
+            - heading "Legajo odontológico por paciente" [level=3] [ref=f5e217]
+            - paragraph [ref=f5e218]: Guardá obra social, antecedentes clínicos, radiografías previas y observaciones para cada persona.
+        - button "Ver funcionalidades de Citalo" [ref=f5e220] [cursor=pointer]
+      - generic [ref=f5e231]:
+        - generic [ref=f5e232]:
+          - generic [ref=f5e233]: FAQ odontología
+          - heading "Lo que preguntan los odontólogos argentinos sobre Citalo" [level=2] [ref=f5e239]
+          - paragraph [ref=f5e240]: Respuestas claras para dentistas que buscan ordenar su agenda
+        - generic [ref=f5e241]:
+          - button "¿Puedo cargar diferentes aranceles por obra social?" [ref=f5e245] [cursor=pointer]
+          - button "¿Mis pacientes pueden sacar turno solos desde el celular?" [ref=f5e262] [cursor=pointer]
+          - button "¿Funciona para consultorios con varios dentistas?" [ref=f5e279] [cursor=pointer]
+          - button "¿Cumple con la Ley de Protección de Datos argentina?" [ref=f5e296] [cursor=pointer]
+        - generic [ref=f5e313]:
+          - paragraph [ref=f5e314]: ¿No encuentras lo que buscas?
+          - link "Contáctanos directamente" [ref=f5e315] [cursor=pointer]:
+            - /url: https://wa.me/+59899651358?text=Hola, tengo una pregunta sobre Citalo.
+      - generic [ref=f5e324]:
+        - generic [ref=f5e325]:
+          - generic [ref=f5e326]: También disponible para
+          - heading "Soluciones relacionadas que podrían interesarte" [level=2] [ref=f5e331]
+          - paragraph [ref=f5e332]: Descubre otras industrias donde Citalo está transformando la gestión de reservas
+        - generic [ref=f5e333]:
+          - link "Agenda Online para Clínicas Sistema completo para centros médicos con gestión multi-especialidad y múltiples doctores. Ver solución" [ref=f5e335] [cursor=pointer]:
+            - /url: /ar/agenda-online-clinicas
+            - generic [ref=f5e337]:
+              - heading "Agenda Online para Clínicas" [level=3] [ref=f5e338]
+              - paragraph [ref=f5e339]: Sistema completo para centros médicos con gestión multi-especialidad y múltiples doctores.
+              - generic [ref=f5e340]: Ver solución
+          - link "Agenda Online para Psicólogos Plataforma para terapeutas con gestión de sesiones y privacidad garantizada. Ver solución" [ref=f5e346] [cursor=pointer]:
+            - /url: /ar/agenda-online-psicologos
+            - generic [ref=f5e348]:
+              - heading "Agenda Online para Psicólogos" [level=3] [ref=f5e349]
+              - paragraph [ref=f5e350]: Plataforma para terapeutas con gestión de sesiones y privacidad garantizada.
+              - generic [ref=f5e351]: Ver solución
+          - link "Turnos Online para Veterinarias Software para clínicas veterinarias con gestión de mascotas y emergencias. Ver solución" [ref=f5e357] [cursor=pointer]:
+            - /url: /ar/turnos-veterinarias-online
+            - generic [ref=f5e359]:
+              - heading "Turnos Online para Veterinarias" [level=3] [ref=f5e360]
+              - paragraph [ref=f5e361]: Software para clínicas veterinarias con gestión de mascotas y emergencias.
+              - generic [ref=f5e362]: Ver solución
+        - link "Ver todas las industrias" [ref=f5e368] [cursor=pointer]:
+          - /url: /ar/industrias
+      - generic [ref=f5e373]:
+        - generic [ref=f5e374]:
+          - heading "Ordená tu consultorio dental en Argentina de una vez" [level=2] [ref=f5e375]
+          - paragraph [ref=f5e376]: Dentistas en Buenos Aires, Córdoba, Rosario y todo el país ya resolvieron el tema de los turnos con Citalo
+        - button "Crear mi página gratis" [ref=f5e378] [cursor=pointer]
+        - generic [ref=f5e384]:
+          - generic [ref=f5e385]: Plan gratuito para siempre, sin compromiso
+          - generic [ref=f5e389]: Se adapta a obras sociales y prepagas argentinas
+          - generic [ref=f5e393]: Asistencia personalizada para arrancar rápido
+    - generic [ref=f5e398]:
+      - generic [ref=f5e399]:
+        - generic [ref=f5e400]:
+          - link [ref=f5e401] [cursor=pointer]:
+            - /url: /ar/
+            - img "Citalo" [ref=f5e402]
+          - paragraph [ref=f5e403]: Crea tu página de reservas, configura servicios, horarios y staff, y compártela por WhatsApp, Instagram o Google. Gratis para empezar, sin tarjeta.
+          - link "+598 99 651 358" [ref=f5e405] [cursor=pointer]:
+            - /url: https://wa.me/+59899651358
+          - generic [ref=f5e410]:
+            - link "Instagram de Citalo" [ref=f5e411] [cursor=pointer]:
+              - /url: https://www.instagram.com/citalo.app
+              - img "Instagram icon" [ref=f5e412]
+            - link "WhatsApp de Citalo" [ref=f5e414] [cursor=pointer]:
+              - /url: https://wa.me/+59899651358
+              - img "WhatsApp icon" [ref=f5e415]
+        - generic [ref=f5e417]:
+          - generic [ref=f5e418]:
+            - heading "Producto" [level=3] [ref=f5e419]
+            - list [ref=f5e420]:
+              - listitem [ref=f5e421]:
+                - link "Funcionalidades" [ref=f5e422] [cursor=pointer]:
+                  - /url: /ar/funcionalidades
+              - listitem [ref=f5e426]:
+                - link "Industrias" [ref=f5e427] [cursor=pointer]:
+                  - /url: /ar/industrias
+              - listitem [ref=f5e431]:
+                - link "Precios" [ref=f5e432] [cursor=pointer]:
+                  - /url: /ar/precios
+              - listitem [ref=f5e436]:
+                - link "Blog" [ref=f5e437] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=f5e441]:
+                - link "Preguntas frecuentes" [ref=f5e442] [cursor=pointer]:
+                  - /url: /ar/#faq
+          - generic [ref=f5e446]:
+            - heading "Empresa" [level=3] [ref=f5e447]
+            - list [ref=f5e448]:
+              - listitem [ref=f5e449]:
+                - link "Contacto" [ref=f5e450] [cursor=pointer]:
+                  - /url: https://wa.me/+59899651358
+              - listitem [ref=f5e454]:
+                - link "Soporte" [ref=f5e455] [cursor=pointer]:
+                  - /url: https://wa.me/+59899651358
+          - generic [ref=f5e459]:
+            - heading "Legal" [level=3] [ref=f5e460]
+            - list [ref=f5e461]:
+              - listitem [ref=f5e462]:
+                - link "Terminos de servicio" [ref=f5e463] [cursor=pointer]:
+                  - /url: /terms-conditions
+              - listitem [ref=f5e467]:
+                - link "Politica de privacidad" [ref=f5e468] [cursor=pointer]:
+                  - /url: /privacy-policy
+      - generic [ref=f5e472]:
+        - generic [ref=f5e473]:
+          - heading "Empieza con tu página de reservas." [level=3] [ref=f5e474]
+          - paragraph [ref=f5e475]: Publica, comparte tu link y mide el camino hasta la primera reserva.
+        - button "Crear mi página gratis" [ref=f5e476] [cursor=pointer]
+      - generic [ref=f5e480]: Copyright 2026 Citalo. Todos los derechos reservados.
+  - alert [ref=f5e481]
