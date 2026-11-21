@@ -1,0 +1,108 @@
+{
+  "version": 5,
+  "step": "discovery",
+  "owner": "active-orchestrator",
+  "foundation": {
+    "version": 1,
+    "gate": "each-phase",
+    "approved_at": "2026-11-21",
+    "order": [
+      "openspec-init",
+      "discovery",
+      "kb",
+      "roadmap",
+      "find-skill",
+      "registry",
+      "agents"
+    ],
+    "phases": {
+      "openspec-init": {
+        "variant": "opencode",
+        "status": "done",
+        "requires": [],
+        "outputs": [
+          "openspec/config.yaml",
+          "openspec/specs/",
+          "openspec/changes/"
+        ],
+        "completed_at": "2026-11-21",
+        "notes": "openspec 2.1.1. Skills globales instaladas en ~/.agents/skills/. Telemetria desactivada. context agregado: artefactos en espanol, sistema de turnos para odontologia. Sin commit (lo hace el usuario)."
+      },
+      "discovery": {
+        "variant": "interview+web-research",
+        "status": "pending",
+        "requires": [
+          "openspec-init"
+        ],
+        "outputs": [
+          "docs/discovery/discovery.md",
+          "docs/discovery/competitors.md",
+          "docs/discovery/evidence-log.md",
+          "docs/discovery/sources.md"
+        ],
+        "evidence_policy": "Cada dato lleva URL oficial y fecha de consulta (2026-11-21). Sin respaldo se marca 'No evidenciado'.",
+        "interview_mode": "block-by-block"
+      },
+      "kb": {
+        "variant": "interview",
+        "status": "pending",
+        "requires": [
+          "discovery"
+        ],
+        "outputs": [
+          "knowledge-base/"
+        ]
+      },
+      "roadmap": {
+        "variant": "local-markdown",
+        "status": "pending",
+        "requires": [
+          "kb"
+        ],
+        "outputs": [
+          "CHANGES.md"
+        ]
+      },
+      "find-skill": {
+        "variant": "recommend",
+        "status": "pending",
+        "requires": [
+          "kb"
+        ],
+        "outputs": []
+      },
+      "registry": {
+        "variant": "index",
+        "status": "pending",
+        "requires": [
+          "find-skill"
+        ],
+        "outputs": [
+          ".atl/skill-registry.md"
+        ]
+      },
+      "agents": {
+        "variant": "generate",
+        "status": "pending",
+        "requires": [
+          "kb",
+          "roadmap",
+          "registry"
+        ],
+        "outputs": [
+          "AGENTS.md"
+        ]
+      }
+    },
+    "decisions": {
+      "visual-design": {
+        "status": "deferred",
+        "note": "Se pregunta una vez en el primer change visual. Registra politica en design-system/README.md."
+      },
+      "task-management": {
+        "status": "skipped",
+        "note": "ClickUp no disponible (falta active-roadmap). Tracking local se puede correr standalone."
+      }
+    }
+  }
+}
