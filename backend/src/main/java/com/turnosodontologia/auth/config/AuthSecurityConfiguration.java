@@ -58,7 +58,7 @@ public class AuthSecurityConfiguration {
             .exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/auth/login", "/api/health", "/", "/index.html", "/admin.html", "/js/**", "/error")
+                .requestMatchers("/api/auth/login", "/api/public/**", "/api/health", "/", "/index.html", "/admin.html", "/js/**", "/error")
                 .permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .permitAll()
