@@ -155,7 +155,10 @@
       },
       "agents": {
         "variant": "generate",
-        "status": "pending",
+        "status": "done",
+        "started_at": "2026-11-22",
+        "completed_at": "2026-11-22",
+        "gate_decision": "continue",
         "requires": [
           "kb",
           "roadmap",
@@ -163,6 +166,20 @@
         ],
         "outputs": [
           "AGENTS.md"
+        ],
+        "created_by": "agent-instruction",
+        "files": [
+          "AGENTS.md"
+        ],
+        "reglas_applied": [
+          "datos ficticios",
+          "sin secretos en el repositorio",
+          "versionado Java/Spring explicitamente aprobado",
+          "Gradle wrapper y tests obligatorios",
+          "H2 PostgreSQL mode en tests, PostgreSQL en runtime",
+          "TDD estricto",
+          "artefactos en espanol coherentes",
+          "sin commits sin solicitud"
         ]
       }
     },
