@@ -2,6 +2,31 @@
   "version": 5,
   "step": "kb",
   "owner": "active-orchestrator",
+  "kb": {
+    "created_by": "kb-creator",
+    "source": "interactive",
+    "discovery": {
+      "problem": "Reducir ausencias y cancelaciones tardías en un consultorio odontológico mediante agenda pública, confirmación por mail y lista de espera.",
+      "system_type": "web_app",
+      "domain": "odontologia_turnos",
+      "scale": "single_user",
+      "stack": "Java 21, Spring Boot, REST, Gradle, Hibernate/JPA, PostgreSQL, H2, TypeScript vanilla, JUnit",
+      "needs_infra": true
+    },
+    "files": [
+      "knowledge-base/README.md",
+      "knowledge-base/01_vision_y_objetivos.md",
+      "knowledge-base/02_descripcion_general.md",
+      "knowledge-base/03_actores_y_roles.md",
+      "knowledge-base/04_modelo_de_datos.md",
+      "knowledge-base/05_reglas_de_negocio.md",
+      "knowledge-base/06_funcionalidades.md",
+      "knowledge-base/07_flujos_principales.md",
+      "knowledge-base/08_arquitectura_propuesta.md",
+      "knowledge-base/09_decisiones_y_supuestos.md",
+      "knowledge-base/10_preguntas_abiertas.md"
+    ]
+  },
   "foundation": {
     "version": 1,
     "gate": "each-phase",
@@ -48,7 +73,10 @@
       },
       "kb": {
         "variant": "interview",
-        "status": "pending",
+        "status": "done",
+        "started_at": "2026-11-21",
+        "completed_at": "2026-11-21",
+        "gate_decision": "continue",
         "requires": [
           "discovery"
         ],
