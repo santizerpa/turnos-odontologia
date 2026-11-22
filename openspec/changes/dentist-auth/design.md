@@ -29,7 +29,7 @@ Véase `proposal.md` — Why. El punto de partida técnico condiciona el diseño
 
 ### D1 — Login como API JSON con sesión de servidor
 
-`POST /api/auth/login` recibe JSON, delega en un `AuthenticationManager` con `DaoAuthenticationProvider` y guarda el `SecurityContext` en la `HttpSession` mediante `HttpContextRepository.saveContext(...)` (Spring Security 6 no lo hace implícitamente con `requireExplicitSave`). `GET /api/auth/me` lee el contexto; `POST /api/auth/logout` invalida la sesión y borra la cookie.
+`POST /api/auth/login` recibe JSON, delega en un `AuthenticationManager` con `DaoAuthenticationProvider` y guarda el `SecurityContext` en la `HttpSession` mediante `HttpSessionSecurityContextRepository.saveContext(...)` (Spring Security 6 no lo hace implícitamente con `requireExplicitSave`). `GET /api/auth/me` lee el contexto; `POST /api/auth/logout` invalida la sesión y borra la cookie.
 
 Alternativa descartada: `formLogin` de Spring. Arrastra redirects, parámetros de formulario y un login HTML que el frontend vanilla de C-12 no necesita; además impediría devolver 401 JSON homogéneo en `/api/**`.
 
@@ -75,15 +75,18 @@ Se agrega `auth/` con `config/` (seguridad, encoder, entry point), `controller/`
 
 Alternativa descartada: crear `api/` y `config/` globales como sugiere la KB 08; el código real ya usa paquetes por dominio y mover `common/` excede C-03.
 
-### D9 — Prueba determinista de expiración, sin `Thread.sleep`
+### D9 — Verificación de expiración y de atributos de cookie, sin `Thread.sleep`
 
-Se cubre en dos niveles complementarios:
+`MockMvc` no levanta un contenedor real: no emite la cabecera `Set-Cookie` del contenedor, no aplica los atributos configurados en `server.servlet.session.cookie.*` y sus `MockHttpSession` no expiran por reloj. Por eso la verificación se separa en capas:
 
-1. **Contrato de configuración**: prueba que el entorno resuelve `server.servlet.session.timeout` en `30m` y que la cookie declara `HttpOnly` y `SameSite=Lax`.
-2. **Sesión inválida/vencida en la práctica**: se envía una cookie `JSESSIONID` que no corresponde a ninguna sesión viva y se exige 401 en `/api/auth/me`. Para el contenedor, una sesión expirada es indistinguible de una inexistente, así que la prueba ejercita el mismo camino sin esperar reloj.
-3. **Refuerzo opcional** si se habilita control de concurrencia de sesiones: `SessionRegistry.expireNow()` sobre la `SessionInformation` del login y verificación de 401 en la siguiente solicitud.
+1. **Contrato de configuración (MockMvc o prueba de propiedades)**: el entorno resuelve `server.servlet.session.timeout=30m`. Prueba la política declarada, no el paso del tiempo ni los atributos emitidos.
+2. **Sesión invalidada responde 401 (MockMvc)**: después de `logout`, o con un `JSESSIONID` que no corresponde a ninguna sesión viva, `/api/auth/me` y cualquier ruta administrativa responden 401. Para el contenedor una sesión expirada es indistinguible de una inexistente, y el escenario declara exactamente eso.
+3. **Atributos reales de la cookie (`@SpringBootTest(webEnvironment = RANDOM_PORT)`)**: login contra el servidor embebido y lectura de la cabecera `Set-Cookie` real para exigir `HttpOnly` y `SameSite=Lax`. Es la única prueba que ve lo que emite el contenedor; `MockMvc` no sirve para este escenario.
+4. **Refuerzo opcional** si se habilita control de concurrencia de sesiones: `SessionRegistry.expireNow()` sobre la `SessionInformation` del login y verificación de 401 en la siguiente solicitud.
 
-Alternativas descartadas: `server.servlet.session.timeout=1s` con espera real (flaky y lenta) y `MockHttpSession` mutada a mano (no pasa por la cadena de seguridad real, no prueba nada útil).
+Ninguna prueba simula el paso de 30 minutos: la expiración por reloj queda garantizada por la configuración del contenedor, no por una espera en la suite.
+
+Alternativas descartadas: `server.servlet.session.timeout=1s` con espera real (lenta y flaky), `MockHttpSession` mutada a mano (no pasa por la cadena real ni prueba atributos de cookie) y validar `Set-Cookie` con `MockMvc` (no existe esa cabecera en el mock).
 
 ### D10 — `APP_ADMIN_SEED` se documenta, no se cambia
 
@@ -93,7 +96,7 @@ Alternativa descartada: quitar el flag o sembrar siempre que existan credenciale
 
 ### D11 — Orden de matchers y rutas públicas
 
-El orden será: `/api/public/**`, `/api/health`, `/`, `/index.html`, `/admin.html`, `/js/**`, recursos estáticos de Spring, `/error` → `permitAll`; `anyRequest().authenticated()`. `/api/auth/login` queda dentro de `authenticated()` a nivel de matcher y se exceptúa con `permitAll` explícito para evitar ambigüedad.
+El orden será: `/api/auth/login`, `/api/public/**`, `/api/health`, `/`, `/index.html`, `/admin.html`, `/js/**`, recursos estáticos de Spring, `/error` → `permitAll`; `anyRequest().authenticated()`.
 
 Alternativa descartada: depender del orden implícito de los recursos estáticos; deja `/api/auth/login` inalcanzable y produce 401 confusos.
 

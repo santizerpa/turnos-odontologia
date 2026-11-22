@@ -37,19 +37,23 @@ Definir el acceso del odontólogo al sistema mediante email y contraseña, con u
 
 Una sesión autenticada SHALL mantenerse mientras haya actividad y SHALL quedar inválida tras 30 minutos sin solicitudes, obligando a un nuevo login.
 
-#### Scenario: Sesión expirada
+#### Scenario: La configuración declara 30 minutos de inactividad
 
-- **GIVEN** una sesión iniciada sin actividad durante 30 minutos
-- **WHEN** el cliente solicita una ruta administrativa con la cookie vencida
+- **WHEN** se inspecciona la configuración de sesión del backend
+- **THEN** el tiempo máximo de inactividad es de 30 minutos
+
+#### Scenario: Una sesión invalidada responde 401
+
+- **GIVEN** una sesión que dejó de ser válida (cerrada con logout o identificada por una cookie que no corresponde a ninguna sesión viva)
+- **WHEN** el cliente solicita una ruta administrativa con esa cookie
 - **THEN** la respuesta es 401
 - **AND** el cliente debe autenticarse de nuevo
 
-#### Scenario: La actividad dentro de la ventana mantiene la sesión
+#### Scenario: Una sesión vigente sigue aceptando solicitudes
 
-- **GIVEN** una sesión iniciada
-- **WHEN** el cliente realiza solicitudes autenticadas antes de cumplirse 30 minutos de inactividad
+- **GIVEN** una sesión iniciada y todavía vigente
+- **WHEN** el cliente realiza solicitudes autenticadas
 - **THEN** cada solicitud se acepta
-- **AND** la cookie de sesión continúa siendo `HttpOnly`
 
 ### Requirement: Las rutas administrativas deben exigir sesión y las públicas no
 
