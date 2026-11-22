@@ -4,11 +4,11 @@
 
 ### US-001 — Login
 **Como** odontólogo
-**Quiero** iniciar sesión con usuario y contraseña
+**Quiero** iniciar sesión con email y contraseña
 **Para** administrar la agenda de forma privada
 
 **Criterios de aceptación:**
-- [ ] Usuario incorrecto devuelve error controlado.
+- [ ] Email incorrecto devuelve error controlado.
 - [ ] Contraseña se valida contra hash seguro.
 - [ ] Sesión expira o se invalida al cerrar.
 - [ ] Rutas administrativas exigen autenticación.
@@ -29,8 +29,8 @@
 ### US-010 — Ver agenda
 El odontólogo ve turnos diarios/semanales y estados.
 
-### US-011 — Crear turno manual
-El odontólogo carga paciente, inicio y duración fija de 30 minutos; rechaza solapamientos.
+### US-011 — Turno creado por reserva
+No existe carga manual por el odontólogo. El paciente crea el turno desde la página pública y el sistema rechaza solapamientos.
 
 ### US-012 — Marcar estado
 El odontólogo marca confirmado, ausente o atendido, conservando historial.
@@ -49,7 +49,7 @@ El paciente cancela hasta 24hs antes; el turno conserva historial y libera el sl
 ### US-023 — Reservar nuevamente
 Después de cancelar, el paciente vuelve a consultar disponibilidad y crea otro turno.
 
-## Épica 5: Confirmación por mail simulado
+## Épica 5: Validación de turno por mail simulado
 
 ### US-030 — Generar recordatorio
 El sistema genera un mensaje y un link seguro con token.
@@ -57,7 +57,14 @@ El sistema genera un mensaje y un link seguro con token.
 ### US-031 — Confirmar por link
 El paciente abre el link y cambia PENDING/CONFIRMED según reglas.
 
-### US-032 — Visualizar bandeja
+### US-032 — Cancelar desde el link
+**Como** paciente
+**Quiero** cancelar el turno desde el mail simulado
+**Para** liberar el horario sin crear cuenta
+
+**Criterios:** el estado pasa PENDING→CANCELLED, se conserva el historial y se dispara la lista de espera una sola vez.
+
+### US-033 — Visualizar bandeja
 El odontólogo ve los mensajes simulados y puede abrir el link público de prueba.
 
 ## Épica 6: Lista de espera
@@ -71,7 +78,7 @@ Al cancelar o liberar una reserva, el sistema genera un mensaje al primer pacien
 ## Épica 7: Demo y calidad
 
 ### US-050 — Datos seed
-La demo arranca con usuarios, pacientes y turnos ficticios.
+La demo arranca con un odontólogo ficticio, pacientes y turnos ficticios. El odontólogo usa email y contraseña BCrypt ficticia documentada solo para demo.
 
 ### US-051 — Tests deterministas
 Las reglas se prueban con JUnit y H2 sin PostgreSQL instalado.

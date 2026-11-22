@@ -236,21 +236,23 @@ Referencia complementaria: **Doctoralia** para la ficha pública del profesional
 
 **Imprescindibles (sin esto no hay producto)**
 
-1. **Login simple del odontólogo** y separación mínima entre acceso público y administración.
-2. **Agenda diaria/semanal** con duración fija de 30 minutos, bloqueos y prevención de solapamiento.
-3. **Alta mínima de pacientes** y carga manual de turnos por el odontólogo.
-4. **Reserva online pública**: el paciente elige fecha y hora entre huecos libres, sin cuenta.
-5. **Correo simulado**: persistencia y bandeja de salida local con recordatorio y link de confirmación/cancelación.
-6. **Estados y respuesta del paciente**: pendiente, confirmado, cancelado, ausente y atendido; el link usa token único.
+1. **Login simple del odontólogo** por email y contraseña BCrypt, con sesión de 30 minutos de inactividad.
+2. **Agenda diaria/semanal** con duración fija de 30 minutos, bloqueos manuales y prevención de solapamiento.
+3. **Alta mínima de pacientes desde la reserva**: nombre, apellido, DNI de 7-8 dígitos y email válido.
+4. **Reserva online pública**: el paciente elige fecha y hora entre huecos libres, sin cuenta ni carga manual del odontólogo.
+5. **Correo simulado**: bandeja de salida local con recordatorio y link único de confirmación/cancelación.
+6. **Estados y respuesta del paciente**: pendiente, confirmado, cancelado, ausente y atendido; el link usa token único, vence al inicio del turno o a los 7 días y es de un solo uso.
 7. **Lista de espera FIFO** con aviso automático al liberar un turno.
-8. **Datos seed simples** y demo local reproducible.
+8. **Datos seed simples** y demo local reproducible; solo datos ficticios.
 9. **Pruebas JUnit con H2 en memoria** en modo PostgreSQL; PostgreSQL solo para ejecutar la aplicación.
+10. **Horario definido**: Argentina UTC-3, sin horario de verano; disponibilidad lunes a viernes 9:00-13:00 y 14:00-19:00.
 
 **Diferenciadores (lo que todavía distingue al MVP)**
 
-10. **Cancelación hasta 24hs antes** y ausencia posterior automáticamente, según la respuesta del turno.
-11. **Lista de espera que avisa sin intervención manual** al paciente siguiente.
-12. **Actualización automática de la agenda** al confirmar o cancelar desde el link.
+11. **Cancelación hasta 24hs antes** y ausencia posterior automáticamente, según la respuesta del turno.
+12. **Lista de espera que avisa sin intervención manual** al paciente siguiente.
+13. **Actualización idempotente de la agenda**: una segunda cancelación muestra ya cancelado y no repite el aviso.
+14. **Disponibilidad pública real** con DNI de 7-8 dígitos, email válido y prevención concurrente por 409.
 
 **Postergados explícitamente (fuera de v1)**
 

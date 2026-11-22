@@ -22,15 +22,15 @@ No resuelve gestión de clínica, facturación ni historia clínica completa. Es
 
 | Rol | Verbo principal | Alcance en v1 |
 |---|---|---|
-| **Odontólogo** | Administrar | Único usuario con login. Carga turnos, define disponibilidad, ve agenda diaria/semanal, gestiona lista de espera, marca asistencia o ausencia. |
+| **Odontólogo** | Administrar | Único rol con login por email y contraseña. Define disponibilidad, ve agenda diaria/semanal, gestiona lista de espera y marca asistencia o ausencia. No carga turnos manualmente en v1. |
 | **Paciente** | Reservar y confirmar | Sin cuenta ni contraseña. Reserva su turno desde un enlace público y confirma o cancela desde el link del correo. |
 
-**Decisión:** el paciente es un usuario de primera clase para reservar, pero no tiene login. Su identidad se compone de los datos que carga al reservar (nombre, apellido, DNI, teléfono, email) más el token del turno.
+**Decisión:** el paciente es un usuario de primera clase para reservar, pero no tiene login. Su identidad se compone de nombre, apellido, DNI normalizado y email, más un token único de turno o aviso con vencimiento.
 
 ## 3. Casos de uso
 
 1. **Como odontólogo**, quiero ver mi agenda diaria y semanal para saber qué turnos tengo, cuáles están confirmados y dónde quedan huecos.
-2. **Como odontólogo**, quiero cargar un turno manualmente (paciente, fecha, hora, duración) sin riesgo de solapamiento, para los pacientes que llaman o escriben.
+2. **Como paciente**, quiero cargar mi turno desde la reserva pública sin que se solape con otro turno activo.
 3. **Como paciente**, quiero reservar mi propio turno desde un enlace público viendo los horarios libres reales, para no tener que llamar.
 4. **Como odontólogo**, quiero que el sistema genere el recordatorio 24-48hs antes preguntando si el paciente asistirá.
 5. **Como paciente**, quiero confirmar o cancelar mi turno con un click desde el correo, sin crear cuenta.
@@ -64,9 +64,9 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 |---|---|---|
 | 1 | Login simple del odontólogo | Único usuario con acceso a la agenda. |
 | 2 | Agenda diaria y semanal | Es la pantalla central de trabajo. |
-| 3 | Alta y edición de pacientes (mínima) | Requisito para asociar turnos. |
-| 4 | Turno con estado y control de solapamiento | Evita el error más caro de una agenda. |
-| 5 | Reserva online del paciente por enlace público | Pedido explícito: el paciente también agenda. |
+| 3 | Alta mínima de pacientes al reservar | Nombre, apellido, DNI (7-8 números) y email con formato válido. |
+| 4 | Turno público con estado y control de solapamiento | El paciente reserva directamente y el sistema evita dobles turnos. |
+| 5 | Reserva online del paciente por enlace público | Sin carga manual del odontólogo ni login del paciente. |
 | 6 | Recordatorio por correo (simulado en local) | Dispara el ciclo de confirmación. |
 | 7 | Link de confirmación/cancelación con token | Convierte la respuesta del paciente en estado. |
 | 8 | Lista de espera con aviso automático al liberarse un turno | Ataca el no-show directamente. |
@@ -86,10 +86,12 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 
 ## 7. Reglas de negocio
 
-1. **Cancelación:** el paciente puede cancelar hasta **24hs antes** del turno. Después, la cancelación queda registrada como ausencia.
-2. **Solapamiento:** no puede existir más de un turno activo en la misma franja horaria.
+1. **Cancelación:** el paciente puede cancelar hasta **24hs antes**. Después, la cancelación queda registrada como ausencia.
+2. **Solapamiento:** no puede existir más de un turno activo en la misma franja horaria; conflicto concurrente devuelve 409.
 3. **Duración:** fija en **30 minutos** para la v1, configurable en el modelo. Duración variable queda para después.
-4. **Estados del turno:** `PENDIENTE` → `CONFIRMADO` | `CANCELADO` | `AUSENTE` | `ATENDIDO`. Las transiciones inválidas se rechazan.
+4. **Estados del turno:** `PENDIENTE` → `CONFIRMADO` | `CANCELADO` | `AUSENTE` | `ATENDIDO`. Las transiciones inválidas se rechazan. La cancelación es idempotente: la segunda pestaña muestra ya cancelado sin repetir efectos.
+5. **Horario:** hora de Argentina UTC-3, sin horario de verano.
+6. **Disponibilidad:** lunes a viernes, 9:00-13:00 y 14:00-19:00. Feriados no se automatizan; el odontólogo bloquea el día.
 5. **Token de confirmación:** único por turno, de un solo uso y con vencimiento. Un turno ya cancelado o pasado no puede confirmarse.
 6. **Lista de espera:** orden FIFO. Al liberarse un turno, el sistema **avisa automáticamente** al primero de la lista.
 7. **Reserva online:** solo muestra horarios realmente libres, según la agenda y la duración fija.
@@ -112,7 +114,7 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 
 | Tipo | Restricción |
 |---|---|
-| Backend | Java + Spring Boot + API REST + Gradle + Hibernate (JPA) |
+| Backend | Java 17 o superior + Spring Boot + API REST + Gradle + Hibernate (JPA) |
 | Base de datos | PostgreSQL para ejecutar la app; **H2 en memoria (modo PostgreSQL) para tests** |
 | Frontend | TypeScript vanilla, sin frameworks, lo mínimo posible |
 | Tests | JUnit |
@@ -147,12 +149,13 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 
 **Pendientes reales (a resolver durante la implementación):**
 
-- ¿Qué datos mínimos pide la reserva online del paciente? Propuesta: nombre, apellido, DNI, teléfono, email.
-- ¿La reserva online requiere validación de email o se acepta el dato tal cual?
-- ¿Ventana de reserva? Propuesta: desde el día siguiente hasta 30 días vista.
-- ¿El paciente puede reprogramar solo o solo cancelar y volver a reservar?
-- ¿Qué pasa si dos pacientes reservan el mismo horario a la vez? Propuesta: constraint único + respuesta 409.
-- ¿La lista de espera avisa por correo simulado y espera respuesta, o reasigna sola el turno?
+- **Datos del paciente resueltos:** nombre, apellido, DNI de 7-8 dígitos y email con formato estándar. DNI sin puntos ni espacios.
+- **Ventana resuelta:** desde 24hs hasta 30 días, en hora Argentina UTC-3 sin horario de verano.
+- **Disponibilidad resuelta:** lunes a viernes, 9:00-13:00 y 14:00-19:00; feriados manuales.
+- **Reprogramación:** el paciente cancela y vuelve a reservar; no hay reprogramación directa en v1.
+- **Concurrencia resuelta:** constraint único + respuesta 409.
+- **Lista de espera:** avisa automáticamente por correo simulado, sin asignación automática en v1.
+- **Anonimización:** fuera de alcance; v1 conserva registros y usa solo datos ficticios.
 
 ---
 
@@ -162,7 +165,7 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 |---|---|
 | S1 | El paciente no tiene cuenta ni login; el token del turno es su identidad. |
 | S2 | "Correo simulado" = persistir el mensaje, verlo en bandeja de salida y abrir el link desde ahí. |
-| S3 | Un solo odontólogo, sin roles ni permisos. |
+| S3 | Un solo odontólogo, con un único login por email y contraseña BCrypt; sin roles ni permisos avanzados. |
 | S4 | La reserva online es pública (sin login) y crea el paciente si no existe (por DNI). |
 | S5 | El MVP se recorta a los 11 ítems de la sección 5; el resto va al backlog. |
 | S6 | La demo end-to-end se ejecuta desde la bandeja de salida, no desde una casilla real. |

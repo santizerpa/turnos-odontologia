@@ -10,7 +10,7 @@
       "system_type": "web_app",
       "domain": "odontologia_turnos",
       "scale": "single_user",
-      "stack": "Java 21, Spring Boot, REST, Gradle, Hibernate/JPA, PostgreSQL, H2, TypeScript vanilla, JUnit",
+      "stack": "Java 17 o superior, Spring Boot, REST, Gradle, Hibernate/JPA, PostgreSQL, H2, TypeScript vanilla, JUnit",
       "needs_infra": true
     },
     "files": [

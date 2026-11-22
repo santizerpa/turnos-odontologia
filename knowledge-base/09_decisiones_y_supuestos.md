@@ -18,7 +18,7 @@
 
 ### DD-03 — Mail simulado
 **Decisión:** persistir mensajes en bandeja de salida; sin SMTP real.
-**Contexto:** usuario aprobó demo local sin credenciales ni red.
+**Contexto:** el usuario aprobó demo local sin credenciales ni red externas.
 **Alternativas:** SMTP real, sandbox, WhatsApp.
 **Justificación:** permite probar el ciclo sin secretos externos.
 **Trade-offs:** no valida entregabilidad ni respuesta real de pacientes.
@@ -50,11 +50,11 @@
 **Riesgo si es falso:** pacientes reales pueden compartir o equivocarse el DNI.
 **Cómo validar:** obtener dato real en demo e implementar validación externa posterior.
 
-### SU-02 — Ventana en zona local
-**Supuesto:** todos los horarios usan la zona horaria local del consultorio.
-**Origen:** no hay zonas horarias ni operación remota especificadas.
-**Riesgo si es falso:** huecos incorrectos para reservas remotas.
-**Cómo validar:** definir timezone en configuración.
+### SU-02 — Ventana en zona Argentina
+**Supuesto:** todos los horarios usan la hora de Argentina (UTC-3), sin horario de verano.
+**Origen:** decisión aprobada para eliminar ambigüedad del modelo horario.
+**Riesgo si es falso:** turnos visualizados o reservados en otra hora.
+**Cómo validar:** configurar America/Argentina/Buenos_Aires o un offset fijo UTC-3 en el modelo.
 
 ### SU-03 — Lista de espera avisa pero no reasigna
 **Supuesto:** el mensaje simulado espera acción manual del paciente o odontólogo.

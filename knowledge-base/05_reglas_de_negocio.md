@@ -6,8 +6,8 @@
 - **RN-RS-02:** la duración fija es de 30 minutos.
 - **RN-RS-03:** no se puede crear ni mover un turno a una franja ocupada.
 - **RN-RS-04:** ante conflicto concurrente el servidor rechaza con HTTP 409 y no crea un segundo turno.
-- **RN-RS-05:** paciente necesita nombre, apellido, DNI y email válido.
-- **RN-RS-06:** DNI normalizado identifica el paciente existente; no valida identidad oficial.
+- **RN-RS-05:** paciente necesita nombre, apellido, DNI y email válido; el formato de email se valida estándar, sin dominio restringido.
+- **RN-RS-06:** DNI solo acepta 7 u 8 dígitos; se eliminan puntos y espacios antes de guardar y se rechazan letras.
 
 ## Dominio: Estados (RN-ES)
 
@@ -20,14 +20,14 @@
 
 - **RN-CA-01:** el paciente puede cancelar hasta 24hs antes.
 - **RN-CA-02:** una solicitud posterior a 24hs queda como ABSENT o requiere decisión del odontólogo según el estado actual.
-- **RN-CA-03:** cancelar libera el horario y dispara el proceso de lista de espera.
+- **RN-CA-03:** cancelar libera el horario y dispara el proceso de lista de espera una sola vez; una segunda cancelación devuelve ya cancelado sin repetir efectos.
 - **RN-CA-04:** cancelar no elimina el turno ni el historial.
 
 ## Dominio: Confirmación (RN-CF)
 
 - **RN-CF-01:** el token es único por turno y solo se acepta una vez.
-- **RN-CF-02:** el token vence según configuración y no funciona en turnos pasados.
-- **RN-CF-03:** confirmar/cancelar en simultáneo aplica un estado final antes que el otro evento.
+- **RN-CF-02:** el token vence al inicio del turno o a los 7 días, lo que ocurra primero, y no funciona en turnos pasados.
+- **RN-CF-03:** confirmar/cancelar en simultáneo aplica el primer cambio válido; si la segunda operación llega al turno ya CANCELLED, responde ya cancelado sin repetir efectos.
 - **RN-CF-04:** el recordatorio simulado queda visible en la bandeja de salida.
 
 ## Dominio: Lista de espera (RN-LE)

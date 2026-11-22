@@ -16,7 +16,9 @@ Reducir ausencias y cancelaciones tardías en un consultorio odontológico de un
 - Login simple del odontólogo con email y contraseña.
 - Agenda diaria y semanal con turnos de 30 minutos.
 - Alta mínima de pacientes con nombre, apellido, DNI y email.
-- Carga manual de turnos por el odontólogo.
+- Los pacientes crean sus propios turnos desde la reserva pública; no existe carga manual por el odontólogo.
+- Los turnos solo se crean si no hay solapamiento con otro turno activo.
+- Pacientes creados al reservar o al cargar un turno. Se identifica con un token único por turno o por aviso, con vencimiento y de un solo uso, sin login del paciente.
 - Reserva pública desde 24hs hasta 30 días en el futuro.
 - Confirmación/cancelación del paciente mediante link con token.
 - Bandeja de salida simulada; no se manda correo real.

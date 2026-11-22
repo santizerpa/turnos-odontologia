@@ -28,7 +28,8 @@ La v1 tiene un rol autenticado y rutas públicas. No se implementa RBAC multirol
 
 ## Autenticación
 
-- Usuario y contraseña para el odontólogo.
-- Contraseña almacenada con hash seguro.
-- Sesión/cookie o JWT simple según implementación; no se necesitan proveedores externos.
-- Cookies públicas no identifican al paciente; el token del turno es el capability link.
+- Email y contraseña para el odontólogo.
+- Contraseña almacenada con BCrypt.
+- Sesión/cookie expira después de 30 minutos de inactividad.
+- Cookies públicas no identifican al paciente; el token del turno o del aviso es el capability link.
+- Los pacientes nunca hacen login.

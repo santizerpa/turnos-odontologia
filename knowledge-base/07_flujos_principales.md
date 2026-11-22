@@ -5,7 +5,7 @@
 **Disparador:** el odontólogo abre la aplicación.
 **Actores:** odontólogo, backend, PostgreSQL.
 
-1. Ingresa usuario y contraseña.
+1. Ingresa email y contraseña.
 2. Backend valida credenciales y genera sesión/cookie.
 3. Frontend carga agenda y turnos.
 4. Si falla, muestra error sin revelar qué dato es incorrecto.
@@ -22,7 +22,7 @@
 5. Crea Appointment en PENDING dentro de transacción.
 6. Crea AppointmentToken con vencimiento.
 7. Guarda OutboxMessage simulado.
-8. Si la franja fue tomada, devuelve 409 y no crea entidades.
+8. Si la franja estaba tomada, devuelve 409 y no crea entidades.
 
 ## Flujo 3: Confirmación/cancelación por link
 

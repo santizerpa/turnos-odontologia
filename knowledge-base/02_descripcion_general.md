@@ -4,7 +4,7 @@
 
 | Capa | Tecnología | Observación |
 |---|---|---|
-| Backend | Java 21 + Spring Boot | API REST |
+| Backend | Java 17 o superior + Spring Boot | API REST |
 | Build | Gradle | Ejecutable local |
 | Persistencia | Hibernate/JPA | PostgreSQL en ejecución, H2 en tests |
 | Base local | PostgreSQL | Sin hosting pago |

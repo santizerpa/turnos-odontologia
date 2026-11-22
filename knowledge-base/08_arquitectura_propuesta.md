@@ -37,9 +37,10 @@ turnos-odontologia/
 
 ## Seguridad
 
-- Autenticación: usuario/contraseña con contraseña hash.
+- Autenticación: email y contraseña con contraseña hash BCrypt.
+- Sesión: expira a los 30 minutos de inactividad.
 - Autorización: rutas administrativas autenticadas.
-- Tokens: aleatorios, hash persistido, vigencia y uso único.
+- Tokens: aleatorios, entre 5 y 10 numeros, hash persistido, vigencia y uso único.
 - Validación: Bean Validation en API y validación de dominio.
 - SQL: JPA con parámetros, no concatenación manual.
 - Secretos: variables de entorno y perfil local.
@@ -53,10 +54,10 @@ turnos-odontologia/
 | `SPRING_DATASOURCE_URL` | Conexión PostgreSQL | jdbc:postgresql://localhost:5432/odontologia | Sí |
 | `SPRING_DATASOURCE_USERNAME` | Usuario DB | odontologia | Sí |
 | `SPRING_DATASOURCE_PASSWORD` | Contraseña DB | local-only | Sí |
-| `APP_ADMIN_USERNAME` | Usuario inicial | admin | Sí |
-| `APP_ADMIN_PASSWORD` | Contraseña inicial | seeded-only | Sí |
+| `APP_ADMIN_EMAIL` | Email del odontólogo inicial | demo@odontologia.local | Sí |
+| `APP_ADMIN_PASSWORD` | Contraseña inicial ficticia (BCrypt) | demo-segura-123 | Sí |
 | `APP_PUBLIC_URL` | URL local para links | http://localhost:8080 | No |
-| `APP_TOKEN_TTL_HOURS` | Vigencia del token | 72 | No |
+| `APP_TOKEN_MAX_DAYS` | Límite máximo del token: 7 días | 7 | No |
 
 ## Perfiles
 

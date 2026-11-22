@@ -12,7 +12,7 @@
 ## ERD
 
 ```text
-User (odontologo) 1 ── * Appointment
+Dentist 1 ─────────── * Appointment
 Patient 1 ─────────── * Appointment
 Appointment 1 ─────── 1 AppointmentToken
 Appointment 1 ─────── * AppointmentEvent
@@ -24,9 +24,17 @@ OutboxMessage * ───── 1 Appointment (opcional)
 
 ## Entidades
 
+### Dentist
+- `id: UUID` — clave primaria.
+- `email: varchar(255)` — único y usado para iniciar sesión.
+- `password_hash: varchar(255)` — BCrypt; nunca guardar contraseña plana.
+- `first_name: varchar(100)`.
+- `last_name: varchar(100)`.
+- `created_at`, `updated_at`, `deleted_at`.
+
 ### Patient
 - `id: UUID` — clave primaria.
-- `dni: varchar(32)` — único normalizado.
+- `dni: varchar(8)` — único; solo 7 u 8 dígitos; puntos y espacios se eliminan; letras se rechazan.
 - `first_name: varchar(100)` — requerido.
 - `last_name: varchar(100)` — requerido.
 - `email: varchar(255)` — requerido y validado.
@@ -35,7 +43,7 @@ OutboxMessage * ───── 1 Appointment (opcional)
 ### Appointment
 - `id: UUID` — clave primaria.
 - `patient_id: UUID` — FK a Patient.
-- `start_at: timestamp` — inicio UTC o local definido por el modelo.
+- `start_at: timestamp` — hora local de Argentina (UTC-3); sin horario de verano.
 - `duration_minutes: integer` — fijo 30 en v1.
 - `status: enum` — PENDING, CONFIRMED, CANCELLED, ABSENT, ATTENDED.
 - `created_by: enum` — PATIENT, DENTIST.
@@ -46,7 +54,7 @@ OutboxMessage * ───── 1 Appointment (opcional)
 - `id: UUID`.
 - `appointment_id: UUID` — FK única.
 - `token_hash: varchar(128)` — no guardar token plano.
-- `expires_at: timestamp`.
+- `expires_at: timestamp` — vence al inicio del turno o a los 7 días, lo que ocurra primero.
 - `used_at: timestamp nullable`.
 
 ### WaitingListEntry
@@ -76,7 +84,7 @@ OutboxMessage * ───── 1 Appointment (opcional)
 
 ## Seed data inicial
 
-- 1 usuario del odontólogo.
+- 1 odontólogo ficticio con email, nombre y contraseña BCrypt ficticia documentada solo para demo.
 - 5-10 pacientes ficticios.
 - Agenda con turnos ocupados y disponibles.
 - 2 turnos confirmados, 1 pendiente y 1 cancelado.
