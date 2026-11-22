@@ -46,7 +46,7 @@ turnos-odontologia/
 ## Seguridad
 
 - Autenticación: email y contraseña con contraseña hash BCrypt.
-- Sesión: expira a los 30 minutos de inactividad.
+- Sesión: expira a los 30 minutos de inactividad y vive en memoria del servidor.
 - Autorización: rutas administrativas autenticadas.
 - Tokens: al menos 128 bits de entropía (32 bytes en base64url), hash SHA-256 persistido, vigencia hasta el inicio del turno o 7 días. El token no se consume al confirmar; confirmar y cancelar son idempotentes y el estado del turno impide efectos duplicados.
 - Validación: Bean Validation en API y validación de dominio.
@@ -64,6 +64,7 @@ turnos-odontologia/
 | `SPRING_DATASOURCE_PASSWORD` | Contraseña DB | local-only | Sí |
 | `APP_ADMIN_EMAIL` | Email del odontólogo inicial | demo@odontologia.local | Sí |
 | `APP_ADMIN_PASSWORD` | Contraseña inicial ficticia (BCrypt) | demo-segura-123 | Sí |
+| `APP_ADMIN_SEED` | Ejecuta el seed del odontólogo ficticio solo si es `true` | true | No |
 | `APP_PUBLIC_URL` | URL local para links | http://localhost:8080 | No |
 | `APP_TOKEN_MAX_DAYS` | Límite máximo del token: 7 días | 7 | No |
 
