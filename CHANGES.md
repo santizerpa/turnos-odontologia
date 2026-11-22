@@ -116,7 +116,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 0 — Cimientos
 
 ### [C-01] `foundation-setup`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Scaffolding del monorepo y configuración base
   - Estructura: `backend/`, `frontend/`, `database/`, `knowledge-base/`
   - `backend/`: Spring Boot 3.x con Gradle Wrapper, toolchain Java 17, dependencias `web`, `data-jpa`, `validation`, `security`, `h2`, `postgresql`, `test`

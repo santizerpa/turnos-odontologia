@@ -1,0 +1,10 @@
+{
+  "name": "turnos-odontologia-frontend",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs'); fs.copyFileSync('index.html','dist/index.html'); fs.copyFileSync('admin.html','dist/admin.html')\""
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
