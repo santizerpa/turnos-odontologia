@@ -34,6 +34,7 @@
 - [x] 5.1 Ejecutar la suite completa con `./gradlew test` y verificar que todas las pruebas nuevas y previas pasan.
 - [x] 5.2 Ejecutar `./gradlew build` y verificar compilación, empaquetado y suite en verde.
 - [ ] 5.3 Verificar manualmente en perfil `local` con PostgreSQL y `APP_ADMIN_SEED=true`: login con las credenciales ficticias, `GET /api/auth/me` con la cookie, logout y posterior 401; registrar el resultado o el bloqueo por esquema faltante en la evidencia del change.
+  - Bloqueada: no hay PostgreSQL ni esquema (sin migraciones); no se modificó ddl-auto
 - [x] 5.4 Revisar el diff y verificar que no se modificó código de C-02 (`seed/`, `dentist/`, entidades y repositorios), ni `ddl-auto`, ni `CHANGES.md`, y que ninguna respuesta expone `password_hash`.
 
 ## 6. Documentación mínima (última tarea del change)
