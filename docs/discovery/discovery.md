@@ -92,7 +92,7 @@ Resumen; el detalle con URLs, precios, operación, seguridad y puntajes está en
 4. **Estados del turno:** `PENDIENTE` → `CONFIRMADO` | `CANCELADO` | `AUSENTE` | `ATENDIDO`. Las transiciones inválidas se rechazan. La cancelación es idempotente: la segunda pestaña muestra ya cancelado sin repetir efectos.
 5. **Horario:** hora de Argentina UTC-3, sin horario de verano.
 6. **Disponibilidad:** lunes a viernes, 9:00-13:00 y 14:00-19:00. Feriados no se automatizan; el odontólogo bloquea el día.
-5. **Token de confirmación:** único por turno, de un solo uso y con vencimiento. Un turno ya cancelado o pasado no puede confirmarse.
+5. **Token de confirmación/cancelación:** único por turno, con vencimiento al inicio del turno o a los 7 días; no se consume al confirmar y permite cancelar hasta 24hs antes. Confirmar y cancelar son idempotentes. Un turno ya cancelado o pasado no puede confirmarse.
 6. **Lista de espera:** orden FIFO. Al liberarse un turno, el sistema **avisa automáticamente** al primero de la lista.
 7. **Reserva online:** solo muestra horarios realmente libres, según la agenda y la duración fija.
 8. **Un turno pasado no se confirma ni se cancela** desde el link del paciente.

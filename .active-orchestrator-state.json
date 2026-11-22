@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "step": "kb",
+  "step": "roadmap",
   "owner": "active-orchestrator",
   "kb": {
     "created_by": "kb-creator",
@@ -25,6 +25,27 @@
       "knowledge-base/08_arquitectura_propuesta.md",
       "knowledge-base/09_decisiones_y_supuestos.md",
       "knowledge-base/10_preguntas_abiertas.md"
+    ]
+  },
+  "roadmap": {
+    "created_by": "roadmap-generator",
+    "source": "CHANGES.md",
+    "changes_file": "CHANGES.md",
+    "changes": [
+      "C-01",
+      "C-02",
+      "C-03",
+      "C-04",
+      "C-05",
+      "C-06",
+      "C-07",
+      "C-08",
+      "C-09",
+      "C-10",
+      "C-11",
+      "C-12",
+      "C-13",
+      "C-14"
     ]
   },
   "foundation": {
@@ -86,7 +107,11 @@
       },
       "roadmap": {
         "variant": "local-markdown",
-        "status": "pending",
+        "status": "done",
+        "started_at": "2026-11-21",
+        "completed_at": "2026-11-21",
+        "updated_at": "2026-11-22",
+        "notes": "Ajustes 2026-11-22: active_slot nullable unico, ScheduleBlock, dentist_id, token de 128 bits reutilizable, endpoints unificados con KB 02.",
         "requires": [
           "kb"
         ],

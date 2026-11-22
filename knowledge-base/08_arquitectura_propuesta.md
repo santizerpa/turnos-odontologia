@@ -8,9 +8,17 @@
 | Repository/JPA | Acceso a datos | Menos SQL repetido y buen testeo |
 | Service/Use case | Casos de reserva y confirmación | Reglas centralizadas |
 | State machine explícita | Estados de turno | Evita transiciones inválidas |
+| Servicio único de cancelación | `AppointmentService.cancel(...)` | Centraliza transición, `active_slot`, auditoría y evento |
+| Domain event + listener transaccional | `AppointmentCancelledEvent` → lista de espera | Desacopla C-11 sin modificar C-05 |
 | Outbox local | Mensajes simulados | Mantiene demo sin integración externa |
 | Optimistic locking | Turnos | Evita conflictos y overwrite |
-| Unique constraint | Slot activo | Defensa final contra doble reserva |
+| Unique constraint | `active_slot` nullable | Defensa final contra doble reserva, portable a H2 y PostgreSQL |
+
+## Eventos de dominio
+
+- `AppointmentCancelledEvent` — payload `appointmentId`, `startAt`, `actor`.
+- Se publica desde `AppointmentService.cancel(...)` solo si la transición a `CANCELLED` ocurrió.
+- La lista de espera lo consume con `@TransactionalEventListener(AFTER_COMMIT)` y `@Transactional(REQUIRES_NEW)`, en una transacción nueva y sin modificar las clases de C-05.
 
 ## Estructura de directorios
 
@@ -40,7 +48,7 @@ turnos-odontologia/
 - Autenticación: email y contraseña con contraseña hash BCrypt.
 - Sesión: expira a los 30 minutos de inactividad.
 - Autorización: rutas administrativas autenticadas.
-- Tokens: aleatorios, entre 5 y 10 numeros, hash persistido, vigencia y uso único.
+- Tokens: al menos 128 bits de entropía (32 bytes en base64url), hash SHA-256 persistido, vigencia hasta el inicio del turno o 7 días. El token no se consume al confirmar; confirmar y cancelar son idempotentes y el estado del turno impide efectos duplicados.
 - Validación: Bean Validation en API y validación de dominio.
 - SQL: JPA con parámetros, no concatenación manual.
 - Secretos: variables de entorno y perfil local.

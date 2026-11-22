@@ -4,7 +4,7 @@
 
 ### DD-01 — Aplicación web monolítica
 **Decisión:** backend Spring Boot REST + frontend TypeScript vanilla.
-**Contexto:** stack obligatorio y entrega en 4 días.
+**Contexto:** stack obligatorio y entrega en 3 días (22-24/11).
 **Alternativas:** React/Angular; microservicios; backend-only.
 **Justificación:** reduce setup y complejidad sin ocultar la API.
 **Trade-offs:** menos componente reutilizable, UI manual y menor ecosistema frontend.
@@ -36,11 +36,19 @@
 **Alternativas:** borrado físico, archive externo.
 **Trade-offs:** crecimient de datos y reglas de retención pendientes.
 
-### DD-06 — Token de confirmación
-**Decisión:** hash persistido, único y con vencimiento.
-**Contexto:** links públicos.
-**Alternativas:** JWT firmado o token opaco en table.
-**Trade-offs:** requiere limpieza/índice y no hay cifrado extremo.
+### DD-06 — Token de confirmación y cancelación
+**Decisión:** un único token opaco por turno, de al menos 128 bits (32 bytes en base64url), con hash SHA-256 persistido y vencimiento al inicio del turno o a los 7 días. No se consume al confirmar: confirmar y cancelar son idempotentes y el token sigue válido hasta su vencimiento.
+**Contexto:** links públicos de confirmación y cancelación enviados por la bandeja simulada.
+**Alternativas:** JWT firmado; dos tokens separados (confirmar/cancelar); token de un solo uso.
+**Justificación:** permite cancelar después de confirmar sin generar un segundo link, y el estado del turno evita efectos duplicados.
+**Trade-offs:** el link es reutilizable dentro de su ventana; se mitiga con vencimiento corto, token de alta entropía y validación de estado. No hay cifrado extremo ni revocación individual.
+
+### DD-07 — Punto único de cancelación y evento de dominio
+**Decisión:** toda cancelación pasa por `AppointmentService.cancel(appointmentId, actor, reason)`, que valida la transición (y la regla de 24hs si el actor es `PATIENT`), pone `CANCELLED`, deja `active_slot` en `NULL`, registra `AppointmentEvent` y publica `AppointmentCancelledEvent` solo si la transición ocurrió. La lista de espera escucha con `@TransactionalEventListener(AFTER_COMMIT)` y `@Transactional(REQUIRES_NEW)`.
+**Contexto:** cancelan el odontólogo desde el PATCH y el paciente desde el token; ambos deben aplicar las mismas reglas y no duplicar avisos.
+**Alternativas:** lógica duplicada en cada endpoint; llamada directa de C-09 a C-11; evento publicado siempre, incluso sin transición.
+**Justificación:** un solo lugar concentra la regla de negocio, la auditoría y el evento; el listener desacopla la lista de espera sin que C-11 modifique C-05.
+**Trade-offs:** el aviso es eventual: si el listener falla después del commit, la cancelación ya quedó firme y el aviso puede requerir reintento o registro. El evento solo se procesa si la cancelación corre dentro de una transacción; una segunda cancelación no publica nada.
 
 ## Supuestos inferidos
 

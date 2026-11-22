@@ -55,14 +55,14 @@ Después de cancelar, el paciente vuelve a consultar disponibilidad y crea otro 
 El sistema genera un mensaje y un link seguro con token.
 
 ### US-031 — Confirmar por link
-El paciente abre el link y cambia PENDING/CONFIRMED según reglas.
+El paciente abre la página del link y confirma con un `POST`; el estado pasa `PENDING → CONFIRMED`. Si ya estaba `CONFIRMED`, responde "ya confirmado" sin repetir efectos. El token no se consume y sigue válido para cancelar hasta su vencimiento.
 
 ### US-032 — Cancelar desde el link
 **Como** paciente
 **Quiero** cancelar el turno desde el mail simulado
 **Para** liberar el horario sin crear cuenta
 
-**Criterios:** el estado pasa PENDING→CANCELLED, se conserva el historial y se dispara la lista de espera una sola vez.
+**Criterios:** el estado pasa `PENDING → CANCELLED` o `CONFIRMED → CANCELLED` hasta 24hs antes; se conserva el historial y se dispara la lista de espera una sola vez. Si ya estaba `CANCELLED`, responde "ya cancelado" sin repetir efectos. Con menos de 24hs se rechaza y se deriva al odontólogo.
 
 ### US-033 — Visualizar bandeja
 El odontólogo ve los mensajes simulados y puede abrir el link público de prueba.

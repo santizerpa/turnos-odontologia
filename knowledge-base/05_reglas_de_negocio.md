@@ -18,17 +18,18 @@
 
 ## Dominio: Cancelación (RN-CA)
 
-- **RN-CA-01:** el paciente puede cancelar hasta 24hs antes.
-- **RN-CA-02:** una solicitud posterior a 24hs queda como ABSENT o requiere decisión del odontólogo según el estado actual.
-- **RN-CA-03:** cancelar libera el horario y dispara el proceso de lista de espera una sola vez; una segunda cancelación devuelve ya cancelado sin repetir efectos.
+- **RN-CA-01:** el paciente puede cancelar hasta 24hs antes del inicio, incluso si el turno ya está `CONFIRMED`.
+- **RN-CA-02:** una solicitud con menos de 24hs se rechaza en el canal público y se deriva al odontólogo; el odontólogo decide y puede marcar `ABSENT`.
+- **RN-CA-03:** cancelar libera el horario y dispara el proceso de lista de espera una sola vez; una segunda cancelación devuelve "ya cancelado" sin repetir efectos.
 - **RN-CA-04:** cancelar no elimina el turno ni el historial.
 
 ## Dominio: Confirmación (RN-CF)
 
-- **RN-CF-01:** el token es único por turno y solo se acepta una vez.
+- **RN-CF-01:** el token es único por turno y no se consume al confirmar; confirmar y cancelar son idempotentes.
 - **RN-CF-02:** el token vence al inicio del turno o a los 7 días, lo que ocurra primero, y no funciona en turnos pasados.
-- **RN-CF-03:** confirmar/cancelar en simultáneo aplica el primer cambio válido; si la segunda operación llega al turno ya CANCELLED, responde ya cancelado sin repetir efectos.
-- **RN-CF-04:** el recordatorio simulado queda visible en la bandeja de salida.
+- **RN-CF-03:** confirmar y cancelar aplican el primer cambio válido; si la operación llega a un turno ya `CONFIRMED` responde "ya confirmado" y si llega a `CANCELLED` responde "ya cancelado", sin repetir efectos ni avisos.
+- **RN-CF-04:** un turno `CANCELLED` no se puede confirmar.
+- **RN-CF-05:** el recordatorio simulado queda visible en la bandeja de salida.
 
 ## Dominio: Lista de espera (RN-LE)
 
@@ -41,7 +42,7 @@
 
 - **RN-DA-01:** borrado físico no se usa para turnos ni pacientes en v1.
 - **RN-DA-02:** los datos seed son ficticios y no representan pacientes reales.
-- **RN-DA-03:** el token nunca se guarda como texto plano.
+- **RN-DA-03:** el token se genera con al menos 128 bits de entropía y nunca se guarda como texto plano; se persiste su hash SHA-256.
 
 ## Excepciones globales
 

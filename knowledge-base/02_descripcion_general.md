@@ -50,13 +50,17 @@ Se propone una arquitectura modular en Spring Boot. La prioridad es entregar rá
 
 ## API REST
 
-- `POST /api/auth/login`, `POST /api/auth/logout`
-- `GET/PATCH /api/schedule`
+- `GET /api/health`
+- `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- `GET/PATCH /api/schedule` — configuración de horario
+- `GET /api/schedule/availability?from=...&to=...`
+- `POST/DELETE /api/schedule/blocks` — bloqueos manuales
 - `GET/POST/PATCH /api/appointments`
+- `PATCH /api/appointments/{id}/status`
 - `GET/POST/PATCH /api/patients`
 - `GET /api/public/slots?date=...`
 - `POST /api/public/appointments`
-- `POST /api/public/appointments/{token}/confirm`
-- `POST /api/public/appointments/{token}/cancel`
+- `GET/POST /api/public/appointments/{token}/confirm` — GET muestra la página, POST confirma
+- `GET/POST /api/public/appointments/{token}/cancel` — GET muestra la página, POST cancela
 - `GET/POST /api/waiting-list`
 - `GET /api/outbox/messages`

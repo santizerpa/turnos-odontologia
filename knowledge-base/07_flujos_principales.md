@@ -20,7 +20,7 @@
 3. Carga nombre, apellido, DNI y email.
 4. API reutiliza o crea Patient por DNI.
 5. Crea Appointment en PENDING dentro de transacción.
-6. Crea AppointmentToken con vencimiento.
+6. Crea AppointmentToken de al menos 128 bits con vencimiento y persiste solo su hash.
 7. Guarda OutboxMessage simulado.
 8. Si la franja estaba tomada, devuelve 409 y no crea entidades.
 
@@ -33,30 +33,38 @@ Paciente → Página pública → API REST → Servicio de turno → JPA → Pos
                                   ← estado actualizado / error
 ```
 
-1. API obtiene el hash del token y valida vigencia, uso y turno.
-2. Confirma o cancela según estado y fecha.
-3. Genera AppointmentEvent.
-4. Si cancela, libera el slot y despacha la cola FIFO.
-5. Devuelve una página con el estado final.
+1. API obtiene el hash del token y valida vigencia, turno y estado; el token no se consume al confirmar.
+2. El `GET` solo muestra la página con el estado y las acciones disponibles; el cambio de estado requiere `POST`.
+3. Confirma o cancela según estado y fecha. Confirmar es idempotente; cancelar se permite hasta 24hs antes y es idempotente.
+4. Toda cancelación invoca `AppointmentService.cancel(appointmentId, actor, reason)`, que valida la transición y la regla de 24hs si el actor es `PATIENT`.
+5. El servicio pone `CANCELLED`, deja `active_slot` en `NULL`, registra `AppointmentEvent` y publica `AppointmentCancelledEvent` solo si la transición ocurrió.
+6. Si ya estaba `CANCELLED`, responde "ya cancelado" sin publicar el evento.
+7. Si la cancelación llega con menos de 24hs, responde fuera de plazo y no cambia el estado.
+8. La lista de espera se notifica por el listener de `AppointmentCancelledEvent` (Flujo 4).
+9. Devuelve una página con el estado final.
 
 ## Flujo 4: Lista de espera
 
-**Disparador:** se cancela o libera un turno.
+**Disparador:** `AppointmentCancelledEvent` publicado por `AppointmentService.cancel(...)`.
 
-1. El sistema busca entradas WAITING elegibles.
-2. Toma la primera entrada por `created_at`.
-3. Cambia estado a NOTIFIED.
-4. Persiste OutboxMessage dirigido al paciente.
-5. No asigna ni confirma el turno automáticamente.
+1. El listener `@TransactionalEventListener(AFTER_COMMIT)` corre en una transacción nueva (`REQUIRES_NEW`).
+2. Busca entradas WAITING elegibles.
+3. Toma la primera por `created_at`.
+4. Cambia estado a NOTIFIED.
+5. Persiste OutboxMessage dirigido al paciente.
+6. No asigna ni confirma el turno automáticamente.
+7. No modifica clases de C-05; solo consume el evento.
+
+> Si el listener falla después del commit, la cancelación ya quedó firme. El aviso puede requerir reintento o registro para no perderlo.
 
 ## Flujo 5: Cancelación manual del odontólogo
 
 **Disparador:** el odontólogo cancela desde la agenda.
 
 1. Valida autenticación y turno.
-2. Cambia estado a CANCELLED y conserva registro.
-3. Genera evento con actor ODONTOLOGO.
-4. Libera la franja y ejecuta la lista de espera.
+2. Invoca `AppointmentService.cancel(appointmentId, DENTIST, reason)`; no cambia el estado directamente.
+3. El servicio pone `CANCELLED`, deja `active_slot` en `NULL`, registra `AppointmentEvent` y publica `AppointmentCancelledEvent`.
+4. El listener de C-11 notifica a la lista de espera.
 
 ## Casos de error
 

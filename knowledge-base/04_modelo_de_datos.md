@@ -13,14 +13,15 @@
 
 ```text
 Dentist 1 ─────────── * Appointment
+Dentist 1 ─────────── * ScheduleBlock
 Patient 1 ─────────── * Appointment
 Appointment 1 ─────── 1 AppointmentToken
 Appointment 1 ─────── * AppointmentEvent
-AppointmentSlot 1 ─── 1 Appointment (opcional)
 Patient 1 ─────────── * WaitingListEntry
-WaitingListEntry * ─── 1 AppointmentSlotRelease
 OutboxMessage * ───── 1 Appointment (opcional)
 ```
+
+Los slots no se persisten: se calculan a partir de la configuración de horario, los `ScheduleBlock` y los turnos activos.
 
 ## Entidades
 
@@ -42,20 +43,22 @@ OutboxMessage * ───── 1 Appointment (opcional)
 
 ### Appointment
 - `id: UUID` — clave primaria.
+- `dentist_id: UUID` — FK a Dentist.
 - `patient_id: UUID` — FK a Patient.
 - `start_at: timestamp` — hora local de Argentina (UTC-3); sin horario de verano.
 - `duration_minutes: integer` — fijo 30 en v1.
 - `status: enum` — PENDING, CONFIRMED, CANCELLED, ABSENT, ATTENDED.
 - `created_by: enum` — PATIENT, DENTIST.
+- `active_slot: timestamp nullable` — igual a `start_at` mientras el estado no sea `CANCELLED`; se pone en `NULL` al cancelar. Tiene constraint único y los `NULL` no chocan. Lo mantiene el servicio al crear y al cancelar; nunca se carga a mano.
 - `cancelled_at`, `version`, `created_at`, `updated_at`, `deleted_at`.
-- Constraint único sobre franja activa; el diseño debe impedir dobles turnos.
 
 ### AppointmentToken
 - `id: UUID`.
 - `appointment_id: UUID` — FK única.
-- `token_hash: varchar(128)` — no guardar token plano.
+- `token_hash: varchar(128)` — SHA-256 del token; nunca guardar el token plano.
 - `expires_at: timestamp` — vence al inicio del turno o a los 7 días, lo que ocurra primero.
-- `used_at: timestamp nullable`.
+- `created_at`.
+- El token se genera con al menos 128 bits de entropía (32 bytes en base64url). No se consume al confirmar: confirmar y cancelar son idempotentes y el token sigue válido hasta su vencimiento.
 
 ### WaitingListEntry
 - `id: UUID`.
@@ -64,6 +67,15 @@ OutboxMessage * ───── 1 Appointment (opcional)
 - `position: integer` o orden por `created_at`.
 - `status: enum` — WAITING, NOTIFIED, EXPIRED, CONSUMED.
 - `deleted_at`.
+
+### ScheduleBlock
+- `id: UUID`.
+- `dentist_id: UUID` — FK a Dentist.
+- `start_at: timestamp`.
+- `end_at: timestamp`.
+- `reason: varchar(255)` nullable.
+- `created_at`, `updated_at`, `deleted_at`.
+- Bloquea total o parcialmente un día; el cálculo de slots lo excluye.
 
 ### OutboxMessage
 - `id: UUID`.
@@ -89,4 +101,5 @@ OutboxMessage * ───── 1 Appointment (opcional)
 - Agenda con turnos ocupados y disponibles.
 - 2 turnos confirmados, 1 pendiente y 1 cancelado.
 - 3 entradas simples en lista de espera.
+- 1 bloqueo de agenda de ejemplo.
 - Mensajes existentes en outbox para revisar la demo.

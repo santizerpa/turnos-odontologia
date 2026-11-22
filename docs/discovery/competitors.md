@@ -241,7 +241,7 @@ Referencia complementaria: **Doctoralia** para la ficha pública del profesional
 3. **Alta mínima de pacientes desde la reserva**: nombre, apellido, DNI de 7-8 dígitos y email válido.
 4. **Reserva online pública**: el paciente elige fecha y hora entre huecos libres, sin cuenta ni carga manual del odontólogo.
 5. **Correo simulado**: bandeja de salida local con recordatorio y link único de confirmación/cancelación.
-6. **Estados y respuesta del paciente**: pendiente, confirmado, cancelado, ausente y atendido; el link usa token único, vence al inicio del turno o a los 7 días y es de un solo uso.
+6. **Estados y respuesta del paciente**: pendiente, confirmado, cancelado, ausente y atendido; el link usa un token único, vence al inicio del turno o a los 7 días, no se consume al confirmar y permite cancelar hasta 24hs antes.
 7. **Lista de espera FIFO** con aviso automático al liberar un turno.
 8. **Datos seed simples** y demo local reproducible; solo datos ficticios.
 9. **Pruebas JUnit con H2 en memoria** en modo PostgreSQL; PostgreSQL solo para ejecutar la aplicación.
