@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "step": "roadmap",
+  "step": "registry",
   "owner": "active-orchestrator",
   "kb": {
     "created_by": "kb-creator",
@@ -111,7 +111,8 @@
         "started_at": "2026-11-21",
         "completed_at": "2026-11-21",
         "updated_at": "2026-11-22",
-        "notes": "Ajustes 2026-11-22: active_slot nullable unico, ScheduleBlock, dentist_id, token de 128 bits reutilizable, endpoints unificados con KB 02.",
+        "gate_decision": "continue",
+        "notes": "Ajustes 2026-11-22: active_slot nullable unico, ScheduleBlock, dentist_id, token de 128 bits reutilizable, endpoints unificados con KB 02, punto unico de cancelacion con AppointmentCancelledEvent, plan de 5 personas.",
         "requires": [
           "kb"
         ],
@@ -121,21 +122,36 @@
       },
       "find-skill": {
         "variant": "recommend",
-        "status": "pending",
+        "status": "done",
+        "started_at": "2026-11-22",
+        "completed_at": "2026-11-22",
+        "gate_decision": "continue",
         "requires": [
           "kb"
         ],
-        "outputs": []
+        "outputs": [
+          ".agents/skills/java-springboot",
+          ".agents/skills/springboot-patterns",
+          ".agents/skills/java-junit",
+          ".agents/skills/springboot-tdd",
+          ".agents/skills/postgresql-table-design",
+          ".agents/skills/springboot-security",
+          ".agents/skills/spring-boot-test-patterns"
+        ],
+        "notes": "7 skills instaladas a nivel proyecto con npx skills add --copy --json. Seguridad: Gen Safe, Socket 0 alerts, Snyk Low Risk. npx via cmd /c por ExecutionPolicy."
       },
       "registry": {
         "variant": "index",
-        "status": "pending",
+        "status": "done",
+        "started_at": "2026-11-22",
+        "completed_at": "2026-11-22",
         "requires": [
           "find-skill"
         ],
         "outputs": [
           ".atl/skill-registry.md"
-        ]
+        ],
+        "notes": "7 compact rules de codigo + inventario de 16 skills de workflow. Engram no disponible en esta sesion."
       },
       "agents": {
         "variant": "generate",

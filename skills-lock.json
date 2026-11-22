@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "skills": {
+    "java-junit": {
+      "source": "github/awesome-copilot",
+      "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c",
+      "sourceType": "github",
+      "skillPath": "skills/java-junit/SKILL.md",
+      "computedHash": "53d2be39e3fe25b0d3b5f2aa5fee78689b8e1c63d31bb96150190d31429b60fd",
+      "installMode": "copy"
+    },
+    "java-springboot": {
+      "source": "github/awesome-copilot",
+      "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c",
+      "sourceType": "github",
+      "skillPath": "skills/java-springboot/SKILL.md",
+      "computedHash": "7a3a5343773c126e788966041eca919180e3347f01b66d5dea8dd9923cafd897",
+      "installMode": "copy"
+    },
+    "postgresql-table-design": {
+      "source": "wshobson/agents",
+      "commit": "91ff75307f5668916f3eb77d5ba556266c961376",
+      "sourceType": "github",
+      "skillPath": "plugins/database-design/skills/postgresql-table-design/SKILL.md",
+      "computedHash": "c2d9f4b5037b4320be0cc2489eeb287d3147477ae1f48b33f5f897e2c562ed06",
+      "installMode": "copy"
+    },
+    "spring-boot-test-patterns": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "commit": "fe73fb33a09ee6562eeec7415a3f9a3bcf795177",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-java/skills/spring-boot-test-patterns/SKILL.md",
+      "computedHash": "93c6cf3abe679f6f6e92f3423cbe0f03fc51577226515a51964223fb524e430a",
+      "installMode": "copy"
+    },
+    "springboot-patterns": {
+      "source": "affaan-m/ECC",
+      "commit": "4adeee6732a12d1540f49a4d50a38ce8c97f9a53",
+      "sourceType": "github",
+      "skillPath": "skills/springboot-patterns/SKILL.md",
+      "computedHash": "127fd377709341153eef207148c51b23be20aed7626bd952aa6122988308d0a2",
+      "installMode": "copy"
+    },
+    "springboot-security": {
+      "source": "affaan-m/ECC",
+      "commit": "4adeee6732a12d1540f49a4d50a38ce8c97f9a53",
+      "sourceType": "github",
+      "skillPath": "skills/springboot-security/SKILL.md",
+      "computedHash": "0d3a005019c4fb8512303a71b30850765f59e03b4a495181aaf6e4477287444c",
+      "installMode": "copy"
+    },
+    "springboot-tdd": {
+      "source": "affaan-m/ECC",
+      "commit": "4adeee6732a12d1540f49a4d50a38ce8c97f9a53",
+      "sourceType": "github",
+      "skillPath": "skills/springboot-tdd/SKILL.md",
+      "computedHash": "c47807a038ed9761fb007629d5f60b563c5b61edf76b7cb57107326c9353bf73",
+      "installMode": "copy"
+    }
+  }
+}
