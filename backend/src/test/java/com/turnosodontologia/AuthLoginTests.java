@@ -10,9 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,20 +55,30 @@ class AuthLoginTests {
         String email = AuthFixtures.uniqueEmail("login.wrong");
         AuthFixtures.createActive(dentists, passwordEncoder, email, "demo-ficticia-123");
 
-        mockMvc.perform(post("/api/auth/login")
+        MvcResult wrongPasswordResult = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"" + email + "\",\"password\":\"otra-clave\"}"))
             .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.error").value("Credenciales inválidas"));
+            .andExpect(jsonPath("$.error").value("Credenciales inválidas"))
+            .andExpect(cookie().doesNotExist("JSESSIONID"))
+            .andReturn();
+
+        assertThat(wrongPasswordResult.getRequest().getSession(false)).isNull();
+        assertThat(wrongPasswordResult.getResponse().getHeader("Set-Cookie")).isNull();
     }
 
     @Test
     void loginWithUnknownEmailReturnsTheSameGenericMessage() throws Exception {
-        mockMvc.perform(post("/api/auth/login")
+        MvcResult unknownEmailResult = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"nadie@odontologia.invalid\",\"password\":\"demo-ficticia-123\"}"))
             .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.error").value("Credenciales inválidas"));
+            .andExpect(jsonPath("$.error").value("Credenciales inválidas"))
+            .andExpect(cookie().doesNotExist("JSESSIONID"))
+            .andReturn();
+
+        assertThat(unknownEmailResult.getRequest().getSession(false)).isNull();
+        assertThat(unknownEmailResult.getResponse().getHeader("Set-Cookie")).isNull();
     }
 
     @Test

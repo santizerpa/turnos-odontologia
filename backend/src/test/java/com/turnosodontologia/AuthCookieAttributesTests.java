@@ -49,9 +49,33 @@ class AuthCookieAttributesTests {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.headers().allValues("Set-Cookie"))
-            .anyMatch(cookie -> cookie.contains("JSESSIONID=")
-                && cookie.contains("HttpOnly")
-                && cookie.matches("(?i).*samesite=lax.*"));
+        String setCookie = response.headers().allValues("Set-Cookie").stream()
+            .filter(cookie -> cookie.startsWith("JSESSIONID="))
+            .findFirst()
+            .orElseThrow();
+
+        assertThat(setCookie)
+            .contains("HttpOnly")
+            .matches("(?i).*samesite=lax.*");
+
+        String jsessionId = setCookie.substring("JSESSIONID=".length(), setCookie.indexOf(';'));
+
+        HttpRequest logoutRequest = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:" + port + "/api/auth/logout"))
+            .header("Cookie", "JSESSIONID=" + jsessionId)
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
+
+        HttpResponse<String> logoutResponse = client.send(logoutRequest, HttpResponse.BodyHandlers.ofString());
+        assertThat(logoutResponse.statusCode()).isEqualTo(204);
+
+        HttpRequest meRequest = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:" + port + "/api/auth/me"))
+            .header("Cookie", "JSESSIONID=" + jsessionId)
+            .GET()
+            .build();
+
+        HttpResponse<String> meResponse = client.send(meRequest, HttpResponse.BodyHandlers.ofString());
+        assertThat(meResponse.statusCode()).isEqualTo(401);
     }
 }

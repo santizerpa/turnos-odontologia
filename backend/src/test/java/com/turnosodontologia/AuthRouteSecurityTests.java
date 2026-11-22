@@ -9,8 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -66,8 +69,13 @@ class AuthRouteSecurityTests {
             .andExpect(status().isOk())
             .andReturn();
 
-        mockMvc.perform(post("/api/auth/logout")
-                .session((org.springframework.mock.web.MockHttpSession) login.getRequest().getSession(false)))
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
+
+        mockMvc.perform(post("/api/auth/logout").session(session))
             .andExpect(status().isNoContent());
+
+        assertThat(session.isInvalid()).isTrue();
+        mockMvc.perform(get("/api/auth/me").session(session))
+            .andExpect(status().isUnauthorized());
     }
 }

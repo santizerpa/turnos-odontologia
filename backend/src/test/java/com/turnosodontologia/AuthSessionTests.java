@@ -46,6 +46,11 @@ class AuthSessionTests {
             .andExpect(jsonPath("$.lastName").value("Odontologo"))
             .andExpect(jsonPath("$.passwordHash").doesNotExist())
             .andExpect(jsonPath("$.password_hash").doesNotExist());
+
+        mockMvc.perform(get("/api/auth/me").session(session))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value(email))
+            .andExpect(jsonPath("$.password_hash").doesNotExist());
     }
 
     @Test
