@@ -91,6 +91,7 @@ Spring Boot no lee el archivo `.env` por sí solo. Copiá `.env.example` como re
 | `SPRING_DATASOURCE_PASSWORD` | Contraseña de la base | `local-only` |
 | `APP_ADMIN_EMAIL` | Email del odontólogo inicial | `demo@odontologia.local` |
 | `APP_ADMIN_PASSWORD` | Contraseña inicial (ficticia, solo demo) | `demo-segura-123` |
+| `APP_ADMIN_SEED` | Ejecuta el seed del odontólogo ficticio solo si es `true` | `true` |
 | `APP_PUBLIC_URL` | URL base para los links de la bandeja | `http://localhost:8080` |
 | `APP_TOKEN_MAX_DAYS` | Vigencia máxima del token, en días | `7` |
 
