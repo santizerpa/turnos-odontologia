@@ -2,22 +2,22 @@
 
 ## 1. Preparación y red de seguridad
 
-- [ ] 1.1 Ejecutar `./gradlew test` en `backend/` antes de tocar código y registrar la línea base de pruebas verdes de C-01/C-02; verificar que la suite termina en `BUILD SUCCESSFUL` sin fallos previos.
+- [x] 1.1 Ejecutar `./gradlew test` en `backend/` antes de tocar código y registrar la línea base de pruebas verdes de C-01/C-02; verificar que la suite termina en `BUILD SUCCESSFUL` sin fallos previos.
 - [ ] 1.2 Crear un soporte de pruebas de autenticación que persista un `Dentist` ficticio con contraseña BCrypt usando el `PasswordEncoder` del contexto y un `MockMvc` con perfil `test`; verificar que compila y que el contexto de prueba carga sin depender de `APP_ADMIN_*`.
 
 ## 2. Login del odontólogo
 
-- [ ] 2.1 Escribir primero las pruebas de `POST /api/auth/login`: login correcto (200 con id, email, nombre y apellido), contraseña incorrecta (401 con mensaje genérico) y email inexistente (401 con el mismo mensaje); verificar que quedan rojas.
-- [ ] 2.2 Implementar el `PasswordEncoder` BCrypt de `auth/`, el `DentistUserDetailsService` sobre `DentistRepository`, el principal de sesión, el `AuthenticationManager` y el controlador de login; verificar que 2.1 pasa y que la respuesta no contiene `password_hash`.
-- [ ] 2.3 Escribir primero las pruebas de identidad dada de baja y hash inválido: `Dentist` con `deleted_at` informado responde 401 genérico y conserva su `deleted_at`, y un `password_hash` en texto plano no autentica; verificar que quedan rojas.
-- [ ] 2.4 Implementar el rechazo de `deleted_at` y la normalización de email de entrada (trim + lowercase) sin modificar entidades ni repositorios de C-02; verificar que 2.3 pasa.
-- [ ] 2.5 Triangular con un caso adicional: email ingresado con mayúsculas y espacios y contraseña correcta; verificar 200 y que el `Dentist` persistido no se modifica.
+- [x] 2.1 Escribir primero las pruebas de `POST /api/auth/login`: login correcto (200 con id, email, nombre y apellido), contraseña incorrecta (401 con mensaje genérico) y email inexistente (401 con el mismo mensaje); verificar que quedan rojas.
+- [x] 2.2 Implementar el `PasswordEncoder` BCrypt de `auth/`, el `DentistUserDetailsService` sobre `DentistRepository`, el principal de sesión, el `AuthenticationManager` y el controlador de login; verificar que 2.1 pasa y que la respuesta no contiene `password_hash`.
+- [x] 2.3 Escribir primero las pruebas de identidad dada de baja y hash inválido: `Dentist` con `deleted_at` informado responde 401 genérico y conserva su `deleted_at`, y un `password_hash` en texto plano no autentica; verificar que quedan rojas.
+- [x] 2.4 Implementar el rechazo de `deleted_at` y la normalización de email de entrada (trim + lowercase) sin modificar entidades ni repositorios de C-02; verificar que 2.3 pasa.
+- [x] 2.5 Triangular con un caso adicional: email ingresado con mayúsculas y espacios y contraseña correcta; verificar 200 y que el `Dentist` persistido no se modifica.
 
 ## 3. Sesión: consulta, cierre y expiración
 
-- [ ] 3.1 Escribir primero las pruebas de `GET /api/auth/me` con sesión (200 con perfil, sin `password_hash`) y de `POST /api/auth/logout` (sesión invalidada y `me` posterior responde 401); verificar que quedan rojas.
-- [ ] 3.2 Implementar `me` y `logout` guardando el contexto con `HttpSessionSecurityContextRepository.saveContext(...)` y limpiando la sesión al cerrar; verificar que 3.1 pasa.
-- [ ] 3.3 Escribir primero las pruebas deterministas de expiración con `MockMvc`: la configuración resuelve `server.servlet.session.timeout` en `30m`, y una sesión que dejó de ser válida (después de logout o con un `JSESSIONID` que no corresponde a ninguna sesión viva) responde 401 en `/api/auth/me`. No se simula el paso de 30 minutos ni se usa `Thread.sleep`; verificar que quedan rojas.
+- [x] 3.1 Escribir primero las pruebas de `GET /api/auth/me` con sesión (200 con perfil, sin `password_hash`) y de `POST /api/auth/logout` (sesión invalidada y `me` posterior responde 401); verificar que quedan rojas.
+- [x] 3.2 Implementar `me` y `logout` guardando el contexto con `HttpSessionSecurityContextRepository.saveContext(...)` y limpiando la sesión al cerrar; verificar que 3.1 pasa.
+- [x] 3.3 Escribir primero las pruebas deterministas de expiración con `MockMvc`: la configuración resuelve `server.servlet.session.timeout` en `30m`, y una sesión que dejó de ser válida (después de logout o con un `JSESSIONID` que no corresponde a ninguna sesión viva) responde 401 en `/api/auth/me`. No se simula el paso de 30 minutos ni se usa `Thread.sleep`; verificar que quedan rojas.
 - [ ] 3.4 Configurar `server.servlet.session.timeout=30m` y verificar que 3.3 pasa.
 - [ ] 3.5 Escribir primero la prueba de atributos reales de la cookie con `@SpringBootTest(webEnvironment = RANDOM_PORT)`: login contra el servidor embebido y lectura de la cabecera `Set-Cookie` real, exigiendo `HttpOnly` y `SameSite=Lax`. `MockMvc` no emite esa cabecera, por eso este escenario necesita puerto aleatorio; verificar que queda roja.
 - [ ] 3.6 Configurar `server.servlet.session.cookie.http-only=true` y `same-site=lax` hasta que 3.5 pase; verificar que 3.3 y 3.5 quedan verdes y que no se agregó ninguna espera por reloj.
