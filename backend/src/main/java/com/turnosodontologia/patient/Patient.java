@@ -35,6 +35,13 @@ public class Patient extends AuditableEntity {
         this.email = normalizeEmail(email);
     }
 
+    public void updateProfile(String firstName, String lastName, String email) {
+        String normalizedEmail = normalizeEmail(email);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = normalizedEmail;
+    }
+
     public static String normalizeDni(String dni) {
         if (dni == null) throw new IllegalArgumentException("DNI requerido");
         String normalized = dni.replace(".", "").replace(" ", "");

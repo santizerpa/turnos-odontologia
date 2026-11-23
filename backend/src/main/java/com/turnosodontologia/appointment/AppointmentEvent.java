@@ -40,5 +40,15 @@ public class AppointmentEvent {
         this.createdAt = Instant.now();
     }
 
+    public AppointmentEvent(Appointment appointment, AppointmentStatus fromStatus, AppointmentStatus toStatus,
+                            Actor actor, String reason, Instant createdAt) {
+        this.appointment = appointment;
+        this.fromStatus = fromStatus;
+        this.toStatus = toStatus;
+        this.actor = actor;
+        this.reason = reason;
+        this.createdAt = createdAt;
+    }
+
     @PrePersist void auditCreate() { if (createdAt == null) createdAt = Instant.now(); }
 }
