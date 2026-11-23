@@ -2,9 +2,9 @@
 
 ## 1. Emisión y persistencia de token (TDD)
 
-- [ ] 1.1 Test rojo y mínimo verde: probar `AppointmentTokenService.issue(Appointment)` y persistir solo el hash. Añadir el test que verifica generación opaca de 32 bytes en base64url sin relleno, SHA-256 hexadecimal de 64 caracteres, persistencia de `AppointmentToken` y devolución única del token plano sin persistirlo. Añadir un caso donde el turno ya tenga token y comprobar que se reemplazan el hash y `expiresAt` en el mismo registro, sin crear otro; verificar que el token anterior deja de resolver y el nuevo devuelve el plano una vez. Implementar `issue(Appointment)` como propietario C-09.
-- [ ] 1.2 Test rojo y mínimo verde: probar el vencimiento emitido con turnos que comienzan antes y después de siete días desde `now`. Implementar `expiresAt = min(startAt, now + 7 días)` para ambos casos.
-- [ ] 1.3 Test rojo y mínimo verde: probar `AppointmentTokenRepository.findByTokenHash(String tokenHash)` y la búsqueda del turno asociado desde el hash SHA-256 del valor plano. Implementar la consulta y mantener el hash único si la restricción aún no existe.
+- [x] 1.1 Test rojo y mínimo verde: probar `AppointmentTokenService.issue(Appointment)` y persistir solo el hash. Añadir el test que verifica generación opaca de 32 bytes en base64url sin relleno, SHA-256 hexadecimal de 64 caracteres, persistencia de `AppointmentToken` y devolución única del token plano sin persistirlo. Añadir un caso donde el turno ya tenga token y comprobar que se reemplazan el hash y `expiresAt` en el mismo registro, sin crear otro; verificar que el token anterior deja de resolver y el nuevo devuelve el plano una vez. Implementar `issue(Appointment)` como propietario C-09.
+- [x] 1.2 Test rojo y mínimo verde: probar el vencimiento emitido con turnos que comienzan antes y después de siete días desde `now`. Implementar `expiresAt = min(startAt, now + 7 días)` para ambos casos.
+- [x] 1.3 Test rojo y mínimo verde: probar `AppointmentTokenRepository.findByTokenHash(String tokenHash)` y la búsqueda del turno asociado desde el hash SHA-256 del valor plano. Implementar la consulta y mantener el hash único si la restricción aún no existe.
 
 ## 2. Validación de token y precedencia (TDD)
 

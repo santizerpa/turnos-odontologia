@@ -51,4 +51,10 @@ public class AppointmentToken {
     public String getTokenHash() { return tokenHash; }
     public Instant getExpiresAt() { return expiresAt; }
     public Instant getCreatedAt() { return createdAt; }
+
+    public void replaceOpaqueTokenHashAndExpiry(String opaqueTokenHash, Instant expiresAt) {
+        if (opaqueTokenHash == null || expiresAt == null) throw new IllegalArgumentException("Token requerido");
+        this.tokenHash = opaqueTokenHash;
+        this.expiresAt = expiresAt;
+    }
 }
