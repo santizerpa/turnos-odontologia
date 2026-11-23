@@ -11,12 +11,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,6 +90,39 @@ class AppointmentTokenEndToEndTest {
     }
 
     @Test
+    void repeatedCancelledTokenWithinTwentyFourHoursReturnsAlreadyCancelledWithoutNewEvents() throws Exception {
+        Dentist dentist = dentists.save(new Dentist("e2e.cancelled@odontologia.invalid", "hash-ficticio", "Ana", "Ficticia"));
+        Patient patient = patients.save(new Patient("77654323", "Paciente", "Cancelado", "cancelled.endtoend@odontologia.invalid"));
+
+        Appointment appointment = appointmentService.create(
+            dentist.getId(), patient.getId(), NOW.plusSeconds(12 * 60 * 60), CreatedBy.DENTIST);
+        String cancelToken = tokenService.issue(appointment);
+
+        CancelAppointmentResult dentistResult = appointmentService.cancel(
+            appointment.getId(), Actor.DENTIST, "Cancelación ficticia del consultorio fuera de plazo");
+
+        Appointment cancelled = appointments.findById(appointment.getId()).orElseThrow();
+        assertThat(dentistResult.cancelled()).isTrue();
+        assertThat(cancelled.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
+        assertThat(cancelledEvents.countFor(cancelled.getId())).isEqualTo(1);
+
+        int baselineEventCount = (int) appointmentEvents.findAll().stream()
+            .filter(event -> event.getAppointment().getId().equals(cancelled.getId()))
+            .count();
+
+        mockMvc.perform(post("/api/public/appointments/{token}/cancel", cancelToken).with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("ya cancelado"));
+
+        Appointment afterRepeatedCancel = appointments.findById(appointment.getId()).orElseThrow();
+        assertThat(afterRepeatedCancel.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
+        assertThat(cancelledEvents.countFor(cancelled.getId())).isEqualTo(1);
+        assertThat(appointmentEvents.findAll().stream()
+            .filter(event -> event.getAppointment().getId().equals(cancelled.getId()))
+            .count()).isEqualTo(baselineEventCount);
+    }
+
+    @Test
     void getConfirmAndCancelAreInformativeAndDoNotMutateStatusEventsOrServices() throws Exception {
         Dentist dentist = dentists.save(new Dentist("e2e.get@odontologia.invalid", "hash-ficticio", "Ana", "Demo"));
         Patient patient = patients.save(new Patient("77654322", "Paciente", "Informativo", "get.endtoend@odontologia.invalid"));
@@ -117,6 +153,12 @@ class AppointmentTokenEndToEndTest {
 
     @TestConfiguration
     static class TestClock {
+        @Bean
+        @Primary
+        Clock fixedClock() {
+            return Clock.fixed(NOW, ZoneOffset.UTC);
+        }
+
         @Bean
         CancelledEventCounter cancelledEventCounter() {
             return new CancelledEventCounter();
