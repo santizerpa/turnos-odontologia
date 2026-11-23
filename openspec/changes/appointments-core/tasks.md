@@ -2,11 +2,11 @@
 
 ## 1. Contrato del dominio de turnos
 
-- [ ] 1.1 **Test rojo — creación y estados:** escribir tests unitarios para creación con duración fija 30, `active_slot=startAt`, matriz autoritativa de `knowledge-base/05_reglas_de_negocio.md` §Estados y rechazo de transición sin mutación.
-- [ ] 1.2 **Test rojo — cancelación:** escribir tests de cancelación por `PATIENT` con límite de 24 horas, por `DENTIST`, segunda cancelación, liberación de `active_slot`, `AppointmentEvent` y ausencia de efectos repetidos.
-- [ ] 1.3 **Implementación mínima — contrato:** implementar solo lo necesario para pasar el rojo de creación y estados; cancelar red/green debe llevar una implementación explícita de `AppointmentService.cancel(...)` que determine transición real, escriba `CANCELLED`, libere `active_slot`, registre evento y responda "ya cancelado" sin efectos repetidos.
-- [ ] 1.4 **Caso extra y triangulación:** agregar cancelación exactamente a 24 horas, fuera de plazo, estado ya cancelado y estados ya confirmados; usar `Clock.fixed` sin esperas reales.
-- [ ] 1.5 **Refactor verde:** extraer constantes/reglas de transición y cancelar solo tras tests verdes; ejecutar tests de la sección y mantenerlos verdes.
+- [x] 1.1 **Test rojo — creación y estados:** escribir tests unitarios para creación con duración fija 30, `active_slot=startAt`, matriz autoritativa de `knowledge-base/05_reglas_de_negocio.md` §Estados y rechazo de transición sin mutación.
+- [x] 1.2 **Test rojo — cancelación:** escribir tests de cancelación por `PATIENT` con límite de 24 horas, por `DENTIST`, segunda cancelación, liberación de `active_slot`, `AppointmentEvent` y ausencia de efectos repetidos.
+- [x] 1.3 **Implementación mínima — contrato:** implementar solo lo necesario para pasar el rojo de creación y estados; cancelar red/green debe llevar una implementación explícita de `AppointmentService.cancel(...)` que determine transición real, escriba `CANCELLED`, libere `active_slot`, registre evento y responda "ya cancelado" sin efectos repetidos.
+- [x] 1.4 **Caso extra y triangulación:** agregar cancelación exactamente a 24 horas, fuera de plazo, estado ya cancelado y estados ya confirmados; usar `Clock.fixed` sin esperas reales.
+- [x] 1.5 **Refactor verde:** extraer constantes/reglas de transición y cancelar solo tras tests verdes; ejecutar tests de la sección y mantenerlos verdes.
 
 ## 2. Servicio transaccional y persistencia
 
