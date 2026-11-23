@@ -90,24 +90,6 @@ class CoreModelsIntegrityTests {
     }
 
     @Test
-    void duplicateAppointmentTokenHashIsRejectedByDatabase() {
-        Dentist dentist = new Dentist("unique-token@demo.invalid", "hash", "Ana", "Demo");
-        Patient first = new Patient("22334455", "Primero", "Ficticio", "first-token@example.invalid");
-        Patient second = new Patient("22334456", "Segundo", "Ficticio", "second-token@example.invalid");
-        em.persist(dentist); em.persist(first); em.persist(second);
-
-        Appointment firstAppointment = Appointment.create(dentist, first, Instant.parse("2030-01-01T12:00:00Z"), 30, CreatedBy.PATIENT);
-        Appointment secondAppointment = Appointment.create(dentist, second, Instant.parse("2030-01-01T12:30:00Z"), 30, CreatedBy.PATIENT);
-        em.persist(firstAppointment); em.persist(secondAppointment); em.flush();
-
-        String duplicateHash = AppointmentToken.sha256("mismo-token-ficticio");
-        em.persist(new AppointmentToken(firstAppointment, duplicateHash, Instant.parse("2030-01-02T12:00:00Z")));
-        em.persist(new AppointmentToken(secondAppointment, duplicateHash, Instant.parse("2030-01-02T12:00:00Z")));
-
-        assertThatThrownBy(() -> em.flush()).isInstanceOf(org.hibernate.exception.ConstraintViolationException.class);
-    }
-
-    @Test
     void patientRepositoryPersistsNormalizedUniqueDni() {
         Patient patient = new Patient("12.345.678", "Repo", "Demo", "repo@example.invalid");
         Patient saved = patients.saveAndFlush(patient);

@@ -15,9 +15,9 @@
 
 ## 3. Confirmación por enlace (TDD)
 
-- [ ] 3.1 Test rojo y mínimo verde: probar el escenario de turno `PENDING` con token válido llamando a `POST /confirm`. Implementar que C-09 revise el estado y solo PENDING delegue en `AppointmentService.changeStatus(id, CONFIRMED, Actor.PATIENT, reason)`; verificar que el método ya registra el `AppointmentEvent` y C-09 no registra otro evento.
-- [ ] 3.2 Test rojo y mínimo verde: probar una segunda confirmación con turno `CONFIRMED` y token vigente. Implementar la respuesta `ya confirmado` sin llamar a `changeStatus`, sin cambios ni eventos.
-- [ ] 3.3 Test rojo y mínimo verde: probar turno `CANCELLED` con token vigente en `POST /confirm`. Implementar el rechazo sin llamar a `changeStatus` y mantener el turno cancelado.
+- [x] 3.1 Test rojo y mínimo verde: probar el escenario de turno `PENDING` con token válido llamando a `POST /confirm`. Implementar que C-09 revise el estado y solo PENDING delegue en `AppointmentService.changeStatus(id, CONFIRMED, Actor.PATIENT, reason)`; verificar que el método ya registra el `AppointmentEvent` y C-09 no registra otro evento.
+- [x] 3.2 Test rojo y mínimo verde: probar una segunda confirmación con turno `CONFIRMED` y token vigente. Implementar la respuesta `ya confirmado` sin llamar a `changeStatus`, sin cambios ni eventos.
+- [x] 3.3 Test rojo y mínimo verde: probar turno `CANCELLED` con token vigente en `POST /confirm`. Implementar el rechazo sin llamar a `changeStatus` y mantener el turno cancelado.
 
 ## 4. Cancelación por enlace (TDD)
 
