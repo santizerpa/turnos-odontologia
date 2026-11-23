@@ -37,7 +37,7 @@ class AppointmentServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AppointmentService(appointments, appointmentEvents, eventPublisher,
+        service = new AppointmentService(appointments, appointmentEvents, null, null, eventPublisher,
             Clock.fixed(NOW, ZoneOffset.UTC));
         dentist = new Dentist("ana.demo@example.invalid", "hash-ficticio", "Ana", "Demo");
         patient = new Patient("12345678", "Paciente", "Ficticio", "paciente@example.invalid");
