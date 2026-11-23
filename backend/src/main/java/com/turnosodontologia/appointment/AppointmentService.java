@@ -1,6 +1,9 @@
 package com.turnosodontologia.appointment;
 
+import com.turnosodontologia.dentist.DentistRepository;
+import com.turnosodontologia.patient.PatientRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,17 +18,49 @@ public class AppointmentService {
 
     private final AppointmentRepository appointments;
     private final AppointmentEventRepository appointmentEvents;
+    private final DentistRepository dentists;
+    private final PatientRepository patients;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
     public AppointmentService(AppointmentRepository appointments,
                               AppointmentEventRepository appointmentEvents,
+                              DentistRepository dentists,
+                              PatientRepository patients,
                               ApplicationEventPublisher eventPublisher,
                               Clock scheduleClock) {
         this.appointments = appointments;
         this.appointmentEvents = appointmentEvents;
+        this.dentists = dentists;
+        this.patients = patients;
         this.eventPublisher = eventPublisher;
         this.clock = scheduleClock;
+    }
+
+    @Transactional
+    public Appointment create(UUID dentistId, UUID patientId, Instant startAt, CreatedBy createdBy) {
+        var dentist = dentists.findById(dentistId).orElseThrow(() ->
+            new IllegalArgumentException("Odontólogo inexistente"));
+        var patient = patients.findById(patientId).orElseThrow(() ->
+            new IllegalArgumentException("Paciente inexistente"));
+        if (startAt == null) throw new IllegalArgumentException("Hora de inicio requerida");
+        if (appointments.existsByDentistIdAndActiveSlot(dentistId, startAt)) {
+            throw new AppointmentConflictException();
+        }
+        Appointment appointment = Appointment.create(dentist, patient, startAt, 30, createdBy);
+        try {
+            return appointments.saveAndFlush(appointment);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppointmentConflictException();
+        }
+    }
+
+    public java.util.List<Appointment> agenda(UUID dentistId, Instant from, Instant to) {
+        if (from == null || to == null || !from.isBefore(to)) {
+            throw new IllegalArgumentException("Rango de agenda inválido");
+        }
+        return appointments.findByDentistIdAndDeletedAtIsNullAndActiveSlotIsNotNullAndStartAtGreaterThanEqualAndStartAtLessThan(dentistId, from, to)
+            .stream().sorted(java.util.Comparator.comparing(Appointment::getStartAt)).toList();
     }
 
     @Transactional
