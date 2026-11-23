@@ -34,14 +34,15 @@ C-01 foundation-setup
         ├── C-04 schedule-rules
         │     └── C-05 appointments-core
         └── C-06 patient-records
-              └── C-07 public-booking-api
-                    └── C-08 public-booking-ui
 
 C-05 appointments-core
-  ├── C-07 public-booking-api
   └── C-09 token-confirmation
+        ├── C-07 public-booking-api
+        │     └── C-08 public-booking-ui
         └── C-10 outbox-and-reminders
               └── C-11 waiting-list
+
+> C-07 también requiere C-06 (registro de pacientes), además de C-09.
 
 C-03 + C-05 + C-06 + C-10 + C-11
   ├── C-12 admin-agenda-ui
@@ -71,21 +72,23 @@ GATE 3: C-03 + C-04 ✓
   → C-05 appointments-core           [Persona B]
 
 GATE 4: C-05 ✓
-  → C-07 public-booking-api          [Persona B — requiere C-06 ✓]
   → C-09 token-confirmation          [Persona D]
 
-GATE 5: C-07 ✓ + C-09 ✓
-  → C-08 public-booking-ui           [Persona E]
+GATE 5: C-09 ✓ + C-06 ✓
+  → C-07 public-booking-api          [Persona B]
   → C-10 outbox-and-reminders        [Persona D]
 
-GATE 6: C-10 ✓
+GATE 6: C-07 ✓
+  → C-08 public-booking-ui           [Persona E]
+
+GATE 7: C-10 ✓
   → C-11 waiting-list                [Persona C]
 
-GATE 7: C-05 + C-06 + C-10 + C-11 ✓
+GATE 8: C-05 + C-06 + C-10 + C-11 ✓
   → C-12 admin-agenda-ui             [Persona E]
   → C-13 seed-and-demo               [Persona C]
 
-GATE 8: C-01 … C-13 ✓
+GATE 9: C-01 … C-13 ✓
   → C-14 test-suite-and-hardening    [Persona A]
 ```
 
@@ -104,9 +107,9 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   2  │ C-02 core-models             │ —                         │ —                         │ —                           │ —
   3  │ —                            │ C-03 dentist-auth         │ C-04 schedule-rules       │ —                           │ C-06 patient-records
   4  │ —                            │ C-05 appointments-core    │ —                         │ —                           │ —
-  5  │ —                            │ C-07 public-booking-api   │ —                         │ C-09 token-confirmation     │ —
-  6  │ —                            │ —                         │ —                         │ C-10 outbox-and-reminders   │ C-08 public-booking-ui
-  7  │ —                            │ —                         │ C-11 waiting-list         │ —                           │ —
+  5  │ —                            │ —                         │ —                         │ C-09 token-confirmation     │ —
+  6  │ —                            │ C-07 public-booking-api   │ —                         │ C-10 outbox-and-reminders   │ —
+  7  │ —                            │ —                         │ C-11 waiting-list         │ —                           │ C-08 public-booking-ui
   8  │ —                            │ —                         │ C-13 seed-and-demo        │ —                           │ C-12 admin-agenda-ui
   9  │ C-14 test-suite-and-hardening│ —                         │ —                         │ —                           │ —
 ```
@@ -139,7 +142,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 1 — Núcleo de dominio y acceso
 
 ### [C-02] `core-models`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Entidades JPA, enums, repositorios y esquema inicial
   - Modelos: `Dentist`, `Patient`, `Appointment`, `AppointmentToken`, `AppointmentEvent`, `WaitingListEntry`, `OutboxMessage`, `ScheduleBlock`
   - Enums: `AppointmentStatus`, `CreatedBy`, `Actor`, `WaitingListStatus`, `OutboxStatus`
@@ -159,7 +162,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/09_decisiones_y_supuestos.md` §DD-05
 
 ### [C-03] `dentist-auth`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Autenticación del odontólogo con sesión
   - `POST /api/auth/login` con email y contraseña, validación BCrypt
   - `POST /api/auth/logout`
@@ -181,7 +184,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 2 — Agenda y turnos
 
 ### [C-04] `schedule-rules`
-- **Estado**: `[~]` implementado en rama; pendiente integración/revisión PostgreSQL del líder
+- **Estado**: `[x]` completo
 - **Handoff de integración**:
   - Aplicar `database/schedule-rules.sql` en la base PostgreSQL administrada por el líder antes de arrancar el perfil `local`.
   - Verificar `ddl-auto: validate`, el arranque completo y la paridad H2/PostgreSQL; registrar la evidencia antes de marcar C-04 como cerrado.
@@ -204,7 +207,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/10_preguntas_abiertas.md` §POA-01 / §POA-02
 
 ### [C-05] `appointments-core`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Creación de turnos, estados y agenda del odontólogo
   - Servicio de creación de `Appointment` con paciente, inicio y duración fija de 30 minutos
   - Mantener `active_slot` al crear (`start_at`) y al cancelar (`NULL`)
@@ -226,7 +229,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/09_decisiones_y_supuestos.md` §DD-07
 
 ### [C-06] `patient-records`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Alta y reutilización de pacientes
   - Normalización de DNI: quitar puntos y espacios, aceptar solo 7 u 8 dígitos, rechazar letras
   - Validación de email con formato estándar
@@ -250,11 +253,11 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 - **Scope**: API pública de disponibilidad y reserva
   - `GET /api/public/slots?date=` con ventana 24hs-30 días
   - `POST /api/public/appointments` con nombre, apellido, DNI y email
-  - Upsert de `Patient` + `Appointment` en `PENDING` + `AppointmentToken` de 128 bits + `OutboxMessage`
+  - Upsert de `Patient` + `Appointment` en `PENDING`, usando el componente de C-09 para generar el token opaco de 32 bytes en base64url, persistir únicamente su hash SHA-256 y permitir su búsqueda por hash; crear también el `OutboxMessage`
   - Respuesta 409 ante solapamiento y 422 ante validación
   - Rate limit no implementado en v1 (documentado)
   - Tests: reserva feliz, solapamiento 409, ventana inválida, DNI inválido
-- **Dependencias**: C-05, C-06
+- **Dependencias**: C-05, C-06, C-09
 - **Governance**: ALTO
 - **Leer antes**:
   - `knowledge-base/07_flujos_principales.md` §Flujo 2
@@ -284,9 +287,9 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 4 — Validación por mail y lista de espera
 
 ### [C-09] `token-confirmation`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Confirmación y cancelación por token reutilizable e idempotente
-  - Token opaco de al menos 128 bits (32 bytes en base64url); persistir solo su hash SHA-256, nunca el token plano
+  - Componente reutilizable para generar un token opaco de 32 bytes en base64url, persistir solo su hash SHA-256 —nunca el token plano— y buscar tokens por hash
   - Vencimiento al inicio del turno o a los 7 días, lo que ocurra primero
   - El token no se consume al confirmar: un único token por turno sirve para confirmar y cancelar
   - `GET /api/public/appointments/{token}/confirm` solo muestra la página; `POST .../confirm` cambia `PENDING → CONFIRMED`
