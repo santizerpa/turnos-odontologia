@@ -88,4 +88,8 @@ public class Appointment extends AuditableEntity {
         activeSlot = startAt;
         return true;
     }
+
+    public void changeStatusForFutureDomainService(AppointmentStatus target) {
+        status = target;
+    }
 }
