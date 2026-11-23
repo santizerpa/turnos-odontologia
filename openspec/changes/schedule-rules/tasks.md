@@ -43,6 +43,7 @@
 - [x] 6.4 Escribir primero pruebas MockMvc de bloqueos: 201 con id e instantes, 204 en baja propia, 204 repetido, 404 en bloqueo ajeno, 422 por rango inválido y 401 sin sesión; implementar los controladores y verificar verde.
 - [x] 6.5 Escribir primero pruebas del manejo de errores: 400, 404 y 422 de agenda con `{"error": ...}` y `details` en validación, y confirmar que `GET /api/auth/me` sin sesión conserva exactamente `{"error": "No autenticado"}`; implementar el advice acotado a `com.turnosodontologia.schedule` y verificar verde.
 - [x] 6.6 Verificar que `/api/schedule/**` sigue protegido por `anyRequest().authenticated()`, que no se agregó `permitAll()` para agenda y que `/api/public/**` sigue reservado para C-07; registrar la revisión de `AuthSecurityConfiguration`.
+- [x] 6.7 Hacer determinista el test HTTP `ScheduleHttpSecurityTests.availabilityAndAdviceForBadRanges()` con un bean `Clock` fijo local, sin cambiar el reloj ni la configuración de producción.
 
 ## 7. Esquema local y documentación
 

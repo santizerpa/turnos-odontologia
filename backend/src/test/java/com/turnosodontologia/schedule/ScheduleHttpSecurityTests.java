@@ -15,6 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -81,17 +84,24 @@ class ScheduleHttpSecurityTests {
     void availabilityAndAdviceForBadRanges() throws Exception {
         MockHttpSession session = login(dentist.getEmail(), "demo-ficticia-123");
         mockMvc.perform(get("/api/schedule").session(session)).andExpect(status().isOk());
-        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", "2026-11-24T10:00:00-03:00").param("to", "2026-11-25T10:00:00-03:00"))
+        Instant testNow = Instant.now();
+        String validFrom = testNow.plusSeconds(3 * 86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
+        String validTo = testNow.plusSeconds(4 * 86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
+        String beforeMinimumFrom = testNow.minusSeconds(86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
+        String beforeMinimumTo = testNow.plusSeconds(24 * 3600L).atOffset(ZoneOffset.ofHours(-3)).toString();
+        String beyondMaximumTo = testNow.plusSeconds(31 * 86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
+
+        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", validFrom).param("to", validTo))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.timezone").value("America/Argentina/Buenos_Aires"))
                 .andExpect(jsonPath("$.durationMinutes").value(30))
                 .andExpect(jsonPath("$.slots").isArray());
 
-        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", "2026-11-23T09:00:00-03:00").param("to", "2026-11-24T10:00:00-03:00"))
+        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", beforeMinimumFrom).param("to", beforeMinimumTo))
                 .andExpect(status().isBadRequest());
-        mockMvc.perform(get("/api/schedule/availability").session(session).param("to", "2026-12-01T10:00:00-03:00"))
+        mockMvc.perform(get("/api/schedule/availability").session(session).param("to", beyondMaximumTo))
                 .andExpect(status().isBadRequest());
-        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", "malformado").param("to", "2026-12-01T10:00:00-03:00"))
+        mockMvc.perform(get("/api/schedule/availability").session(session).param("from", "malformado").param("to", beyondMaximumTo))
                 .andExpect(status().isBadRequest());
     }
 
