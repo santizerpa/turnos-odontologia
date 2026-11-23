@@ -119,6 +119,64 @@ class PublicAppointmentTokenHttpTest {
     }
 
     @Test
+    void confirmedTokenCancelsThroughDomainServiceOnce() throws Exception {
+        String plain = "H".repeat(43);
+        Appointment appointment = mock(Appointment.class);
+        AppointmentToken record = mock(AppointmentToken.class);
+        java.util.UUID appointmentId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000304");
+        when(record.getAppointment()).thenReturn(appointment);
+        when(appointment.getId()).thenReturn(appointmentId);
+        when(appointment.getStatus()).thenReturn(AppointmentStatus.CONFIRMED);
+        when(tokenService.resolve(plain)).thenReturn(record);
+        when(appointmentService.cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString()))
+            .thenReturn(CancelAppointmentResult.completed());
+
+        mockMvc.perform(post("/api/public/appointments/{token}/cancel", plain).with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("cancelación exitosa"));
+        verify(appointmentService).cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void cancellationWithin24HoursReturnsSafeConflict() throws Exception {
+        String plain = "I".repeat(43);
+        Appointment appointment = mock(Appointment.class);
+        AppointmentToken record = mock(AppointmentToken.class);
+        java.util.UUID appointmentId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000305");
+        when(record.getAppointment()).thenReturn(appointment);
+        when(appointment.getId()).thenReturn(appointmentId);
+        when(appointment.getStatus()).thenReturn(AppointmentStatus.CONFIRMED);
+        when(tokenService.resolve(plain)).thenReturn(record);
+        when(appointmentService.cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString()))
+            .thenThrow(new IllegalStateException("detalle interno de 24 horas"));
+
+        mockMvc.perform(post("/api/public/appointments/{token}/cancel", plain).with(csrf()))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error").value("Debe contactarse al consultorio para cancelar el turno"))
+            .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                .doesNotContain("detalle interno"));
+    }
+
+    @Test
+    void repeatedCancellationDelegatesAndReturnsAlreadyCancelled() throws Exception {
+        String plain = "J".repeat(43);
+        Appointment appointment = mock(Appointment.class);
+        AppointmentToken record = mock(AppointmentToken.class);
+        java.util.UUID appointmentId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000306");
+        when(record.getAppointment()).thenReturn(appointment);
+        when(appointment.getId()).thenReturn(appointmentId);
+        when(appointment.getStatus()).thenReturn(AppointmentStatus.CANCELLED);
+        when(tokenService.resolve(plain)).thenReturn(record);
+        when(appointmentService.cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString()))
+            .thenReturn(CancelAppointmentResult.alreadyCancelled());
+
+        mockMvc.perform(post("/api/public/appointments/{token}/cancel", plain).with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("ya cancelado"));
+        verify(appointmentService).cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void expiredConfirmedTokenReturns410BeforeStatusChange() throws Exception {
         String plain = "B".repeat(43);
         when(tokenService.resolve(plain)).thenThrow(new PublicTokenExpiredException());

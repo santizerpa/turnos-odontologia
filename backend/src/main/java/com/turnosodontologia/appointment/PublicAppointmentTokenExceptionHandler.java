@@ -24,6 +24,11 @@ public class PublicAppointmentTokenExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> illegalState(IllegalStateException exception) {
+        if (exception.getMessage() != null
+            && exception.getMessage().contains("24 horas")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "Debe contactarse al consultorio para cancelar el turno"));
+        }
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(Map.of("error", "No se pudo confirmar el turno"));
     }

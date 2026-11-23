@@ -21,10 +21,10 @@
 
 ## 4. Cancelación por enlace (TDD)
 
-- [ ] 4.1 Test rojo y mínimo verde: probar cancelación de turno `CONFIRMED` con token vigente y más de 24 horas hasta el inicio. Implementar la delegación siempre en `AppointmentService.cancel(id, Actor.PATIENT, reason)` y verificar la transición centralizada una sola vez.
-- [ ] 4.2 Test rojo y mínimo verde: probar cancelación de turno `PENDING` o `CONFIRMED` a menos de 24 horas. Implementar que el servicio central rechace sin mutación ni publicación, respondiendo que debe contactarse al consultorio.
-- [ ] 4.3 Test rojo y mínimo verde: probar la doble cancelación de un turno `CANCELLED` con token vigente. Implementar la delegación en `AppointmentService.cancel(..., Actor.PATIENT, reason)` y la respuesta `ya cancelado` sin efectos repetidos.
-- [ ] 4.4 Test rojo y mínimo verde: probar repetición cancelada fuera de plazo a menos de 24 horas. Implementar la delegación siempre y aceptar `alreadyCancelled` antes de la regla de 24 horas, sin mutar ni aplicar nuevamente el plazo.
+- [x] 4.1 Test rojo y mínimo verde: probar cancelación de turno `CONFIRMED` con token vigente y más de 24 horas hasta el inicio. Implementar la delegación siempre en `AppointmentService.cancel(id, Actor.PATIENT, reason)` y verificar la transición centralizada una sola vez.
+- [x] 4.2 Test rojo y mínimo verde: probar cancelación de turno `PENDING` o `CONFIRMED` a menos de 24 horas. Implementar que el servicio central rechace sin mutación ni publicación, respondiendo que debe contactarse al consultorio.
+- [x] 4.3 Test rojo y mínimo verde: probar la doble cancelación de un turno `CANCELLED` con token vigente. Implementar la delegación en `AppointmentService.cancel(..., Actor.PATIENT, reason)` y la respuesta `ya cancelado` sin efectos repetidos.
+- [x] 4.4 Test rojo y mínimo verde: probar repetición cancelada fuera de plazo a menos de 24 horas. Implementar la delegación siempre y aceptar `alreadyCancelled` antes de la regla de 24 horas, sin mutar ni aplicar nuevamente el plazo.
 
 ## 5. API pública GET y respuestas (TDD)
 

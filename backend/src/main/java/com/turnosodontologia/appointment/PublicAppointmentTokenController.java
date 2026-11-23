@@ -38,4 +38,17 @@ public class PublicAppointmentTokenController {
             "Confirmación solicitada por el paciente mediante token");
         return ResponseEntity.ok(Map.of("message", "confirmación exitosa", "status", "CONFIRMED"));
     }
+
+    @PostMapping("/{token}/cancel")
+    public ResponseEntity<Map<String, Object>> cancel(@PathVariable String token) {
+        Appointment appointment = tokens.resolve(token).getAppointment();
+        CancelAppointmentResult result = appointments.cancel(
+            appointment.getId(), Actor.PATIENT,
+            "Cancelación solicitada por el paciente mediante token");
+
+        if (!result.cancelled()) {
+            return ResponseEntity.ok(Map.of("message", "ya cancelado", "status", "CANCELLED"));
+        }
+        return ResponseEntity.ok(Map.of("message", "cancelación exitosa", "status", "CANCELLED"));
+    }
 }
