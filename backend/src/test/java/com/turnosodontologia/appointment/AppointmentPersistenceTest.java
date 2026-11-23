@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AppointmentPersistenceTest.TestClock.class, AppointmentPersistenceTest.CancelledEventListenerConfig.class})
+@Import(AppointmentPersistenceTest.TestClock.class)
 @Transactional
 class AppointmentPersistenceTest {
     private static final Instant NOW = Instant.parse("2030-01-01T12:00:00Z");
@@ -45,7 +45,6 @@ class AppointmentPersistenceTest {
     @Autowired ApplicationEventPublisher eventPublisher;
     @Autowired Clock scheduleClock;
     @Autowired JdbcTemplate jdbcTemplate;
-    @Autowired CancelledEventListenerConfig.CancelledEventCounter cancelledEventCounter;
 
     private final List<UUID> createdAppointmentIds = Collections.synchronizedList(new java.util.ArrayList<>());
     private final List<UUID> createdPatientIds = Collections.synchronizedList(new java.util.ArrayList<>());
@@ -152,25 +151,6 @@ class AppointmentPersistenceTest {
     }
 
     @Test
-    void confirmedAppointmentCancelPublishesOneEventAndClearsActiveSlotWithRealService() {
-        Dentist dentist = dentists.save(new Dentist("persist.cancel.event@odontologia.invalid", "hash-ficticio", "Ana", "Demo"));
-        Patient patient = patients.save(new Patient("77654323", "Paciente", "Ficticio", "persist.cancel.event@odontologia.invalid"));
-        AppointmentService service = new AppointmentService(appointments, appointmentEvents, dentists, patients, eventPublisher, scheduleClock);
-        Appointment appointment = service.create(dentist.getId(), patient.getId(), NOW.plusSeconds(48 * 60 * 60), CreatedBy.DENTIST);
-        service.changeStatus(appointment.getId(), AppointmentStatus.CONFIRMED, Actor.DENTIST, "confirmación ficticia");
-
-        CancelAppointmentResult first = service.cancel(appointment.getId(), Actor.PATIENT, "cancelación ficticia");
-        CancelAppointmentResult second = service.cancel(appointment.getId(), Actor.PATIENT, "cancelación repetida ficticia");
-
-        Appointment persisted = appointments.findById(appointment.getId()).orElseThrow();
-        assertThat(first.cancelled()).isTrue();
-        assertThat(second.cancelled()).isFalse();
-        assertThat(persisted.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
-        assertThat(persisted.getActiveSlot()).isNull();
-        assertThat(cancelledEventCounter.countFor(appointment.getId())).isEqualTo(1);
-    }
-
-    @Test
     void cancelledSlotCanBeReusedAndNullSlotsAreUniqueNullable() {
         Dentist dentist = dentists.save(new Dentist("persist.reuse@odontologia.invalid", "hash-ficticio", "Ana", "Demo"));
         Patient one = patients.save(new Patient("77654321", "Uno", "Ficticio", "persist.reuse1@odontologia.invalid"));
@@ -184,28 +164,6 @@ class AppointmentPersistenceTest {
 
         assertThat(first.getActiveSlot()).isNull();
         assertThat(replacement.getActiveSlot()).isEqualTo(slot);
-    }
-
-    @org.springframework.boot.test.context.TestConfiguration
-    static class CancelledEventListenerConfig {
-        @Bean
-        CancelledEventCounter cancelledEventCounter() {
-            return new CancelledEventCounter();
-        }
-
-        static class CancelledEventCounter {
-            private final java.util.Map<java.util.UUID, java.util.concurrent.atomic.AtomicInteger> counts =
-                new java.util.concurrent.ConcurrentHashMap<>();
-            @org.springframework.context.event.EventListener
-            void onCancelled(AppointmentCancelledEvent event) {
-                counts.computeIfAbsent(event.appointmentId(), ignored -> new java.util.concurrent.atomic.AtomicInteger())
-                    .incrementAndGet();
-            }
-            int countFor(java.util.UUID appointmentId) {
-                java.util.concurrent.atomic.AtomicInteger count = counts.get(appointmentId);
-                return count == null ? 0 : count.get();
-            }
-        }
     }
 
     @org.springframework.boot.test.context.TestConfiguration

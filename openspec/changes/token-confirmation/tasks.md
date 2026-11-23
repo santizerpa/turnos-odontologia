@@ -28,8 +28,8 @@
 
 ## 5. API pública GET y respuestas (TDD)
 
-- [ ] 5.1 Test rojo y mínimo verde: probar `GET /api/public/appointments/{token}/confirm` con token válido asociado a un turno. Implementar una respuesta informativa sin cambiar estado ni delegar a servicios de dominio.
-- [ ] 5.2 Test rojo y mínimo verde: probar `GET /api/public/appointments/{token}/cancel` con token válido asociado a un turno. Implementar una respuesta informativa sin cancelar, mutar ni llamar a `AppointmentService.cancel`.
-- [ ] 5.3 Test rojo y mínimo verde: probar `GET /confirm` y `GET /cancel` con token inexistente o vencido. Implementar `404 Not Found` o `410 Gone` sin efectos ni delegación.
-- [ ] 5.4 Test rojo y mínimo verde: probar respuestas JSON seguras para éxito, idempotencia y errores. Implementar cuerpos JSON sin exponer detalles internos.
+- [x] 5.1 Test rojo y mínimo verde: probar `GET /api/public/appointments/{token}/confirm` con token válido asociado a un turno. Implementar una respuesta informativa sin cambiar estado ni delegar a servicios de dominio.
+- [x] 5.2 Test rojo y mínimo verde: probar `GET /api/public/appointments/{token}/cancel` con token válido asociado a un turno. Implementar una respuesta informativa sin cancelar, mutar ni llamar a `AppointmentService.cancel`.
+- [x] 5.3 Test rojo y mínimo verde: probar `GET /confirm` y `GET /cancel` con token inexistente o vencido. Implementar `404 Not Found` o `410 Gone` sin efectos ni delegación.
+- [x] 5.4 Test rojo y mínimo verde: probar respuestas JSON seguras para éxito, idempotencia y errores. Implementar cuerpos JSON sin exponer detalles internos.
 

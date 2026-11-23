@@ -1,6 +1,7 @@
 package com.turnosodontologia.appointment;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,24 @@ public class PublicAppointmentTokenController {
     public PublicAppointmentTokenController(AppointmentTokenService tokens, AppointmentService appointments) {
         this.tokens = tokens;
         this.appointments = appointments;
+    }
+
+    @GetMapping("/{token}/confirm")
+    public ResponseEntity<Map<String, Object>> confirmInfo(@PathVariable String token) {
+        Appointment appointment = tokens.resolve(token).getAppointment();
+        return informative(appointment);
+    }
+
+    @GetMapping("/{token}/cancel")
+    public ResponseEntity<Map<String, Object>> cancelInfo(@PathVariable String token) {
+        Appointment appointment = tokens.resolve(token).getAppointment();
+        return informative(appointment);
+    }
+
+    private ResponseEntity<Map<String, Object>> informative(Appointment appointment) {
+        return ResponseEntity.ok(Map.of(
+            "startAt", appointment.getStartAt().toString(),
+            "status", appointment.getStatus().name()));
     }
 
     @PostMapping("/{token}/confirm")

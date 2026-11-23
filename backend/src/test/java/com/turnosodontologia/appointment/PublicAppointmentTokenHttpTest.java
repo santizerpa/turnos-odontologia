@@ -13,6 +13,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +51,50 @@ class PublicAppointmentTokenHttpTest {
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.error").value("No se pudo confirmar el turno"))
             .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString()).doesNotContain("detalle interno prohibido"));
+    }
+
+    @Test
+    void getConfirmAndCancelReturnMinimumAppointmentInfoWithoutDomainCalls() throws Exception {
+        String plain = "G".repeat(43);
+        Appointment appointment = mock(Appointment.class);
+        AppointmentToken record = mock(AppointmentToken.class);
+        java.util.UUID appointmentId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000307");
+        when(record.getAppointment()).thenReturn(appointment);
+        when(appointment.getId()).thenReturn(appointmentId);
+        when(appointment.getStartAt()).thenReturn(java.time.Instant.parse("2030-01-03T10:00:00Z"));
+        when(appointment.getStatus()).thenReturn(AppointmentStatus.PENDING);
+        when(tokenService.resolve(plain)).thenReturn(record);
+
+        mockMvc.perform(get("/api/public/appointments/{token}/confirm", plain))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.startAt").value("2030-01-03T10:00:00Z"))
+            .andExpect(jsonPath("$.status").value("PENDING"))
+            .andExpect(jsonPath("$.token").doesNotExist())
+            .andExpect(jsonPath("$.patient").doesNotExist());
+        mockMvc.perform(get("/api/public/appointments/{token}/cancel", plain))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.startAt").value("2030-01-03T10:00:00Z"))
+            .andExpect(jsonPath("$.status").value("PENDING"))
+            .andExpect(jsonPath("$.token").doesNotExist())
+            .andExpect(jsonPath("$.patient").doesNotExist());
+
+        verify(appointmentService, never()).changeStatus(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        verify(appointmentService, never()).cancel(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void getConfirmAndCancelMapMissingAndExpiredTokens() throws Exception {
+        String missing = "A".repeat(43);
+        String expired = "B".repeat(43);
+        when(tokenService.resolve(missing)).thenThrow(new PublicTokenInvalidException());
+        when(tokenService.resolve(expired)).thenThrow(new PublicTokenExpiredException());
+
+        mockMvc.perform(get("/api/public/appointments/{token}/confirm", missing))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Token inexistente o inválido"));
+        mockMvc.perform(get("/api/public/appointments/{token}/cancel", expired))
+            .andExpect(status().isGone())
+            .andExpect(jsonPath("$.error").value("Token vencido"));
     }
 
     @Test
