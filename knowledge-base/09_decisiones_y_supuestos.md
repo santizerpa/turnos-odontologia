@@ -50,6 +50,11 @@
 **Justificación:** un solo lugar concentra la regla de negocio, la auditoría y el evento; el listener desacopla la lista de espera sin que C-11 modifique C-05.
 **Trade-offs:** el aviso es eventual: si el listener falla después del commit, la cancelación ya quedó firme y el aviso puede requerir reintento o registro. El evento solo se procesa si la cancelación corre dentro de una transacción; una segunda cancelación no publica nada.
 
+### DD-08 — Token reutilizable emitido por C-09
+**Contexto:** C-09 debe emitir el enlace público que C-07 entrega durante la reserva y permitir confirmar o cancelar el mismo turno sin consumir el token.
+**Decisión:** C-09 emite el token mediante `AppointmentTokenService.issue(Appointment)`; una reemisión reemplaza el registro anterior y hace inválido el token anterior.
+**Consecuencias:** solo se conserva el hash del token vigente, el valor plano se devuelve una sola vez y cada reemisión invalida el enlace previo.
+
 ## Supuestos inferidos
 
 ### SU-01 — Fusiones por DNI

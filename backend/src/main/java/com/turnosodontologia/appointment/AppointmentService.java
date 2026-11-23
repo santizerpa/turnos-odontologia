@@ -74,7 +74,7 @@ public class AppointmentService {
 
         Instant now = clock.instant();
         if (actor == Actor.PATIENT && appointment.getStartAt().isBefore(now.plus(PATIENT_MINIMUM_NOTICE))) {
-            throw new IllegalStateException("El turno solo puede cancelarse con al menos 24 horas de anticipación");
+            throw new CancellationWindowClosedException("El turno solo puede cancelarse con al menos 24 horas de anticipación");
         }
 
         return applyTransition(appointment, AppointmentStatus.CANCELLED, actor, reason);
