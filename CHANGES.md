@@ -181,7 +181,12 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 2 — Agenda y turnos
 
 ### [C-04] `schedule-rules`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[~]` implementado en rama; pendiente integración/revisión PostgreSQL del líder
+- **Handoff de integración**:
+  - Aplicar `database/schedule-rules.sql` en la base PostgreSQL administrada por el líder antes de arrancar el perfil `local`.
+  - Verificar `ddl-auto: validate`, el arranque completo y la paridad H2/PostgreSQL; registrar la evidencia antes de marcar C-04 como cerrado.
+  - Procedimiento y criterios: `database/README.md` §`Schedule rules (C-04)`.
+  - Este entorno de desarrollo no pudo ejecutar `psql`/`pg_isready` ni comprobar una instancia PostgreSQL; no aprobar ni archivar este change hasta completar esas comprobaciones.
 - **Scope**: Disponibilidad, franjas y ventana pública
   - Configuración de horario: lunes a viernes, 9:00-13:00 y 14:00-19:00, timezone `America/Argentina/Buenos_Aires`
   - Generación de slots de 30 minutos

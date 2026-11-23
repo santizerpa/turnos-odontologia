@@ -14,6 +14,8 @@
 ```text
 Dentist 1 ─────────── * Appointment
 Dentist 1 ─────────── * ScheduleBlock
+Dentist 1 ─────────── 1 ScheduleConfiguration
+ScheduleConfiguration 1 ─────────── * ScheduleWindow (colección embebida)
 Patient 1 ─────────── * Appointment
 Appointment 1 ─────── 1 AppointmentToken
 Appointment 1 ─────── * AppointmentEvent
@@ -21,7 +23,7 @@ Patient 1 ─────────── * WaitingListEntry
 OutboxMessage * ───── 1 Appointment (opcional)
 ```
 
-Los slots no se persisten: se calculan a partir de la configuración de horario, los `ScheduleBlock` y los turnos activos.
+Los slots no se persisten: se calculan a partir de la configuración de horario, los `ScheduleBlock` y los turnos activos. La ventana pública es una política de consulta de 24 horas hasta 30 días, no una entidad persistida.
 
 ## Entidades
 
@@ -76,6 +78,21 @@ Los slots no se persisten: se calculan a partir de la configuración de horario,
 - `reason: varchar(255)` nullable.
 - `created_at`, `updated_at`, `deleted_at`.
 - Bloquea total o parcialmente un día; el cálculo de slots lo excluye.
+
+### ScheduleConfiguration
+- `id: UUID` — clave primaria.
+- `dentist_id: UUID` — FK única a Dentist; una sola configuración por odontólogo.
+- `windows` — colección embebida `@ElementCollection` persistida en `schedule_windows`; no posee identidad propia.
+- `day_of_week: enum textual` — lunes a viernes en la v1; la colección también admite el cierre mediante una lista sin ventanas.
+- `start_time: time(6)` y `end_time: time(6)` — horas locales de Argentina, sin timezone en la tabla.
+- `created_at`, `updated_at`, `deleted_at` — auditoría y baja lógica heredadas.
+- La lectura determina las ventanas por día y hora de inicio. La timezone fija `America/Argentina/Buenos_Aires`, la duración de 30 minutos y la ventana pública 24 horas/30 días viven en configuración de despliegue y no se duplican por fila.
+- Los slots son derivados y no se almacenan. Se generan desde las ventanas, se excluyen por bloqueos vigentes y turnos PENDING/CONFIRMED, y se sirven dentro de la política pública solo en las consultas públicas; el cálculo interno puede recibir otros rangos.
+
+### ScheduleWindow
+- Es un value object embebido, sin clave primaria ni repositorio propio.
+- Persistido como filas dependientes de `ScheduleConfiguration` en `schedule_windows`.
+- Requiere día, hora de inicio y hora de fin; una franja dura al menos 30 minutos y no debe solaparse con otra del mismo día.
 
 ### OutboxMessage
 - `id: UUID`.
