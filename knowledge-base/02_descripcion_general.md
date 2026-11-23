@@ -60,7 +60,9 @@ Se propone una arquitectura modular en Spring Boot. La prioridad es entregar rá
 - `GET/POST/PATCH /api/patients`
 - `GET /api/public/slots?date=...`
 - `POST /api/public/appointments`
-- `GET/POST /api/public/appointments/{token}/confirm` — GET muestra la página, POST confirma
-- `GET/POST /api/public/appointments/{token}/cancel` — GET muestra la página, POST cancela
+- `GET /api/public/appointments/{token}/confirm` — consulta informativa, no confirma
+- `POST /api/public/appointments/{token}/confirm` — ejecuta la confirmación
+- `GET /api/public/appointments/{token}/cancel` — consulta informativa, no cancela
+- `POST /api/public/appointments/{token}/cancel` — ejecuta la cancelación
 - `GET/POST /api/waiting-list`
 - `GET /api/outbox/messages`

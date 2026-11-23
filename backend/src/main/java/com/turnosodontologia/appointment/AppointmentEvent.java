@@ -50,5 +50,10 @@ public class AppointmentEvent {
         this.createdAt = createdAt;
     }
 
+    public Appointment getAppointment() { return appointment; }
+    public AppointmentStatus getFromStatus() { return fromStatus; }
+    public AppointmentStatus getToStatus() { return toStatus; }
+    public Actor getActor() { return actor; }
+
     @PrePersist void auditCreate() { if (createdAt == null) createdAt = Instant.now(); }
 }
