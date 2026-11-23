@@ -17,7 +17,7 @@ public class AppointmentToken {
     @JoinColumn(name = "appointment_id", nullable = false, unique = true)
     private Appointment appointment;
 
-    @Column(name = "token_hash", nullable = false, length = 64)
+    @Column(name = "token_hash", nullable = false, length = 64, unique = true)
     private String tokenHash;
 
     @Column(name = "expires_at", nullable = false)

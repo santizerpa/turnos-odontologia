@@ -8,10 +8,10 @@
 
 ## 2. Validación de token y precedencia (TDD)
 
-- [ ] 2.1 Test rojo y mínimo verde: probar presencia/formato y hash SHA-256 del token recibido. Implementar el cálculo y la búsqueda antes de inspeccionar estado o vigencia del turno.
-- [ ] 2.2 Test rojo y mínimo verde: probar token inexistente o inválido para una acción POST. Implementar `404 Not Found` sin modificar turnos.
-- [ ] 2.3 Test rojo y mínimo verde: probar token vencido exactamente en `expiresAt` y turno pasado cuyo `expiresAt` vence al inicio. Implementar la regla exclusiva `now < expiresAt` y `410 Gone` antes de inspeccionar estado.
-- [ ] 2.4 Test rojo y mínimo verde: probar que un token vencido gana sobre un turno `CONFIRMED` e implementar la precedencia para que no se inspeccione ni cambie su estado.
+- [x] 2.1 Test rojo y mínimo verde: probar presencia/formato y hash SHA-256 del token recibido. Implementar el cálculo y la búsqueda antes de inspeccionar estado o vigencia del turno.
+- [x] 2.2 Test rojo y mínimo verde: probar token inexistente o inválido para una acción POST. Implementar `404 Not Found` sin modificar turnos.
+- [x] 2.3 Test rojo y mínimo verde: probar token vencido exactamente en `expiresAt` y turno pasado cuyo `expiresAt` vence al inicio. Implementar la regla exclusiva `now < expiresAt` y `410 Gone` antes de inspeccionar estado.
+- [x] 2.4 Test rojo y mínimo verde: probar que un token vencido gana sobre un turno `CONFIRMED` e implementar la precedencia para que no se inspeccione ni cambie su estado.
 
 ## 3. Confirmación por enlace (TDD)
 

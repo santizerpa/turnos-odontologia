@@ -19,6 +19,19 @@ public class AppointmentTokenService {
         this.clock = scheduleClock;
     }
 
+    public AppointmentToken resolve(String plainToken) {
+        if (plainToken == null || !plainToken.matches("^[A-Za-z0-9_-]{43}$") || plainToken.contains("=")) {
+            throw new PublicTokenInvalidException();
+        }
+
+        AppointmentToken token = tokens.findByTokenHash(AppointmentToken.sha256(plainToken))
+            .orElseThrow(PublicTokenInvalidException::new);
+        if (!clock.instant().isBefore(token.getExpiresAt())) {
+            throw new PublicTokenExpiredException();
+        }
+        return token;
+    }
+
     @Transactional
     public String issue(Appointment appointment) {
         if (appointment == null) throw new IllegalArgumentException("Turno requerido");
