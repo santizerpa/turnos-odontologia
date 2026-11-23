@@ -10,19 +10,19 @@
 
 ## 2. Servicio transaccional y persistencia
 
-- [ ] 2.1 **Test rojo — persistencia:** escribir tests transaccionales con `DentistRepository`, `PatientRepository` y `AppointmentRepository` para paciente existente, duración fija 30 y creación PENDING con `active_slot` activo.
-- [ ] 2.2 **Implementación mínima — 409 sin POST:** implementar el mínimo de servicio transaccional para consulta y creación, sin requerir `POST /api/appointments`; probar que dos persistencias concurrentes no crean dos turnos activos en H2 PostgreSQL mode y que el conflicto materializado como excepción de servicio o `DataIntegrityViolationException`/restricción única llega a HTTP 409 en el boundary.
-- [ ] 2.3 **Caso extra — franja reutilizable:** probar reutilización de franja cancelada y unicidad nullable; verificar que cancelar deja `active_slot=NULL` y una nueva creación persiste.
-- [ ] 2.4 **Implementación explícita — evento:** implementar `AppointmentCancelledEvent` con `appointmentId`, `startAt` y `actor`; publicar una sola vez por transición real y no publicar al repetir la cancelación.
-- [ ] 2.5 **Refactor verde:** simplificar el flujo transaccional sin cambiar contratos; ejecutar tests y mantenerlos verdes.
+- [x] 2.1 **Test rojo — persistencia:** escribir tests transaccionales con `DentistRepository`, `PatientRepository` y `AppointmentRepository` para paciente existente, duración fija 30 y creación PENDING con `active_slot` activo.
+- [x] 2.2 **Implementación mínima — 409 sin POST:** implementar el mínimo de servicio transaccional para consulta y creación, sin requerir `POST /api/appointments`; probar que dos persistencias concurrentes no crean dos turnos activos en H2 PostgreSQL mode y que el conflicto materializado como excepción de servicio o `DataIntegrityViolationException`/restricción única llega a HTTP 409 en el boundary.
+- [x] 2.3 **Caso extra — franja reutilizable:** probar reutilización de franja cancelada y unicidad nullable; verificar que cancelar deja `active_slot=NULL` y una nueva creación persiste.
+- [x] 2.4 **Implementación explícita — evento:** implementar `AppointmentCancelledEvent` con `appointmentId`, `startAt` y `actor`; publicar una sola vez por transición real y no publicar al repetir la cancelación.
+- [x] 2.5 **Refactor verde:** simplificar el flujo transaccional sin cambiar contratos; ejecutar tests y mantenerlos verdes.
 
 ## 3. API de agenda y estado
 
-- [ ] 3.1 **Test rojo — GET protegido:** escribir tests HTTP para `GET /api/appointments?from=&to=` con rango válido, agenda ordenada, rango inválido y 401 sin sesión según C-03.
-- [ ] 3.2 **Test rojo — PATCH protegido:** escribir tests HTTP para `PATCH /api/appointments/{id}/status`: status=CANCELLED invoca `AppointmentService.cancel(..., DENTIST, reason)`, repetición devuelve "ya cancelado" sin eventos, transición inválida usa el handler/código existente y inexistente devuelve 404.
-- [ ] 3.3 **Implementación mínima — boundary 409:** implementar el mínimo HTTP sin `POST /api/appointments`; verificar el conflicto de franja en el boundary 409, además de las respuestas 200/422/404/401 consistentes con C-03 y el handler existente.
-- [ ] 3.4 **Caso extra — seguridad y datos:** agregar pruebas de 401 para GET/PATCH sin sesión y reutilizar `AuthFixtures`; verificar datos ficticios, sin secretos reales y H2 PostgreSQL mode.
-- [ ] 3.5 **Refactor verde:** reducir duplicación de pruebas/DTO/controlador sin alterar HTTP; ejecutar tests y mantenerlos verdes.
+- [x] 3.1 **Test rojo — GET protegido:** escribir tests HTTP para `GET /api/appointments?from=&to=` con rango válido, agenda ordenada, rango inválido y 401 sin sesión según C-03.
+- [x] 3.2 **Test rojo — PATCH protegido:** escribir tests HTTP para `PATCH /api/appointments/{id}/status`: status=CANCELLED invoca `AppointmentService.cancel(..., DENTIST, reason)`, repetición devuelve "ya cancelado" sin eventos, transición inválida usa el handler/código existente y inexistente devuelve 404.
+- [x] 3.3 **Implementación mínima — boundary 409:** implementar el mínimo HTTP sin `POST /api/appointments`; verificar el conflicto de franja en el boundary 409, además de las respuestas 200/422/404/401 consistentes con C-03 y el handler existente.
+- [x] 3.4 **Caso extra — seguridad y datos:** agregar pruebas de 401 para GET/PATCH sin sesión y reutilizar `AuthFixtures`; verificar datos ficticios, sin secretos reales y H2 PostgreSQL mode.
+- [x] 3.5 **Refactor verde:** reducir duplicación de pruebas/DTO/controlador sin alterar HTTP; ejecutar tests y mantenerlos verdes.
 
 ## 4. Integración y verificación
 
