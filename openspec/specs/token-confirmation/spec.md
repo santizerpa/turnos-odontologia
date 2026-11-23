@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change token-confirmation. Update Purpose after archive.
+Permite confirmar y cancelar turnos mediante enlaces con un token opaco reutilizable, validando el token antes que el estado del turno. La cancelación solicitada por token se centraliza en `AppointmentService` para aplicar las reglas de dominio.
 
 ## Requirements
 

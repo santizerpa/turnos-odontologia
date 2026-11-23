@@ -22,13 +22,20 @@ public class PublicAppointmentTokenExceptionHandler {
         return ResponseEntity.status(HttpStatus.GONE).body(Map.of("error", "Token vencido"));
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> illegalState(IllegalStateException exception) {
-        if (exception.getMessage() != null
-            && exception.getMessage().contains("24 horas")) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "Debe contactarse al consultorio para cancelar el turno"));
-        }
+    @ExceptionHandler(CancellationWindowClosedException.class)
+    public ResponseEntity<Map<String, Object>> cancellationWindowClosed(CancellationWindowClosedException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("error", "Debe contactarse al consultorio para cancelar el turno"));
+    }
+
+    @ExceptionHandler(PublicAppointmentCancelIllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> cancelIllegalState(PublicAppointmentCancelIllegalStateException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("error", "No se pudo cancelar el turno"));
+    }
+
+    @ExceptionHandler(PublicAppointmentConfirmIllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> confirmIllegalState(PublicAppointmentConfirmIllegalStateException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(Map.of("error", "No se pudo confirmar el turno"));
     }

@@ -52,18 +52,29 @@ public class PublicAppointmentTokenController {
             return ResponseEntity.status(409).body(Map.of("error", "El turno no puede confirmarse"));
         }
 
-        appointments.changeStatus(
-            appointment.getId(), AppointmentStatus.CONFIRMED, Actor.PATIENT,
-            "Confirmación solicitada por el paciente mediante token");
+        try {
+            appointments.changeStatus(
+                appointment.getId(), AppointmentStatus.CONFIRMED, Actor.PATIENT,
+                "Confirmación solicitada por el paciente mediante token");
+        } catch (IllegalStateException exception) {
+            throw new PublicAppointmentConfirmIllegalStateException(exception);
+        }
         return ResponseEntity.ok(Map.of("message", "confirmación exitosa", "status", "CONFIRMED"));
     }
 
     @PostMapping("/{token}/cancel")
     public ResponseEntity<Map<String, Object>> cancel(@PathVariable String token) {
         Appointment appointment = tokens.resolve(token).getAppointment();
-        CancelAppointmentResult result = appointments.cancel(
-            appointment.getId(), Actor.PATIENT,
-            "Cancelación solicitada por el paciente mediante token");
+        CancelAppointmentResult result;
+        try {
+            result = appointments.cancel(
+                appointment.getId(), Actor.PATIENT,
+                "Cancelación solicitada por el paciente mediante token");
+        } catch (CancellationWindowClosedException exception) {
+            throw exception;
+        } catch (IllegalStateException exception) {
+            throw new PublicAppointmentCancelIllegalStateException(exception);
+        }
 
         if (!result.cancelled()) {
             return ResponseEntity.ok(Map.of("message", "ya cancelado", "status", "CANCELLED"));

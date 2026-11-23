@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class PublicAppointmentTokenHttpTest {
     @Autowired MockMvc mockMvc;
     @MockBean AppointmentTokenService tokenService;
@@ -193,13 +195,31 @@ class PublicAppointmentTokenHttpTest {
         when(appointment.getStatus()).thenReturn(AppointmentStatus.CONFIRMED);
         when(tokenService.resolve(plain)).thenReturn(record);
         when(appointmentService.cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString()))
-            .thenThrow(new IllegalStateException("detalle interno de 24 horas"));
+            .thenThrow(new CancellationWindowClosedException("detalle interno arbitrario"));
 
         mockMvc.perform(post("/api/public/appointments/{token}/cancel", plain).with(csrf()))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.error").value("Debe contactarse al consultorio para cancelar el turno"))
             .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
                 .doesNotContain("detalle interno"));
+    }
+
+    @Test
+    void otherIllegalStateOnCancelReturnsGenericCancellationConflict() throws Exception {
+        String plain = "K".repeat(43);
+        Appointment appointment = mock(Appointment.class);
+        AppointmentToken record = mock(AppointmentToken.class);
+        java.util.UUID appointmentId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000307");
+        when(record.getAppointment()).thenReturn(appointment);
+        when(appointment.getId()).thenReturn(appointmentId);
+        when(appointment.getStatus()).thenReturn(AppointmentStatus.CONFIRMED);
+        when(tokenService.resolve(plain)).thenReturn(record);
+        when(appointmentService.cancel(eq(appointmentId), eq(Actor.PATIENT), org.mockito.ArgumentMatchers.anyString()))
+            .thenThrow(new IllegalStateException("texto que no debe inspeccionarse"));
+
+        mockMvc.perform(post("/api/public/appointments/{token}/cancel", plain).with(csrf()))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error").value("No se pudo cancelar el turno"));
     }
 
     @Test
