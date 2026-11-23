@@ -1,3 +1,22 @@
+app:
+  schedule:
+    timezone: America/Argentina/Buenos_Aires
+    slot-duration-minutes: 30
+    public-window:
+      min-notice-hours: 24
+      max-days: 30
+    default-windows:
+      - { day: MONDAY, start: "09:00", end: "13:00" }
+      - { day: MONDAY, start: "14:00", end: "19:00" }
+      - { day: TUESDAY, start: "09:00", end: "13:00" }
+      - { day: TUESDAY, start: "14:00", end: "19:00" }
+      - { day: WEDNESDAY, start: "09:00", end: "13:00" }
+      - { day: WEDNESDAY, start: "14:00", end: "19:00" }
+      - { day: THURSDAY, start: "09:00", end: "13:00" }
+      - { day: THURSDAY, start: "14:00", end: "19:00" }
+      - { day: FRIDAY, start: "09:00", end: "13:00" }
+      - { day: FRIDAY, start: "14:00", end: "19:00" }
+
 server:
   servlet:
     session:
