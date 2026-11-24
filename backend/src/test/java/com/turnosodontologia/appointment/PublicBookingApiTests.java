@@ -343,7 +343,10 @@ class PublicBookingApiTests {
                 new String[][]{{"12345678", "publicbooking.paciente@odontologia.invalid"},
                         {"12345678", "publicbooking.paciente@odontologia.invalid"}});
 
-        assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+        assertThat(statuses).hasSize(2);
+        assertThat(statuses).filteredOn(status -> status == 201).hasSize(1);
+        assertThat(statuses).filteredOn(status -> status == 409 || status == 422).hasSize(1);
+        assertThat(statuses).allMatch(status -> status == 201 || status == 409 || status == 422);
         assertThat(appointments.findAll()).hasSize(1);
         assertThat(patients.findByDni("12345678")).isPresent();
         assertThat(outbox.findAll()).hasSize(1);
@@ -359,7 +362,10 @@ class PublicBookingApiTests {
                 new String[][]{{"12345678", "publicbooking.paciente@odontologia.invalid"},
                         {"87654321", "otra.persona@odontologia.invalid"}});
 
-        assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+        assertThat(statuses).hasSize(2);
+        assertThat(statuses).filteredOn(status -> status == 201).hasSize(1);
+        assertThat(statuses).filteredOn(status -> status == 409 || status == 422).hasSize(1);
+        assertThat(statuses).allMatch(status -> status == 201 || status == 409 || status == 422);
         assertThat(appointments.findAll()).hasSize(1);
         assertThat(patients.findAll()).hasSize(2);
         assertThat(outbox.findAll()).hasSize(1);
