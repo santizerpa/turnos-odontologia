@@ -17,10 +17,10 @@
 
 ## 3. Bandeja y dispatch protegidos (TDD)
 
-- [ ] 3.1 Escribir tests rojos para GET de mensajes con sesión y sin sesión; implementar DTO mínimo con los nueve campos solicitados y protección 401 sin sesión; verificar que no aparecen DNI, hashes, tokens persistidos ni datos internos.
-- [ ] 3.2 Escribir tests rojos para `POST /api/outbox/reminders/run`; implementar procesamiento por turno con `TransactionTemplate` o bean separado con `@Transactional(REQUIRES_NEW)` y respuesta siempre 200 con `{ created, failed }` durante fallos aislados; manejar errores C-10 con `@RestControllerAdvice(assignableTypes = <controladores C-10>)` y `@Order(Ordered.HIGHEST_PRECEDENCE)` para precedencia sobre `PatientExceptionHandler`; verificar 200 con conteos y 500 con mensaje general fijo solo para errores inesperados fuera del loop, sin mensajes internos ni stack traces.
-- [ ] 3.3 Escribir tests rojos para dispatch con PENDING y SIMULATED_SENT; implementar recorrido por PENDING, llamada a `markSimulatedSent(now)` y conteo observado; verificar primero cuenta enviada y segundo cuenta cero sin cambios de `sentAt`.
-- [ ] 3.4 Escribir tests de seguridad C-10 sin sesión para los tres endpoints; verificar 401 uniforme y ausencia de cuerpo con datos de mensajes o excepciones internas.
+- [x] 3.1 Escribir tests rojos para GET de mensajes con sesión y sin sesión; implementar DTO mínimo con los nueve campos solicitados y protección 401 sin sesión; verificar que no aparecen DNI, hashes, tokens persistidos ni datos internos.
+- [x] 3.2 Escribir tests rojos para `POST /api/outbox/reminders/run`; implementar procesamiento por turno con `TransactionTemplate` o bean separado con `@Transactional(REQUIRES_NEW)` y respuesta siempre 200 con `{ created, failed }` durante fallos aislados; manejar errores C-10 con `@RestControllerAdvice(assignableTypes = <controladores C-10>)` y `@Order(Ordered.HIGHEST_PRECEDENCE)` para precedencia sobre `PatientExceptionHandler`; verificar 200 con conteos y 500 con mensaje general fijo solo para errores inesperados fuera del loop, sin mensajes internos ni stack traces.
+- [x] 3.3 Escribir tests rojos para dispatch con PENDING y SIMULATED_SENT; implementar recorrido por PENDING, llamada a `markSimulatedSent(now)` y conteo observado; verificar primero cuenta enviada y segundo cuenta cero sin cambios de `sentAt`.
+- [x] 3.4 Escribir tests de seguridad C-10 sin sesión para los tres endpoints; verificar 401 uniforme y ausencia de cuerpo con datos de mensajes o excepciones internas.
 
 ## 4. Integración y hardening
 
