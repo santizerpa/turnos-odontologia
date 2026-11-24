@@ -68,6 +68,10 @@ Se usa TDD con datos ficticios. Las pruebas de persistencia/servicio corren con 
 
 La rama objetivo contiene la ampliación de C-10. La verificación de C-11 confirma que el constructor de cinco parámetros deja `type` nulo y que un `REMINDER` previo no impide crear el aviso.
 
+### D7 — Ventana pública, exclusión y deduplicación de cierre
+
+El listener consulta el reloj de agenda y solo procesa turnos cuyo inicio esté entre `now + 24h` y `now + 30d`, ambos límites inclusivos. La selección excluye el paciente asociado al turno cancelado. La inscripción reutiliza la entrada activa `WAITING` del paciente y serializa las inscripciones concurrentes por DNI normalizado, sin imponer una unicidad que impida reingresar después de estados terminales. Las respuestas de validación del módulo usan `{ "error": ... }`; el aviso conserva fecha y hora locales argentinas.
+
 ## Risks / Trade-offs
 
 - [El listener corre después de que la cancelación ya quedó confirmada; un fallo no revierte la cancelación ni tiene reintento durable] → Mantener estado y Outbox atómicos; registrar y probar el fallo. Reintentos persistentes quedan fuera de C-11.

@@ -26,6 +26,8 @@ public class WaitingListRegistrationTransaction {
                                    LocalDate requestedDateFrom, LocalDate requestedDateTo) {
         Patient patient = patients.findByDni(normalizedDni)
             .orElseGet(() -> patients.saveAndFlush(new Patient(normalizedDni, firstName, lastName, email)));
+        var existing = waitingEntries.findByPatientIdAndStatus(patient.getId(), WaitingListStatus.WAITING);
+        if (existing.isPresent()) return existing.get();
         return waitingEntries.save(new WaitingListEntry(
             patient, requestedDateFrom, requestedDateTo, WaitingListStatus.WAITING));
     }
@@ -36,6 +38,8 @@ public class WaitingListRegistrationTransaction {
                                                  LocalDate requestedDateTo) {
         Patient patient = patients.findByDni(normalizedDni)
             .orElseThrow(() -> new DataIntegrityViolationException("No se encontró el paciente concurrente."));
+        var existing = waitingEntries.findByPatientIdAndStatus(patient.getId(), WaitingListStatus.WAITING);
+        if (existing.isPresent()) return existing.get();
         return waitingEntries.save(new WaitingListEntry(
             patient, requestedDateFrom, requestedDateTo, WaitingListStatus.WAITING));
     }

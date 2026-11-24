@@ -32,6 +32,11 @@ public class PublicBookingWindow {
         return clock.instant().plusSeconds(maxDays * 86400L);
     }
 
+    public boolean isWithin(Instant startAt, Clock clock) {
+        if (startAt == null) throw new IllegalArgumentException("Inicio requerido");
+        return !startAt.isBefore(earliest(clock)) && !startAt.isAfter(latest(clock));
+    }
+
     public void validate(Instant from, Instant to, Clock clock) {
         if (from == null || to == null) throw new IllegalArgumentException("Rango público requerido");
         if (!to.isAfter(from)) throw new IllegalArgumentException("Rango vacío o invertido");

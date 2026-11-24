@@ -326,7 +326,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/10_preguntas_abiertas.md` §POA-04
 
 ### [C-11] `waiting-list`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Lista de espera FIFO con aviso al liberar horario
   - Entidad `WaitingListEntry` ordenada por `created_at`
   - `POST /api/waiting-list` y `GET /api/waiting-list`

@@ -2,7 +2,7 @@ package com.turnosodontologia.waiting;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,7 +17,7 @@ public class WaitingListExceptionHandler {
     @ExceptionHandler({InvalidWaitingListDataException.class, MethodArgumentNotValidException.class,
         ConstraintViolationException.class, HandlerMethodValidationException.class,
         HttpMessageNotReadableException.class})
-    public ProblemDetail handleInvalidRequest(Exception exception) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_DATA_DETAIL);
+    public ResponseEntity<java.util.Map<String, String>> handleInvalidRequest(Exception exception) {
+        return ResponseEntity.badRequest().body(java.util.Map.of("error", INVALID_DATA_DETAIL));
     }
 }

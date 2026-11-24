@@ -53,7 +53,7 @@ class WaitingListRegistrationConcurrencyTest {
             assertThat(patients.findByDni("27123456")).isPresent();
             assertThat(waitingEntries.findAll().stream()
                 .filter(entry -> entry.getPatient().getId().equals(firstEntry.getPatient().getId())))
-                .hasSize(2);
+                .hasSize(1);
         } finally {
             executor.shutdownNow();
         }

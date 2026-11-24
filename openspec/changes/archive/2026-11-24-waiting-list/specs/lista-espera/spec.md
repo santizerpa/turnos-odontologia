@@ -58,7 +58,7 @@ El sistema SHALL permitir al odontólogo autenticado consultar las entradas de l
 - **THEN** se responde `401`
 
 ### Requirement: Una cancelación notifica a una sola entrada FIFO elegible
-Al recibir un evento de cancelación confirmado, el sistema SHALL seleccionar la entrada `WAITING` elegible más antigua, marcarla `NOTIFIED` y crear un aviso simulado para el email guardado del paciente, dentro de una misma transacción nueva.
+Al recibir un evento de cancelación confirmado, el sistema SHALL seleccionar la entrada `WAITING` elegible más antigua, marcarla `NOTIFIED` y crear un aviso simulado para el email guardado del paciente, dentro de una misma transacción nueva. Solo SHALL notificar si el inicio del turno está dentro de la ventana pública inclusiva de 24 horas a 30 días desde el reloj de agenda, y SHALL excluir al paciente del turno cancelado.
 
 #### Scenario: Selección de la primera entrada elegible
 - **GIVEN** hay varias entradas WAITING y la más antigua no incluye la fecha liberada, pero una posterior sí
@@ -66,11 +66,27 @@ Al recibir un evento de cancelación confirmado, el sistema SHALL seleccionar la
 - **THEN** se marca `NOTIFIED` solo la primera entrada elegible por FIFO
 - **AND** se crea un único aviso para esa entrada
 
+#### Scenario: La cancelación no avisa al propio paciente
+- **GIVEN** el paciente del turno cancelado también tiene una entrada `WAITING`
+- **AND** existe otra entrada `WAITING` elegible
+- **WHEN** se procesa el evento del turno cancelado
+- **THEN** se omite la entrada del paciente que canceló y se notifica la siguiente elegible
+
+#### Scenario: Turno fuera de la ventana pública
+- **GIVEN** el turno liberado está antes de 24 horas o después de 30 días desde ahora
+- **WHEN** se procesa el evento de cancelación
+- **THEN** no se cambia ninguna entrada ni se crea un aviso
+
 #### Scenario: No hay entradas elegibles
 - **GIVEN** no existe ninguna entrada WAITING cuyo rango incluya la fecha local del turno liberado
 - **WHEN** se procesa el evento de cancelación
 - **THEN** no cambia el estado de ninguna entrada
 - **AND** no se crea un aviso
+
+#### Scenario: No hay duplicados activos por paciente
+- **GIVEN** el paciente ya tiene una entrada `WAITING`
+- **WHEN** se registra nuevamente con el mismo DNI
+- **THEN** se reutiliza la entrada activa y no se crea otra `WAITING`
 
 #### Scenario: Aviso junto a recordatorio existente
 - **GIVEN** ya existe un recordatorio `REMINDER` asociado al turno cancelado

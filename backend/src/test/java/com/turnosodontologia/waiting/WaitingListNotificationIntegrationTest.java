@@ -19,12 +19,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +45,7 @@ class WaitingListNotificationIntegrationTest {
     @Autowired PatientRepository patients;
     @Autowired DentistRepository dentists;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired JdbcTemplate jdbcTemplate;
 
     private Dentist dentist;
     private Appointment cancelledAppointment;
@@ -49,17 +53,18 @@ class WaitingListNotificationIntegrationTest {
     @BeforeEach
     void setUp() {
         outbox.deleteAll();
+        jdbcTemplate.update("DELETE FROM appointment_events");
+        jdbcTemplate.update("DELETE FROM appointment_tokens");
         waitingEntries.deleteAll();
         appointments.deleteAll();
         patients.deleteAll();
-        dentists.deleteAll();
         dentist = AuthFixtures.createActive(dentists, passwordEncoder,
             AuthFixtures.uniqueEmail("waiting-notification"), "demo-ficticia-123");
         Patient appointmentPatient = patients.save(new Patient(
             "70123456", "Paciente Turno", "Ficticio", "turno@example.invalid"));
         cancelledAppointment = appointments.saveAndFlush(Appointment.create(dentist, appointmentPatient,
-            Instant.parse("2040-09-12T15:00:00Z"), 30, CreatedBy.DENTIST));
-        cancelledAppointment.cancelForFutureDomainService(Instant.parse("2040-09-01T12:00:00Z"));
+            Instant.now().plusSeconds(48 * 3600L), 30, CreatedBy.DENTIST));
+        cancelledAppointment.cancelForFutureDomainService(Instant.now());
         appointments.saveAndFlush(cancelledAppointment);
     }
 
@@ -68,7 +73,7 @@ class WaitingListNotificationIntegrationTest {
         Patient waitingPatient = patients.save(new Patient(
             "70123457", "Paciente Espera", "Ficticio", "espera@example.invalid"));
         WaitingListEntry entry = waitingEntries.saveAndFlush(new WaitingListEntry(
-            waitingPatient, LocalDate.of(2040, 9, 12), LocalDate.of(2040, 9, 12), WaitingListStatus.WAITING));
+            waitingPatient, releasedDate(), releasedDate(), WaitingListStatus.WAITING));
 
         boolean notified = notifications.notifyFirstEligible(new AppointmentCancelledEvent(
             cancelledAppointment.getId(), cancelledAppointment.getStartAt(), Actor.DENTIST));
@@ -81,6 +86,31 @@ class WaitingListNotificationIntegrationTest {
         assertThat(message.getRecipientEmail()).isEqualTo("espera@example.invalid");
         assertThat(message.getStatus()).isEqualTo(OutboxStatus.PENDING);
         assertThat(message.getType()).isNull();
+        assertThat(message.getBody()).contains(cancelledAppointment.getStartAt()
+            .atZone(ZoneId.of("America/Argentina/Buenos_Aires"))
+            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+    }
+
+    @Test
+    void doesNotNotifyPatientWhoCancelledAndChoosesNextEligiblePatient() {
+        Patient cancellingPatient = cancelledAppointment.getPatient();
+        WaitingListEntry cancelledPatientEntry = waitingEntries.saveAndFlush(new WaitingListEntry(
+            cancellingPatient, null, null, WaitingListStatus.WAITING));
+        Patient otherPatient = patients.save(new Patient(
+            "70123461", "Paciente Siguiente", "Ficticio", "siguiente@example.invalid"));
+        WaitingListEntry otherEntry = waitingEntries.saveAndFlush(new WaitingListEntry(
+            otherPatient, null, null, WaitingListStatus.WAITING));
+
+        assertThat(notifications.notifyFirstEligible(new AppointmentCancelledEvent(
+            cancelledAppointment.getId(), cancelledAppointment.getStartAt(), Actor.DENTIST))).isTrue();
+
+        assertThat(waitingEntries.findById(cancelledPatientEntry.getId()).orElseThrow().getStatus())
+            .isEqualTo(WaitingListStatus.WAITING);
+        assertThat(waitingEntries.findById(otherEntry.getId()).orElseThrow().getStatus())
+            .isEqualTo(WaitingListStatus.NOTIFIED);
+        assertThat(outbox.findAll()).singleElement()
+            .extracting(OutboxMessage::getRecipientEmail)
+            .isEqualTo("siguiente@example.invalid");
     }
 
     @Test
@@ -106,7 +136,7 @@ class WaitingListNotificationIntegrationTest {
         Patient waitingPatient = patients.save(new Patient(
             "70123458", "Paciente Fuera", "Ficticio", "fuera@example.invalid"));
         WaitingListEntry entry = waitingEntries.saveAndFlush(new WaitingListEntry(
-            waitingPatient, LocalDate.of(2040, 9, 13), LocalDate.of(2040, 9, 14), WaitingListStatus.WAITING));
+            waitingPatient, releasedDate().plusDays(1), releasedDate().plusDays(2), WaitingListStatus.WAITING));
 
         boolean notified = notifications.notifyFirstEligible(new AppointmentCancelledEvent(
             cancelledAppointment.getId(), cancelledAppointment.getStartAt(), Actor.DENTIST));
@@ -115,6 +145,10 @@ class WaitingListNotificationIntegrationTest {
         assertThat(waitingEntries.findById(entry.getId()).orElseThrow().getStatus())
             .isEqualTo(WaitingListStatus.WAITING);
         assertThat(outbox.count()).isZero();
+    }
+
+    private LocalDate releasedDate() {
+        return cancelledAppointment.getStartAt().atZone(ZoneId.of("America/Argentina/Buenos_Aires")).toLocalDate();
     }
 
     @Test

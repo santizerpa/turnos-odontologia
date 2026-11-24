@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class WaitingListSelectionService {
@@ -26,7 +27,7 @@ public class WaitingListSelectionService {
         if (releasedAt == null) {
             throw new IllegalArgumentException("Instante liberado requerido.");
         }
-        return selectFirstEligible(releasedAt.atZone(zoneId).toLocalDate());
+        return selectFirstEligible(releasedAt.atZone(zoneId).toLocalDate(), null);
     }
 
     @Transactional
@@ -34,8 +35,25 @@ public class WaitingListSelectionService {
         if (releasedDate == null) {
             throw new IllegalArgumentException("Fecha liberada requerida.");
         }
-        return waitingEntries.findEligibleWaitingEntriesForUpdate(WaitingListStatus.WAITING, releasedDate)
+        return selectFirstEligible(releasedDate, null);
+    }
+
+    @Transactional
+    public Optional<WaitingListEntry> selectFirstEligible(LocalDate releasedDate, UUID excludedPatientId) {
+        if (releasedDate == null) {
+            throw new IllegalArgumentException("Fecha liberada requerida.");
+        }
+        return waitingEntries.findEligibleWaitingEntriesForUpdate(WaitingListStatus.WAITING, releasedDate,
+                excludedPatientId)
             .stream()
             .findFirst();
+    }
+
+    @Transactional
+    public Optional<WaitingListEntry> selectFirstEligible(Instant releasedAt, UUID excludedPatientId) {
+        if (releasedAt == null) {
+            throw new IllegalArgumentException("Instante liberado requerido.");
+        }
+        return selectFirstEligible(releasedAt.atZone(zoneId).toLocalDate(), excludedPatientId);
     }
 }

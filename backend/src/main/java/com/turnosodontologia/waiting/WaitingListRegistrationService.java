@@ -5,11 +5,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class WaitingListRegistrationService {
 
     private final WaitingListRegistrationTransaction transactions;
+    private static final ConcurrentHashMap<String, Object> REGISTRATION_LOCKS = new ConcurrentHashMap<>();
 
     public WaitingListRegistrationService(WaitingListRegistrationTransaction transactions) {
         this.transactions = transactions;
@@ -31,12 +33,15 @@ public class WaitingListRegistrationService {
             throw new InvalidWaitingListDataException();
         }
 
-        try {
-            return transactions.create(normalizedDni, firstName, lastName, normalizedEmail,
-                requestedDateFrom, requestedDateTo);
-        } catch (DataIntegrityViolationException concurrentPatientInsert) {
-            return transactions.registerWithExisting(normalizedDni, firstName, lastName, normalizedEmail,
-                requestedDateFrom, requestedDateTo);
+        Object lock = REGISTRATION_LOCKS.computeIfAbsent(normalizedDni, ignored -> new Object());
+        synchronized (lock) {
+            try {
+                return transactions.create(normalizedDni, firstName, lastName, normalizedEmail,
+                    requestedDateFrom, requestedDateTo);
+            } catch (DataIntegrityViolationException concurrentPatientInsert) {
+                return transactions.registerWithExisting(normalizedDni, firstName, lastName, normalizedEmail,
+                    requestedDateFrom, requestedDateTo);
+            }
         }
     }
 

@@ -128,7 +128,7 @@ class WaitingListSelectionServiceTest {
         setCreatedAt(nullEnd, "2040-01-02T10:00:00Z");
 
         List<WaitingListEntry> eligible = waitingEntries.findEligibleWaitingEntriesForUpdate(
-            WaitingListStatus.WAITING, releasedDate);
+            WaitingListStatus.WAITING, releasedDate, null);
 
         assertThat(eligible).extracting(WaitingListEntry::getId)
             .containsExactly(nullStart.getId(), nullEnd.getId());

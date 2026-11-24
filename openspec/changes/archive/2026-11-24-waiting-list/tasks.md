@@ -27,8 +27,9 @@
 
 ## 5. Regresión
 
-- [ ] 5.1 Ejecutar `./gradlew test` y `./gradlew build` con el wrapper; verificar que la suite relevante está verde, que no se omitieron pruebas y que H2 en modo PostgreSQL alcanza para las pruebas.
+- [x] 5.1 Ejecutar `./gradlew test` y `./gradlew build` con el wrapper; verificar que la suite relevante está verde, que no se omitieron pruebas y que H2 en modo PostgreSQL alcanza para las pruebas.
 - [x] 5.2 Revisar el diff de C-11: verificar ausencia de cambios en clases de C-05, asignación automática, datos reales o secretos; registrar la evidencia de las pruebas y dejar la rama lista para revisión.
+- [x] 5.3 Correcciones de cierre: ventana pública inclusiva de 24 horas a 30 días y exclusión del paciente que cancela; deduplicación de `WAITING` concurrente; aislamiento de eventos y tokens en la integración; dispatch de Outbox con tipo nulo; errores `{error: ...}`; aviso con fecha y hora; actualización de KB 06 y 07.
 
 ## Workflow follow-up
 

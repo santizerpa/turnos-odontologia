@@ -52,12 +52,13 @@ Paciente → Página pública → API REST → Servicio de turno → JPA → Pos
 **Disparador:** `AppointmentCancelledEvent` publicado por `AppointmentService.cancel(...)`.
 
 1. El listener `@TransactionalEventListener(AFTER_COMMIT)` corre en una transacción nueva (`REQUIRES_NEW`).
-2. Busca entradas WAITING elegibles.
-3. Toma la primera por `created_at`.
-4. Cambia estado a NOTIFIED.
-5. Persiste OutboxMessage dirigido al paciente.
-6. No asigna ni confirma el turno automáticamente.
-7. No modifica clases de C-05; solo consume el evento.
+2. Si el turno liberado no está dentro de la ventana pública inclusiva de 24 horas a 30 días, termina sin notificar.
+3. Busca entradas `WAITING` elegibles por fecha local argentina, excluyendo al paciente del turno cancelado.
+4. Toma la primera por `created_at` y, en empate, por `id`; una inscripción activa duplicada del mismo paciente se reutiliza.
+5. Cambia estado a `NOTIFIED` y persiste un `OutboxMessage` dirigido al email guardado, con fecha y hora locales en el texto.
+6. El dispatch procesa también mensajes cuyo tipo sea nulo.
+7. No asigna ni confirma el turno automáticamente.
+8. No modifica clases de C-05; solo consume el evento.
 
 > Si el listener falla después del commit, la cancelación ya quedó firme. El aviso puede requerir reintento o registro para no perderlo.
 

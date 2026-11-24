@@ -133,6 +133,15 @@ class WaitingListApiTest {
         assertThat(persisted.getEmail()).isEqualTo("original@example.com");
     }
 
+    @Test
+    void invalidPublicPostUsesErrorBody() throws Exception {
+        mockMvc.perform(post("/api/public/waiting-list")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dni\":\"invalido\",\"nombre\":\"Paciente\",\"apellido\":\"Ficticio\",\"email\":\"x@example.invalid\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Datos de inscripción inválidos."));
+    }
+
     private MockHttpSession login() throws Exception {
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)

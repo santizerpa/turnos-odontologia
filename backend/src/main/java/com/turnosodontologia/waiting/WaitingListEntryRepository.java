@@ -9,19 +9,23 @@ import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 public interface WaitingListEntryRepository extends JpaRepository<WaitingListEntry, UUID> {
     List<WaitingListEntry> findAllByOrderByCreatedAtAscIdAsc();
+    Optional<WaitingListEntry> findByPatientIdAndStatus(UUID patientId, WaitingListStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT entry FROM WaitingListEntry entry
         WHERE entry.status = :status
           AND (entry.requestedDateFrom IS NULL OR entry.requestedDateFrom <= :releasedDate)
-          AND (entry.requestedDateTo IS NULL OR entry.requestedDateTo >= :releasedDate)
+           AND (entry.requestedDateTo IS NULL OR entry.requestedDateTo >= :releasedDate)
+          AND (:excludedPatientId IS NULL OR entry.patient.id <> :excludedPatientId)
         ORDER BY entry.createdAt ASC, entry.id ASC
         """)
     List<WaitingListEntry> findEligibleWaitingEntriesForUpdate(
         @Param("status") WaitingListStatus status,
-        @Param("releasedDate") LocalDate releasedDate);
+        @Param("releasedDate") LocalDate releasedDate,
+        @Param("excludedPatientId") UUID excludedPatientId);
 }
