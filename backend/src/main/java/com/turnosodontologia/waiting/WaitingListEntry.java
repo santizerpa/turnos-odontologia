@@ -39,5 +39,15 @@ public class WaitingListEntry extends AuditableEntity {
         this.status = status;
     }
 
+    public UUID getId() { return id; }
     public Patient getPatient() { return patient; }
+    public LocalDate getRequestedDateFrom() { return requestedDateFrom; }
+    public LocalDate getRequestedDateTo() { return requestedDateTo; }
+    public WaitingListStatus getStatus() { return status; }
+
+    public boolean markNotified() {
+        if (status != WaitingListStatus.WAITING) return false;
+        status = WaitingListStatus.NOTIFIED;
+        return true;
+    }
 }
