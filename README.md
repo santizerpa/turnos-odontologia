@@ -39,8 +39,6 @@ git clone https://github.com/santizerpa/turnos-odontologia.git
 cd turnos-odontologia
 ```
 
-El repositorio es privado: tenés que ser colaborador y haber iniciado sesión en GitHub.
-
 ## 2. Ejecutar los tests
 
 Los tests usan el perfil `test` con H2 en memoria (modo compatible con PostgreSQL), así que corren sin ninguna base de datos instalada.
@@ -172,11 +170,11 @@ Reglas del equipo:
 ## Entorno del agente de IA (opcional, para trabajar con SDD)
 
 Para ejecutar el flujo de cada change con el agente necesitás:
-- Active Stack instalado en modo Full, con `opencode` como agente.
+- Active Stack instalado en modo Full, con `OpenCode` o `Claude Code` como agente.
 - La herramienta `openspec` (la instala Active Stack).
-- Engram para la memoria persistente. Después de clonar, podés traer la memoria compartida del proyecto con `engram sync --import`.
+- Engram para la memoria persistente.
 
-Abrí OpenCode parado en la carpeta del repositorio.
+Abrí OpenCode (o Claude Code) parado en la carpeta del repositorio.
 
 <!-- VERIFICAR: si las skills de OpenSpec no aparecen al abrir el agente, probá `openspec init --tools opencode` dentro del repo. Confirmalo en la documentación de OpenSpec. -->
 
