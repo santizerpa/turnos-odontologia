@@ -97,6 +97,8 @@ Los slots no se persisten: se calculan a partir de la configuración de horario,
 ### OutboxMessage
 - `id: UUID`.
 - `appointment_id: UUID nullable`.
+- `type: enum` — BOOKING, REMINDER; nullable para mantener los mensajes de C-07 en `null`.
+- Restricción única: `(appointment_id, type)`.
 - `recipient_email: varchar(255)`.
 - `subject: varchar(255)`.
 - `body: text`.

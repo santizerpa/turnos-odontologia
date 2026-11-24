@@ -43,7 +43,9 @@ Paciente → Página pública → API REST → Servicio de turno → JPA → Pos
 7. Si el token no existe, responde `404`; si venció al inicio o a los 7 días, responde `410`; si el estado impide la operación, responde `409`.
 8. Si la cancelación llega con menos de 24hs, responde fuera de plazo sin cambiar el estado.
 9. La lista de espera se notifica por el listener de `AppointmentCancelledEvent` (Flujo 4).
-10. Devuelve una página con el estado final.
+10. Al ejecutar el recordatorio, el token se reemite con `issue()` y el enlace de reserva anterior queda invalidado.
+11. El dispatch marca los mensajes como `SIMULATED_SENT`.
+12. Devuelve una página con el estado final.
 
 ## Flujo 4: Lista de espera
 
