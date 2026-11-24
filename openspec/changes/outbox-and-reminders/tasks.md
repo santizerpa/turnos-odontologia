@@ -24,10 +24,10 @@
 
 ## 4. Integración y hardening
 
-- [ ] 4.1 Agregar tests de integración H2 para ventana, unicidad, reemisión y dispatch en una sola ejecución coherente; verificar que pasan con reloj fijo y datos ficticios.
-- [ ] 4.2 Ejecutar `./gradlew test` o el task de test correspondiente y registrar que la suite relevante pasa; resolver solo fallos introducidos por C-10 y reportar cualquier fallo preexistente sin corregirlo.
-- [ ] 4.3 Revisar que C-07, C-09 y C-11 no fueron modificados y que el DTO C-10 no expone campos prohibidos; verificar con diff y tests HTTP.
-- [ ] 4.4 Revisar coherencia de proposal, design, spec y tasks; ejecutar `openspec validate outbox-and-reminders --strict` y corregir cualquier inconsistencia de artefactos sin implementar código.
+- [x] 4.1 Ya cubierto por tests C-10 existentes: ventana estricta en `C10ReminderGenerationTests#eligiblePendingAndConfirmedAndStrictBoundsUseFixedClock` y exclusiones en `C10ReminderGenerationTests#excludesCancelledAndInactiveOrOutsideWindow`; unicidad en `C10OutboxModelPersistenceTests#reminderHasPersistentUniqueAppointmentTypeAndExistsQuery` y ejecución idempotente en `C10ReminderGenerationTests#secondRunIsIdempotentAndDoesNotDuplicate`; reemisión en `C10ReminderReissueEndToEndTests#oldReservationTokenStopsResolvingAndReminderTokenResolvesPublicly` e aislamiento de emisión en `C10ReminderIsolationTests#isolatedIssueFailureKeepsOldTokenAndProcessesOtherAppointment`; dispatch en `C10OutboxHttpTests#runGenerateAndDispatchFlowIsProtectedAndIdempotent` y `C10OutboxHttpTests#dtoToleratesMessageWithoutAppointmentAndDispatchIsIdempotent`. Se agregó el test faltante sin `@Transactional` `C10ReminderIsolationTests#outboxSaveFailureRevertsReissueAndLeavesNoReminderWithoutTransactionalTest`: falla el guardado de un `REMINDER` con spy, el token anterior sigue resolviendo y no queda recordatorio.
+- [x] 4.2 Suite completa ejecutada desde `backend/` con `./gradlew.bat test --rerun-tasks`; finalizó `BUILD SUCCESSFUL` en 1m 5s. No se reportaron fallos preexistentes ni fallos introducidos por C-10.
+- [x] 4.3 Revisado con `git diff --stat origin/main` y `git diff --name-only origin/main`: C-10 modificó solo el paquete `outbox`, tests C-10 y el arreglo autorizado de `PublicBookingApiTests` fuera del paquete. No modificó C-07, C-09, C-11 ni `AuthSecurityConfiguration`. `OutboxMessageDto` expone exactamente los nueve campos permitidos (`id`, `appointmentId`, `recipientEmail`, `subject`, `body`, `status`, `type`, `createdAt`, `sentAt`) y no expone DNI, hashes, tokens ni datos de sesión; los tests HTTP C-10 verifican ausencia de esos campos.
+- [x] 4.4 Revisada coherencia entre proposal, design, spec y tasks. `openspec validate outbox-and-reminders --strict` finalizó válido: `Change 'outbox-and-reminders' is valid`.
 
 ## Workflow follow-up
 

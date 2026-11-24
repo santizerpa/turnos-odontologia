@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
+
 import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,7 @@ class C10ReminderIsolationTests {
     @Autowired OutboxMessageRepository outbox;
     @Autowired AppointmentTokenRepository tokens;
     @SpyBean AppointmentTokenService tokenService;
+    @SpyBean OutboxMessageRepository outboxSpy;
 
     private Dentist dentist;
     private Patient patient;
@@ -53,6 +55,31 @@ class C10ReminderIsolationTests {
         }
         if (patient != null) patients.deleteById(patient.getId());
         if (dentist != null) dentists.deleteById(dentist.getId());
+    }
+
+    @Test
+    void outboxSaveFailureRevertsReissueAndLeavesNoReminderWithoutTransactionalTest() {
+        dentist = dentists.save(new Dentist("save.rollback@demo.invalid", "hash-ficticio", "Ana", "Demo"));
+        patient = patients.save(new Patient("81002002", "Paciente", "Rollback", "save.rollback.patient@demo.invalid"));
+        failed = appointments.saveAndFlush(Appointment.create(dentist, patient,
+            scheduleClock.instant().plusSeconds(36 * 3600), 30, CreatedBy.DENTIST));
+
+        String oldToken = tokenService.issue(failed);
+
+        Mockito.doAnswer(invocation -> {
+            OutboxMessage message = invocation.getArgument(0);
+            if (message.getType() == OutboxMessageType.REMINDER) {
+                throw new IllegalStateException("Fallo ficticio al guardar REMINDER");
+            }
+            return invocation.callRealMethod();
+        }).when(outboxSpy).saveAndFlush(any(OutboxMessage.class));
+
+        ReminderGenerationResult result = reminders.generate();
+
+        assertThat(result.created()).isZero();
+        assertThat(result.failed()).isEqualTo(1);
+        assertThat(outbox.existsByAppointmentIdAndType(failed.getId(), OutboxMessageType.REMINDER)).isFalse();
+        assertThat(tokenService.resolve(oldToken)).isNotNull();
     }
 
     @Test
