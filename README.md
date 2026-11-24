@@ -39,8 +39,6 @@ git clone https://github.com/santizerpa/turnos-odontologia.git
 cd turnos-odontologia
 ```
 
-El repositorio es privado: tenés que ser colaborador y haber iniciado sesión en GitHub.
-
 ## 2. Ejecutar los tests
 
 Los tests usan el perfil `test` con H2 en memoria (modo compatible con PostgreSQL), así que corren sin ninguna base de datos instalada.
