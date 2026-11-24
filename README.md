@@ -172,7 +172,7 @@ Reglas del equipo:
 Para ejecutar el flujo de cada change con el agente necesitás:
 - Active Stack instalado en modo Full, con `opencode` como agente.
 - La herramienta `openspec` (la instala Active Stack).
-- Engram para la memoria persistente. Después de clonar, podés traer la memoria compartida del proyecto con `engram sync --import`.
+- Engram para la memoria persistente.
 
 Abrí OpenCode parado en la carpeta del repositorio.
 
