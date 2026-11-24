@@ -70,10 +70,10 @@ El odontólogo ve los mensajes simulados y puede abrir el link público de prueb
 ## Épica 6: Lista de espera
 
 ### US-040 — Registrar paciente
-El paciente o odontólogo añade una entrada FIFO.
+El paciente se inscribe sin sesión mediante `POST /api/public/waiting-list`; el odontólogo consulta la cola privada mediante `GET /api/waiting-list`. El DNI identifica al paciente, no se modifica un perfil existente y no se permiten entradas `WAITING` duplicadas para el mismo paciente.
 
 ### US-041 — Avisar al liberar horario
-Al cancelar o liberar una reserva, el sistema genera un mensaje al primer paciente elegible.
+Al cancelar o liberar una reserva, el sistema genera un mensaje al primer paciente elegible cuyo rango inclusivo contenga la fecha local argentina del turno. Solo se notifica si el turno está entre 24 horas y 30 días desde ahora, se excluye al paciente que canceló, y el aviso incluye fecha y hora locales. La entrada pasa a `NOTIFIED`; no se asigna el turno automáticamente.
 
 ## Épica 7: Demo y calidad
 

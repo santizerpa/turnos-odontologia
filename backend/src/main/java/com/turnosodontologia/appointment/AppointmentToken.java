@@ -17,7 +17,7 @@ public class AppointmentToken {
     @JoinColumn(name = "appointment_id", nullable = false, unique = true)
     private Appointment appointment;
 
-    @Column(name = "token_hash", nullable = false, length = 64)
+    @Column(name = "token_hash", nullable = false, length = 64, unique = true)
     private String tokenHash;
 
     @Column(name = "expires_at", nullable = false)
@@ -51,4 +51,10 @@ public class AppointmentToken {
     public String getTokenHash() { return tokenHash; }
     public Instant getExpiresAt() { return expiresAt; }
     public Instant getCreatedAt() { return createdAt; }
+
+    public void replaceOpaqueTokenHashAndExpiry(String opaqueTokenHash, Instant expiresAt) {
+        if (opaqueTokenHash == null || expiresAt == null) throw new IllegalArgumentException("Token requerido");
+        this.tokenHash = opaqueTokenHash;
+        this.expiresAt = expiresAt;
+    }
 }

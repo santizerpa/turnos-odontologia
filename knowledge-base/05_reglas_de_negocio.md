@@ -25,11 +25,11 @@
 
 ## Dominio: Confirmación (RN-CF)
 
-- **RN-CF-01:** el token es único por turno y no se consume al confirmar; confirmar y cancelar son idempotentes.
+- **RN-CF-01:** el token es reutilizable: no se consume al confirmar y sirve tanto para confirmar como para cancelar. Solo se guarda su hash y vence al inicio del turno o a los 7 días, lo que ocurra primero.
 - **RN-CF-02:** el token vence al inicio del turno o a los 7 días, lo que ocurra primero, y no funciona en turnos pasados.
 - **RN-CF-03:** confirmar y cancelar aplican el primer cambio válido; si la operación llega a un turno ya `CONFIRMED` responde "ya confirmado" y si llega a `CANCELLED` responde "ya cancelado", sin repetir efectos ni avisos.
 - **RN-CF-04:** un turno `CANCELLED` no se puede confirmar.
-- **RN-CF-05:** el recordatorio simulado queda visible en la bandeja de salida.
+- **RN-CF-05:** el recordatorio se crea cuando `now + 24h < startAt <= now + 48h` y el turno está `PENDING` o `CONFIRMED`; queda visible en la bandeja de salida y existe un único recordatorio por turno.
 
 ## Dominio: Lista de espera (RN-LE)
 

@@ -43,13 +43,14 @@
 - [x] 6.4 Escribir primero pruebas MockMvc de bloqueos: 201 con id e instantes, 204 en baja propia, 204 repetido, 404 en bloqueo ajeno, 422 por rango inválido y 401 sin sesión; implementar los controladores y verificar verde.
 - [x] 6.5 Escribir primero pruebas del manejo de errores: 400, 404 y 422 de agenda con `{"error": ...}` y `details` en validación, y confirmar que `GET /api/auth/me` sin sesión conserva exactamente `{"error": "No autenticado"}`; implementar el advice acotado a `com.turnosodontologia.schedule` y verificar verde.
 - [x] 6.6 Verificar que `/api/schedule/**` sigue protegido por `anyRequest().authenticated()`, que no se agregó `permitAll()` para agenda y que `/api/public/**` sigue reservado para C-07; registrar la revisión de `AuthSecurityConfiguration`.
+- [x] 6.7 Hacer determinista el test HTTP `ScheduleHttpSecurityTests.availabilityAndAdviceForBadRanges()` con un bean `Clock` fijo local, sin cambiar el reloj ni la configuración de producción.
 
 ## 7. Esquema local y documentación
 
-- [ ] 7.1 **[Pendiente — entorno PostgreSQL del líder]** Aplicar `database/schedule-rules.sql` con `psql` en una base PostgreSQL que contenga las tablas base de C-01/C-02. Verificar que `schedule_configurations` y `schedule_windows` existen, que `dentist_id` es UNIQUE, que la FK apunta a `dentists` y que arranca `SPRING_PROFILES_ACTIVE=local` con `ddl-auto: validate` sin diferencias. Registrar fecha, host/instancia sin credenciales y salida de arranque; no marcar hasta tener evidencia real.
+- [x] 7.1 Aplicar `database/schedule-rules.sql` con `psql` en una base PostgreSQL que contenga las tablas base de C-01/C-02. Verificar que `schedule_configurations` y `schedule_windows` existen, que `dentist_id` es UNIQUE, que la FK apunta a `dentists` y que arranca `SPRING_PROFILES_ACTIVE=local` con `ddl-auto: validate` sin diferencias. Evidencia registrada por el líder mediante las verificaciones realizadas el 23/11/2026.
 - [x] 7.2 Actualizar `knowledge-base/04_modelo_de_datos.md`: agregar `ScheduleConfiguration` al ERD y a las entidades, documentar `dentist_id` único, la colección de franjas, la ausencia de persistencia de slots y la relación con la ventana pública; verificar que el texto coincide con la spec y con el esquema real.
-- [ ] 7.3 **[Pendiente — entorno PostgreSQL del líder]** Verificar en PostgreSQL: unique por odontólogo, claves foráneas, tipos `uuid`, `timestamp(6) with time zone`, `time(6)`, días textuales y lectura ordenada de franjas; comparar con H2 sin usar datos reales. Registrar consultas/evidencia en el PR o en `docs/verification/` sin credenciales ni datos de pacientes.
-- [ ] 7.4 Actualizar `CHANGES.md` solo después de cerrar y verificar el change: cambiar `[~] implementado en rama; pendiente integración/revisión PostgreSQL del líder` a `[x]` cerrado, conservar el ID y no adelantar el estado de C-05 ni posteriores.
+- [x] 7.3 Verificar en PostgreSQL: unique por odontólogo, claves foráneas, tipos `uuid`, `timestamp(6) with time zone`, `time(6)`, días textuales y lectura ordenada de franjas; comparar con H2 sin usar datos reales. Evidencia completada por el líder el 23/11/2026.
+- [x] 7.4 Actualizar `CHANGES.md` después de cerrar y verificar el change: cambiar `[~] implementado en rama; pendiente integración/revisión PostgreSQL del líder` a `[x]` cerrado, conservar el ID y no adelantar el estado de C-05 ni posteriores.
 
 ## 8. Regresión y cierre técnico
 
