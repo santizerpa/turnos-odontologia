@@ -47,10 +47,16 @@ El sistema SHALL identificar los recordatorios por la clave lógica `(appointmen
 - **WHEN** ambas intentan persistir un `REMINDER` para el mismo turno
 - **THEN** la restricción única impide el segundo registro y solo puede existir un recordatorio por turno
 
-#### Scenario: Fallo aislado revierte el turno y continúa con otros elegibles
-- **GIVEN** varios turnos ficticios elegibles, con un turno cuyo guardado de `REMINDER` o `issue()` falla
+#### Scenario: Dos turnos elegibles y issue falla para uno
+- **GIVEN** dos turnos ficticios elegibles y `issue()` falla para uno de ellos
 - **WHEN** se ejecuta `POST /api/outbox/reminders/run`
-- **THEN** no queda `REMINDER` para el turno fallido, su token anterior sigue válido y los demás turnos elegibles sí reciben recordatorio
+- **THEN** responde `200 OK` con `created = 1` y `failed = 1`; no queda `REMINDER` para el turno que falló, su token anterior sigue válido y el otro turno recibe su recordatorio
+- **AND** la respuesta no incluye mensajes internos de excepción ni stack traces
+
+#### Scenario: Error inesperado fuera del procesamiento por turno
+- **GIVEN** una petición autenticada y una falla inesperada al consultar los turnos elegibles
+- **WHEN** se ejecuta `POST /api/outbox/reminders/run`
+- **THEN** responde `500 Internal Server Error` con un mensaje general fijo, sin exponer detalles internos ni stack trace
 
 ### Requirement: Reemitir el token invalida el enlace anterior de reserva
 El sistema SHALL usar el token plano devuelto por `issue(Appointment)` para el nuevo recordatorio. Como DD-08 reemplaza el hash persistido, el link anterior generado por C-07 SHALL dejar de resolverse después de que C-10 reemita.
@@ -86,7 +92,12 @@ El sistema SHALL proteger `GET /api/outbox/messages`, `POST /api/outbox/reminder
 - **WHEN** ejecuta `GET /api/outbox/messages`
 - **THEN** cada elemento incluye `id`, `appointmentId`, `recipientEmail`, `subject`, `body`, `status`, `type`, `createdAt` y `sentAt`, sin DNI, hash, token persistido ni datos de sesión
 
-#### Scenario: Fallo de issue devuelve 500 sin detalles internos
-- **GIVEN** una petición autenticada a `POST /api/outbox/reminders/run` y `issue()` que lanza una excepción
-- **WHEN** el controlador C-10 procesa la excepción
-- **THEN** responde `500 Internal Server Error` con un mensaje general fijo, sin exponer el mensaje interno de la excepción ni stack trace
+#### Scenario: Ejecución exitosa siempre responde 200 con conteos
+- **GIVEN** una petición autenticada a `POST /api/outbox/reminders/run` con procesamiento por turno completado
+- **WHEN** todos los turnos elegibles se procesan individualmente
+- **THEN** la respuesta es `200 OK` con el objeto `{ "created": <cantidad>, "failed": <cantidad> }`, sin detalles internos
+
+#### Scenario: Fallo de issue se registra como fallo por turno
+- **GIVEN** una petición autenticada a `POST /api/outbox/reminders/run` y `issue()` que falla para un turno elegible
+- **WHEN** el procesador de ese turno revierte su transacción y continúa
+- **THEN** responde `200 OK` con `failed = 1`, incrementado para ese turno, y no expone el mensaje interno de la excepción ni stack trace

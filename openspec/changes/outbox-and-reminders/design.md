@@ -31,6 +31,8 @@ Se usará el mismo formato relativo definido por C-07. Esta decisión hace que e
 
 Para cada turno elegible, `AppointmentTokenService.issue(appointment)` y el guardado del `REMINDER` deberán ejecutarse dentro de la misma transacción, una transacción por turno. Si falla el guardado o `issue()`, la transacción se revierte completa: no queda `REMINDER` para ese turno y el token anterior conserva su validez. El procesamiento continúa con los demás turnos elegibles, de modo que un fallo aislado no cancela la ejecución completa.
 
+La transacción por turno se implementará con `TransactionTemplate` o con un bean separado cuyo método declare `@Transactional(REQUIRES_NEW)`. Un `@Transactional` llamado desde la misma clase no abre una transacción nueva por el bypass de la auto-proxy, por lo que no se utilizará ese patrón.
+
 **Alternativa descartada:** reutilizar el body o extraer el token del body del mail de C-07.
 El body es texto frágil, no expone un token plano persistente por diseño y no sirve para turnos cargados por el odontólogo, que pueden no tener mail de reserva. Releer el body tampoco permitiría distinguir enlaces válidos ni compartir el token vigente de forma segura.
 
@@ -57,10 +59,12 @@ Se agregará `markSimulatedSent(Instant sentAt)` a `OutboxMessage`. El método c
 ### API y privacidad
 
 - `GET /api/outbox/messages` devuelve `id`, `appointmentId`, `recipientEmail`, `subject`, `body`, `status`, `type`, `createdAt`, `sentAt`.
-- `POST /api/outbox/reminders/run` devuelve la cantidad creada.
+- `POST /api/outbox/reminders/run` procesa cada turno elegible en su propia transacción y siempre devuelve `200 OK` con `{ "created": <cantidad>, "failed": <cantidad> }` durante el procesamiento normal. `failed` cuenta exclusivamente fallos aislados de `issue()` o guardado por turno. La respuesta no incluye mensajes internos ni stack traces.
 - `POST /api/outbox/dispatch` devuelve la cantidad marcada como enviada.
 
 Los tres quedan protegidos por sesión de odontólogo. Un acceso sin sesión debe devolver 401. Los controladores C-10 tendrán su propio manejador limitado de errores, declarado con `@RestControllerAdvice(assignableTypes = <controladores C-10>)` y `@Order(Ordered.HIGHEST_PRECEDENCE)`, para que solo intervenga en esos controladores y tenga precedencia sobre el manejador global `PatientExceptionHandler`. Devolverán mensajes generales; no delegarán ni extenderán manejadores existentes.
+
+El manejador usará `500` solo para errores inesperados fuera del procesamiento por turno, por ejemplo una falla al consultar los turnos elegibles. Los fallos de `issue()` o guardado dentro de una transacción por turno se contabilizan en `failed`, revierten ese turno y no producen `500` ni detalles internos.
 
 ## Risks / Trade-offs
 
