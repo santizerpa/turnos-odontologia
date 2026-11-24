@@ -51,9 +51,9 @@ public class PublicBookingExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> dataIntegrity(DataIntegrityViolationException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "La franja solicitada ya está ocupada"));
+    public ResponseEntity<Map<String, Object>> genericIntegrity(DataIntegrityViolationException exception) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "No se pudo procesar la reserva"));
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, HttpMessageNotReadableException.class,

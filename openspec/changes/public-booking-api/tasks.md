@@ -22,7 +22,7 @@
 
 ## 3. Flujo de reserva, token y Outbox
 
-*Sección dependiente del merge de C-09 (`AppointmentTokenService.issue` en feat/augusto).* 
+*Sección aplicada con AppointmentTokenService.issue(Appointment) real de C-09 en main.*
 
 - [x] 3.1 [red] POST válido → 201 con `PublicBookingResponse(startAt, durationMinutes, status)` sin ids internos ni token. Sin endpoint, baseline 404/405.
 - [x] 3.2 [green mínimo] Implementar `PublicBookingController.book()` con `@Valid PublicBookingRequest`; delegar a `PublicBookingService.book()`; responder 201 con el DTO mínimo.
@@ -39,7 +39,7 @@
 
 ## 4. Verificación de integración
 
-*Sección aplicable sin C-09 para las partes GET y validación previa; requiere C-09 para la reserva completa.*
+*Sección aplicada con GET/handlers y reserva real por AppointmentTokenService.issue(Appointment) de C-09 en main.*
 
 - [x] 4.1 [red/green] Ejecutar tests del paquete public-booking con Clock fijo y datos ficticios; cubrir bordes del primer y último día de ventana.
 - [x] 4.2 [green] Ejecutar `./gradlew test --tests com.turnosodontologia.appointment.PublicBookingApiTests` con H2 PostgreSQL-mode.
@@ -48,7 +48,5 @@
 
 ## Workflow follow-up
 
-- Aplicables sin C-09: secciones 1, 2 y 4 solo en sus partes GET/handlers/validación previa.
-- Dependen del merge de C-09: sección 3 completa e integración POST de sección 4.
-- Continuar C-07 después del merge de C-09 mediante la integración de `AppointmentTokenService.issue(Appointment)` y el OutboxMessage.
+- Aplicadas las secciones 1–4; C-09 ya está integrado en main y C-07 usa AppointmentTokenService.issue(Appointment) real.
 - Archivar el change al cerrar y verificarlo, usando `openspec-archive-change`; C-10 no forma parte de este change ni debe quedar como sustituto del archivo C-07.

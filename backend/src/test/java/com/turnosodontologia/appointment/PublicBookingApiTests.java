@@ -17,7 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +36,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -321,6 +331,94 @@ class PublicBookingApiTests {
         assertThat(appointments.findAll()).hasSize(1);
         assertThat(outbox.findAll()).isEmpty();
         assertThat(tokens.findAll()).isEmpty();
+    }
+
+    // ===== Sección C-07 — Concurrencia y mapeo de integridad =====
+
+    @Test
+    void concurrentReservationsSameSlotOne201One409() throws Exception {
+        patients.save(new Patient("12345678", "Paciente", "Ficticio", "publicbooking.paciente@odontologia.invalid"));
+
+        List<Integer> statuses = bookConcurrently(
+                new String[][]{{"12345678", "publicbooking.paciente@odontologia.invalid"},
+                        {"12345678", "publicbooking.paciente@odontologia.invalid"}});
+
+        assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+        assertThat(appointments.findAll()).hasSize(1);
+        assertThat(patients.findByDni("12345678")).isPresent();
+        assertThat(outbox.findAll()).hasSize(1);
+        assertThat(tokens.findAll()).hasSize(1);
+    }
+
+    @Test
+    void concurrentReservationsSameSlotDifferentDniOne201One409() throws Exception {
+        patients.save(new Patient("12345678", "Paciente", "Ficticio", "publicbooking.paciente@odontologia.invalid"));
+        patients.save(new Patient("87654321", "Otra", "Persona", "otra.persona@odontologia.invalid"));
+
+        List<Integer> statuses = bookConcurrently(
+                new String[][]{{"12345678", "publicbooking.paciente@odontologia.invalid"},
+                        {"87654321", "otra.persona@odontologia.invalid"}});
+
+        assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+        assertThat(appointments.findAll()).hasSize(1);
+        assertThat(patients.findAll()).hasSize(2);
+        assertThat(outbox.findAll()).hasSize(1);
+        assertThat(tokens.findAll()).hasSize(1);
+    }
+
+    private List<Integer> bookConcurrently(String[][] requests) throws Exception {
+        CyclicBarrier barrier = new CyclicBarrier(requests.length);
+        ExecutorService pool = Executors.newFixedThreadPool(requests.length);
+        List<Future<Integer>> futures = new ArrayList<>();
+        try {
+            for (String[] request : requests) {
+                futures.add(pool.submit(() -> {
+                    barrier.await();
+                    MvcResult result = mockMvc.perform(post("/api/public/appointments")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(bookingJson(request[0], request[1], SLOT_X.toString())))
+                            .andReturn();
+                    return result.getResponse().getStatus();
+                }));
+            }
+            List<Integer> statuses = new ArrayList<>();
+            for (Future<Integer> future : futures) {
+                statuses.add(future.get(30, TimeUnit.SECONDS));
+            }
+            return statuses;
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    @Test
+    void unrelatedDataIntegrityViolationMapsTo500WithFixedMessage() {
+        PublicBookingExceptionHandler handler = new PublicBookingExceptionHandler();
+        ResponseEntity<Map<String, Object>> response = handler.genericIntegrity(
+                new DataIntegrityViolationException(
+                        "Could not execute statement [index appointments_active_slot_key]",
+                        new RuntimeException("duplicate key value violates unique constraint \"appointments_active_slot_key\"")));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat((String) response.getBody().get("error")).isEqualTo("No se pudo procesar la reserva");
+    }
+
+    @Test
+    void unrelatedDataIntegrityViolationDoesNotLeakDriverDetails() {
+        PublicBookingExceptionHandler handler = new PublicBookingExceptionHandler();
+        ResponseEntity<Map<String, Object>> response = handler.genericIntegrity(
+                new DataIntegrityViolationException("internal driver message A", new RuntimeException("internal driver message B")));
+        assertThat((String) response.getBody().get("error")).isEqualTo("No se pudo procesar la reserva");
+        assertThat((String) response.getBody().get("error"))
+                .doesNotContain("internal driver message A")
+                .doesNotContain("internal driver message B");
+    }
+
+    @Test
+    void appointmentConflictExceptionMapsTo409FixedMessage() {
+        PublicBookingExceptionHandler handler = new PublicBookingExceptionHandler();
+        ResponseEntity<Map<String, Object>> response = handler.conflict(new AppointmentConflictException());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat((String) response.getBody().get("error")).isEqualTo("La franja solicitada ya está ocupada");
     }
 
     private OffsetDateTime firstSlotStart(String date) throws Exception {
