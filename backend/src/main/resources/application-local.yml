@@ -5,7 +5,7 @@ spring:
     password: "${SPRING_DATASOURCE_PASSWORD}"
   web:
     resources:
-      static-locations: classpath:/static/,file:../frontend/dist/
+      static-locations: file:../frontend/dist/,classpath:/static/
   jpa:
     hibernate:
       ddl-auto: validate

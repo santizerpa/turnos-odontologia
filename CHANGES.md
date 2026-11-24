@@ -249,7 +249,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 3 — Reserva pública
 
 ### [C-07] `public-booking-api`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: API pública de disponibilidad y reserva
   - `GET /api/public/slots?date=` con ventana 24hs-30 días
   - `POST /api/public/appointments` con nombre, apellido, DNI y email
@@ -266,7 +266,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/10_preguntas_abiertas.md` §Seguridad
 
 ### [C-08] `public-booking-ui`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Interfaz pública de reserva en TypeScript vanilla
   - Selector de fecha dentro de la ventana permitida
   - Listado de slots libres y formulario de datos del paciente
@@ -310,7 +310,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/10_preguntas_abiertas.md` §Seguridad
 
 ### [C-10] `outbox-and-reminders`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**: Bandeja de salida simulada y recordatorios
   - Persistencia de `OutboxMessage` con estados `PENDING` y `SIMULATED_SENT`
   - `GET /api/outbox/messages` para listado del odontólogo
