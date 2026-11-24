@@ -170,11 +170,11 @@ Reglas del equipo:
 ## Entorno del agente de IA (opcional, para trabajar con SDD)
 
 Para ejecutar el flujo de cada change con el agente necesitás:
-- Active Stack instalado en modo Full, con `opencode` como agente.
+- Active Stack instalado en modo Full, con `OpenCode` o `Claude Code` como agente.
 - La herramienta `openspec` (la instala Active Stack).
 - Engram para la memoria persistente.
 
-Abrí OpenCode parado en la carpeta del repositorio.
+Abrí OpenCode (o Claude Code) parado en la carpeta del repositorio.
 
 <!-- VERIFICAR: si las skills de OpenSpec no aparecen al abrir el agente, probá `openspec init --tools opencode` dentro del repo. Confirmalo en la documentación de OpenSpec. -->
 
