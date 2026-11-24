@@ -55,6 +55,12 @@
 **Decisión:** C-09 emite el token mediante `AppointmentTokenService.issue(Appointment)`; una reemisión reemplaza el registro anterior y hace inválido el token anterior.
 **Consecuencias:** solo se conserva el hash del token vigente, el valor plano se devuelve una sola vez y cada reemisión invalida el enlace previo.
 
+### DD-09 — Reemisión del token para recordatorios
+**Contexto:** C-10 debe generar un recordatorio por turno sin depender del contenido del mail anterior ni leer el token del body del mail de C-07.
+**Decisión:** el recordatorio reemite el token mediante `issue()` y ejecuta la generación en una transacción por turno, con resultado `{ created, failed }`.
+**Alternativa descartada:** leer el token del body del mail generado por C-07, porque acopla el recordatorio a un formato de texto y no constituye una fuente segura ni estructurada del token vigente.
+**Consecuencias:** el nuevo mail deja vigente únicamente el token reemitido y invalida el link de reserva anterior; la transacción garantiza la consistencia individual de cada turno y permite informar cantidades creadas y fallidas.
+
 ## Supuestos inferidos
 
 ### SU-01 — Fusiones por DNI

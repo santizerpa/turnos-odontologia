@@ -65,4 +65,6 @@ Se propone una arquitectura modular en Spring Boot. La prioridad es entregar rá
 - `GET /api/public/appointments/{token}/cancel` — consulta informativa, no cancela
 - `POST /api/public/appointments/{token}/cancel` — ejecuta la cancelación
 - `GET/POST /api/waiting-list`
-- `GET /api/outbox/messages`
+- `GET /api/outbox/messages` — protegida con sesión de odontólogo
+- `POST /api/outbox/reminders/run` — protegida con sesión de odontólogo
+- `POST /api/outbox/dispatch` — protegida con sesión de odontólogo
