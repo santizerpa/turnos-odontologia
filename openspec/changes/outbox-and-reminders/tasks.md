@@ -8,12 +8,12 @@
 
 ## 2. Generación de recordatorios (TDD)
 
-- [ ] 2.1 Escribir tests rojos con reloj fijo para estados elegibles, `activeSlot`, ventana estricta inferior e inclusiva superior; implementar la selección `now + 24h < startAt <= now + 48h` usando `Clock`; verificar PENDING/CONFIRMED feliz y límites con H2.
-- [ ] 2.2 Escribir tests rojos de exclusión para `CANCELLED`, menos de 24 horas, `activeSlot` nulo y fuera de 48 horas; implementar el filtro mínimo; verificar que no se llama a `issue()` ni se crea ningún mensaje en esos casos.
-- [ ] 2.3 Escribir tests rojos para turno elegible a 36 horas: reservar token con `AppointmentTokenService.issue(appointment)`, construir links relativos confirm/cancel y persistir `REMINDER`; ejecutar ambos pasos en una transacción por turno y verificar que body con datos ficticios y nuevo token solo quedan persistidos si la transacción completa tiene éxito.
-- [ ] 2.4 Escribir tests rojos para segunda ejecución y restricción única; implementar comprobación previa por turno/tipo y persistencia protegida; verificar `created = 0` en la segunda corrida y que no se llama a `issue()` ni se duplica.
-- [ ] 2.5 Escribir tests rojos para dos turnos elegibles con `issue()` fallando para uno: implementar procesamiento por turno que revierta la reemisión y el `REMINDER` fallido sin detener el procesamiento; verificar `200`, `created = 1`, `failed = 1`, ausencia de REMINDER y validez del token anterior en el turno fallido, y recordatorio creado en el otro turno.
-- [ ] 2.6 Escribir test rojo de reemisión que comprueba que el token anterior de reserva deja de resolver y el nuevo sí; integrar solo con C-09 sin modificar C-07/C-09; verificar el resultado observable con tests end-to-end reales del servicio público.
+- [x] 2.1 Escribir tests rojos con reloj fijo para estados elegibles, `activeSlot`, ventana estricta inferior e inclusiva superior; implementar la selección `now + 24h < startAt <= now + 48h` usando `Clock`; verificar PENDING/CONFIRMED feliz y límites con H2.
+- [x] 2.2 Escribir tests rojos de exclusión para `CANCELLED`, menos de 24 horas, `activeSlot` nulo y fuera de 48 horas; implementar el filtro mínimo; verificar que no se llama a `issue()` ni se crea ningún mensaje en esos casos.
+- [x] 2.3 Escribir tests rojos para turno elegible a 36 horas: reservar token con `AppointmentTokenService.issue(appointment)`, construir links relativos confirm/cancel y persistir `REMINDER`; ejecutar ambos pasos en una transacción por turno y verificar que body con datos ficticios y nuevo token solo quedan persistidos si la transacción completa tiene éxito.
+- [x] 2.4 Escribir tests rojos para segunda ejecución y restricción única; implementar comprobación previa por turno/tipo y persistencia protegida; verificar `created = 0` en la segunda corrida y que no se llama a `issue()` ni se duplica.
+- [x] 2.5 Escribir tests rojos para dos turnos elegibles con `issue()` fallando para uno: implementar procesamiento por turno que revierta la reemisión y el `REMINDER` fallido sin detener el procesamiento; verificar `200`, `created = 1`, `failed = 1`, ausencia de REMINDER y validez del token anterior en el turno fallido, y recordatorio creado en el otro turno.
+- [x] 2.6 Escribir test rojo de reemisión que comprueba que el token anterior de reserva deja de resolver y el nuevo sí; integrar solo con C-09 sin modificar C-07/C-09; verificar el resultado observable con tests end-to-end reales del servicio público.
 
 ## 3. Bandeja y dispatch protegidos (TDD)
 
