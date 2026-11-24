@@ -2,9 +2,9 @@
 
 ## 1. Modelo aditivo y persistencia (TDD)
 
-- [ ] 1.1 Escribir tests rojos para `OutboxMessageType` con `BOOKING` y `REMINDER`, el constructor existente de cinco parámetros y el campo nullable; implementar la columna/enum aditiva sin cambiar ni eliminar ese constructor; verificar los tests JPA y mapeo H2.
-- [ ] 1.2 Escribir tests rojos para `markSimulatedSent(Instant)` en `PENDING` y `SIMULATED_SENT`; implementar la transición mínima que fija `sentAt` solo al primer envío y no modifica un mensaje ya enviado; verificar ambos casos con JUnit.
-- [ ] 1.3 Escribir pruebas de esquema para la restricción única `(appointment_id, type)` y consulta de existencia de un `REMINDER`; implementar consulta/repositorio y restricción sin alterar C-07; verificar duplicado persistido rechazado y mensajes de reserva existentes conservados.
+- [x] 1.1 Escribir tests rojos para `OutboxMessageType` con `BOOKING` y `REMINDER`, el constructor existente de cinco parámetros y el campo nullable; implementar la columna/enum aditiva sin cambiar ni eliminar ese constructor; verificar los tests JPA y mapeo H2.
+- [x] 1.2 Escribir tests rojos para `markSimulatedSent(Instant)` en `PENDING` y `SIMULATED_SENT`; implementar la transición mínima que fija `sentAt` solo al primer envío y no modifica un mensaje ya enviado; verificar ambos casos con JUnit.
+- [x] 1.3 Escribir pruebas de esquema para la restricción única `(appointment_id, type)` y consulta de existencia de un `REMINDER`; implementar consulta/repositorio y restricción sin alterar C-07; verificar duplicado persistido rechazado y mensajes de reserva existentes conservados.
 
 ## 2. Generación de recordatorios (TDD)
 
