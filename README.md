@@ -181,6 +181,8 @@ cd backend
 curl http://localhost:8080/api/health
 ```
 
+#### Nota: En una base vacía, el primer arranque necesita SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
 Debe responder con éxito sin pedir autenticación.
 
 <!-- VERIFICAR tras aplicar C-01: formato exacto de la respuesta (por ejemplo {"status":"UP"}). -->
