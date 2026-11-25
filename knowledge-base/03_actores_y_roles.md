@@ -14,8 +14,8 @@ La v1 tiene un rol autenticado y rutas públicas. No se implementa RBAC multirol
 
 | Rol | Agenda | Pacientes | Turnos | Lista de espera | Bandeja salida |
 |---|---|---|---|---|---|
-| ODONTOLOGO | CRUD | CRUD | CRUD/estado | CRUD + avisar | Lectura |
-| PACIENTE_PUBLICO | Solo disponibilidad | Solo crear/buscar por DNI | Crear/confirmar/cancelar propio token | Sin acceso directo | Sin acceso |
+| ODONTOLOGO | CRUD | CRUD + buscar por DNI o nombre | Ausente/atendido/cancelar (no confirma) | Solo API (sin pantalla); aviso automático | Lectura (historial) |
+| PACIENTE_PUBLICO | Solo disponibilidad | Solo crear/buscar por DNI | Crear/confirmar/cancelar propio token | Sin acceso directo | Bandeja de entrada simulada por email (solo demo) |
 | ANONIMO | Sin acceso | Sin acceso | Sin acceso | Sin acceso | Sin acceso |
 
 ## Rutas públicas
@@ -23,6 +23,7 @@ La v1 tiene un rol autenticado y rutas públicas. No se implementa RBAC multirol
 - Página de reserva.
 - Consulta de horarios disponibles.
 - Confirmación/cancelación por token.
+- Bandeja de entrada simulada del paciente por email (`GET /api/public/inbox`), solo con `app.demo.inbox.enabled=true`; simula el correo del paciente en la demo.
 - Sin listado de pacientes.
 - Sin agenda completa pública.
 

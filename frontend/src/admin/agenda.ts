@@ -37,6 +37,7 @@ export interface PatientPage {
 
 export interface PatientQuery {
   dni?: string;
+  nombre?: string;
   page: number;
   size: number;
 }
@@ -66,8 +67,20 @@ export interface AgendaResult extends AgendaView {
   error: string | null;
 }
 
-function instant(date: Date): string {
-  return date.toISOString().replace('.000Z', 'Z');
+const BUENOS_AIRES_OFFSET = '-03:00';
+
+// Calendar arithmetic runs on UTC fields only to add days; the result is written as a
+// Buenos Aires local midnight (`-03:00`), never through toISOString(), which would emit `Z`.
+function localMidnight(day: Date): string {
+  return `${day.toISOString().slice(0, 10)}T00:00:00${BUENOS_AIRES_OFFSET}`;
+}
+
+function localRange(date: string, days: number): AgendaRange {
+  const from = startOfDay(date);
+  const to = new Date(from);
+  to.setUTCDate(to.getUTCDate() + days);
+
+  return { from: localMidnight(from), to: localMidnight(to) };
 }
 
 function startOfDay(date: string): Date {
@@ -85,19 +98,11 @@ function startOfDay(date: string): Date {
 }
 
 export function dailyRange(date: string): AgendaRange {
-  const from = startOfDay(date);
-  const to = new Date(from);
-  to.setUTCDate(to.getUTCDate() + 1);
-
-  return { from: instant(from), to: instant(to) };
+  return localRange(date, 1);
 }
 
 export function weeklyRange(date: string): AgendaRange {
-  const from = startOfDay(date);
-  const to = new Date(from);
-  to.setUTCDate(to.getUTCDate() + 7);
-
-  return { from: instant(from), to: instant(to) };
+  return localRange(date, 7);
 }
 
 function isInstant(value: string | undefined): boolean {

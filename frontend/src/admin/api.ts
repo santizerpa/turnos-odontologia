@@ -2,7 +2,6 @@ import type { Appointment, PatientPage, PatientQuery } from './agenda.js';
 import type { AppointmentStatus } from './appointments.js';
 import { isSessionExpired } from './session.js';
 import type { OutboxMessage, TokenAction } from './outbox.js';
-import type { WaitingEntry } from './waiting-list.js';
 import { statusRequest } from './appointments.js';
 
 export interface ApiResponseLike {
@@ -36,7 +35,6 @@ export interface AdminApi {
   patients(query: PatientQuery): Promise<PatientPage>;
   changeStatus(id: string, status: AppointmentStatus, reason?: string | null): Promise<unknown>;
   outbox(): Promise<OutboxMessage[]>;
-  waitingList(): Promise<WaitingEntry[]>;
   tokenInfo(token: string, action: TokenAction): Promise<TokenStatusResponse>;
   tokenAction(token: string, action: TokenAction): Promise<TokenActionResponse>;
 }
@@ -107,7 +105,7 @@ export function createAdminApi(options: ApiClientOptions = {}): AdminApi {
       request<Appointment[]>(`/api/appointments${queryString([['from', from], ['to', to]])}`),
     patients: (query) =>
       request<PatientPage>(
-        `/api/patients${queryString([['dni', query.dni], ['page', query.page], ['size', query.size]])}`
+        `/api/patients${queryString([['dni', query.dni], ['nombre', query.nombre], ['page', query.page], ['size', query.size]])}`
       ),
     changeStatus: (id, status, reason) =>
       request<unknown>(
@@ -115,7 +113,6 @@ export function createAdminApi(options: ApiClientOptions = {}): AdminApi {
         buildInit('PATCH', statusRequest(status, reason))
       ),
     outbox: () => request<OutboxMessage[]>('/api/outbox/messages'),
-    waitingList: () => request<WaitingEntry[]>('/api/waiting-list'),
     tokenInfo: (token, action) =>
       request<TokenStatusResponse>(
         `/api/public/appointments/${encodeURIComponent(token)}/${action}`,

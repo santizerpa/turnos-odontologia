@@ -46,17 +46,19 @@ test('buildBookingPayload handles different fictitious values without dropping f
   assert.equal(payload.email, 'bruno.demo@example.invalid');
 });
 
-test('normalizeDni removes separators and formatStartAt trims or marks missing values', () => {
+test('normalizeDni removes separators and formatStartAt shows Buenos Aires local time or marks missing values', () => {
   assert.equal(normalizeDni('12.345.678'), '12345678');
   assert.equal(normalizeDni(' 98 765 432 '), '98765432');
-  assert.equal(formatStartAt('  2026-12-01T10:00:00Z  '), '2026-12-01T10:00:00Z');
+  assert.equal(formatStartAt('  2026-12-01T10:00:00Z  '), '01/12/26 07:00');
+  assert.equal(formatStartAt('2026-11-26T17:30:00Z'), '26/11/26 14:30');
+  assert.equal(formatStartAt('no-es-fecha'), 'no-es-fecha');
   assert.equal(formatStartAt(''), '—');
 });
 
 test('formatConfirmation reads the 201 response fields without inventing a token', () => {
   assert.deepEqual(
     formatConfirmation({ startAt: '2026-12-01T10:00:00Z', durationMinutes: 30, status: 'PENDING' }),
-    { start: '2026-12-01T10:00:00Z', duration: '30 minutos', status: 'PENDING' }
+    { start: '01/12/26 07:00', duration: '30 minutos', status: 'PENDING' }
   );
   assert.deepEqual(
     formatConfirmation({ startAt: '', durationMinutes: 30, status: 'PENDING' }),
@@ -66,7 +68,7 @@ test('formatConfirmation reads the 201 response fields without inventing a token
 
 test('formatStatus and formatTokenAction surface the JSON returned by GET and POST', () => {
   assert.deepEqual(formatStatus({ startAt: '2026-12-01T10:00:00Z', status: 'CONFIRMED' }), {
-    start: '2026-12-01T10:00:00Z',
+    start: '01/12/26 07:00',
     status: 'CONFIRMED'
   });
   assert.deepEqual(formatTokenAction({ message: 'confirmación exitosa', status: 'CONFIRMED' }), {

@@ -57,7 +57,7 @@ Se propone una arquitectura modular en Spring Boot. La prioridad es entregar rá
 - `POST/DELETE /api/schedule/blocks` — bloqueos manuales
 - `GET/POST/PATCH /api/appointments`
 - `PATCH /api/appointments/{id}/status`
-- `GET/POST/PATCH /api/patients`
+- `GET/POST/PATCH /api/patients` — `GET` admite `dni` o `nombre` (excluyentes), `page` y `size`
 - `GET /api/public/slots?date=...`
 - `POST /api/public/appointments`
 - `GET /api/public/appointments/{token}/confirm` — consulta informativa, no confirma
@@ -66,6 +66,7 @@ Se propone una arquitectura modular en Spring Boot. La prioridad es entregar rá
 - `POST /api/public/appointments/{token}/cancel` — ejecuta la cancelación
 - `POST /api/public/waiting-list` — inscripción pública del paciente
 - `GET /api/waiting-list` — consulta autenticada del odontólogo
+- `GET /api/public/inbox?email=...` — bandeja de entrada simulada del paciente; pública, solo con `app.demo.inbox.enabled=true` (activa en perfil `local`)
 - `GET /api/outbox/messages` — protegida con sesión de odontólogo
 - `POST /api/outbox/reminders/run` — protegida con sesión de odontólogo
 - `POST /api/outbox/dispatch` — protegida con sesión de odontólogo

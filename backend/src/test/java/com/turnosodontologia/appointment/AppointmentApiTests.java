@@ -37,6 +37,7 @@ class AppointmentApiTests {
     @Autowired PatientRepository patients;
     @Autowired AppointmentRepository appointments;
     @Autowired PasswordEncoder passwordEncoder;
+    @Autowired AppointmentEventRepository events;
 
     private Dentist dentist;
 
@@ -71,6 +72,43 @@ class AppointmentApiTests {
     }
 
     @Test
+    void getAcceptsBuenosAiresOffsetRangeSentByAdminConsole() throws Exception {
+        Patient patient = patients.save(new Patient("22345681", "Offset", "Ficticia", "api.offset@odontologia.invalid"));
+        // 23:30 local on 2030-01-02 (inside the local day) and 23:00 local on 2030-01-01 (outside it).
+        appointments.save(Appointment.create(dentist, patient, Instant.parse("2030-01-03T02:30:00Z"), 30, CreatedBy.DENTIST));
+        appointments.save(Appointment.create(dentist, patient, Instant.parse("2030-01-02T02:00:00Z"), 30, CreatedBy.DENTIST));
+        MockHttpSession session = login(dentist.getEmail(), "demo-ficticia-123");
+
+        mockMvc.perform(get("/api/appointments").session(session)
+                .param("from", "2030-01-02T00:00:00-03:00").param("to", "2030-01-03T00:00:00-03:00"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].startAt").value("2030-01-03T02:30:00Z"));
+    }
+
+    @Test
+    void dentistCannotConfirmAppointmentThroughAdminApi() throws Exception {
+        Patient patient = patients.save(new Patient("22345682", "Confirma", "Ficticia", "api.confirma@odontologia.invalid"));
+        Appointment appointment = appointments.save(Appointment.create(dentist, patient,
+            Instant.parse("2030-01-04T13:00:00Z"), 30, CreatedBy.PATIENT));
+        long eventsBefore = events.count();
+        MockHttpSession session = login(dentist.getEmail(), "demo-ficticia-123");
+
+        mockMvc.perform(patch("/api/appointments/{id}/status", appointment.getId()).session(session)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CONFIRMED\",\"reason\":null}"))
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.error").value("La confirmación del turno la realiza el paciente"));
+
+        assertThat(appointments.findById(appointment.getId()).orElseThrow().getStatus()).isEqualTo(AppointmentStatus.PENDING);
+        assertThat(events.count()).isEqualTo(eventsBefore);
+
+        mockMvc.perform(patch("/api/appointments/{id}/status", appointment.getId()).session(session)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ABSENT\",\"reason\":null}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("ABSENT"));
+    }
+
+    @Test
     void patchCancelRepeatInvalidNotFoundAndUnauthorized() throws Exception {
         Patient patient = patients.save(new Patient("32345672", "Estado", "Ficticio", "api.estado@odontologia.invalid"));
         Appointment appointment = appointments.save(Appointment.create(dentist, patient,
@@ -91,7 +129,7 @@ class AppointmentApiTests {
             .andReturn();
         assertSanitizedErrorBody(invalidTransition, "32345672");
         mockMvc.perform(patch("/api/appointments/{id}/status", "00000000-0000-0000-0000-000000000999").session(session)
-                .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CONFIRMED\",\"reason\":\"n/a\"}"))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ATTENDED\",\"reason\":\"n/a\"}"))
             .andExpect(status().isNotFound());
         mockMvc.perform(patch("/api/appointments/{id}/status", appointment.getId())
                 .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CONFIRMED\",\"reason\":\"n/a\"}"))

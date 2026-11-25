@@ -1,6 +1,7 @@
 import {
   ApiError,
   createAppointment,
+  fetchInbox,
   fetchSlots,
   getTokenStatus,
   postTokenAction,
@@ -17,7 +18,7 @@ import {
   formatTokenAction,
   type PatientFormValues
 } from './payload.js';
-import { extractToken } from './token.js';
+import { INBOX_EMPTY_MESSAGE, inboxErrorMessage, inboxMessageView, type InboxMessage } from './inbox.js';
 import { validateBookingForm } from './validation.js';
 import {
   bookingConfirmationFeedback,
@@ -96,20 +97,14 @@ export function mountPublicBooking(root: HTMLElement): void {
         <div id="booking-result" aria-live="polite"></div>
         <div id="booking-error" role="alert"></div>
       </section>
-      <section aria-labelledby="token-title">
-        <h2 id="token-title">Ya tengo un turno</h2>
-        <label>Token o enlace <input id="token-input" type="text"></label>
-        <label>Acción
-          <select id="token-flow">
-            <option value="confirm">Confirmar turno</option>
-            <option value="cancel">Cancelar turno</option>
-          </select>
-        </label>
-        <button id="token-load" type="button">Consultar estado</button>
-        <div id="token-status" role="status"></div>
-        <button id="token-submit" type="button" hidden>Ejecutar acción</button>
-        <div id="token-result" aria-live="polite"></div>
-        <div id="token-error" role="alert"></div>
+      <section aria-labelledby="inbox-title">
+        <h2 id="inbox-title">Bandeja de entrada simulada (correo del paciente)</h2>
+        <p>Simulación de demo: muestra los correos que recibiría el paciente. No se envía correo real.</p>
+        <label>Email del paciente <input id="inbox-email" type="email" autocomplete="email"></label>
+        <button id="inbox-load" type="button">Ver mensajes</button>
+        <p id="inbox-status" role="status"></p>
+        <div id="inbox-list"></div>
+        <div id="inbox-error" role="alert"></div>
       </section>
     </main>`;
 
@@ -120,13 +115,11 @@ export function mountPublicBooking(root: HTMLElement): void {
   const bookingForm = find<HTMLFormElement>(root, '#booking-form');
   const bookingResult = find<HTMLElement>(root, '#booking-result');
   const bookingError = find<HTMLElement>(root, '#booking-error');
-  const tokenInput = find<HTMLInputElement>(root, '#token-input');
-  const tokenFlow = find<HTMLSelectElement>(root, '#token-flow');
-  const tokenLoad = find<HTMLButtonElement>(root, '#token-load');
-  const tokenStatus = find<HTMLElement>(root, '#token-status');
-  const tokenSubmit = find<HTMLButtonElement>(root, '#token-submit');
-  const tokenResult = find<HTMLElement>(root, '#token-result');
-  const tokenError = find<HTMLElement>(root, '#token-error');
+  const inboxEmail = find<HTMLInputElement>(root, '#inbox-email');
+  const inboxLoad = find<HTMLButtonElement>(root, '#inbox-load');
+  const inboxStatus = find<HTMLElement>(root, '#inbox-status');
+  const inboxList = find<HTMLElement>(root, '#inbox-list');
+  const inboxError = find<HTMLElement>(root, '#inbox-error');
   const window = dateWindow(new Date());
 
   dateInput.min = window.min;
@@ -135,11 +128,6 @@ export function mountPublicBooking(root: HTMLElement): void {
   slotsStatus.textContent = slotsStatusText('idle', 0);
 
   let selectedStart: string | null = null;
-  let activeToken: string | null = null;
-
-  function selectedTokenAction(): TokenAction {
-    return tokenFlow.value === 'cancel' ? 'cancel' : 'confirm';
-  }
 
   function selectSlot(start: string): void {
     selectedStart = start;
@@ -217,51 +205,92 @@ export function mountPublicBooking(root: HTMLElement): void {
     }
   });
 
-  tokenLoad.addEventListener('click', async () => {
-    clear(tokenStatus);
-    clear(tokenResult);
-    clear(tokenError);
-    activeToken = null;
-    tokenSubmit.hidden = true;
-
-    const token = extractToken(tokenInput.value);
-
-    if (token === null) {
-      renderVisibleError(tokenError, {
-        kind: 'invalid-token',
-        message: 'Ingrese un token o enlace válido.',
-        hint: 'Verifique el enlace o solicite uno nuevo al consultorio.'
-      });
-      return;
+  // Actions of each simulated-inbox message: GET only informs, POST acts.
+  async function showStatus(token: string, status: HTMLElement, failure: HTMLElement): Promise<void> {
+    try {
+      renderFeedback(status, tokenStatusFeedback(formatStatus(await getTokenStatus(token, 'confirm'))));
+    } catch (error) {
+      renderVisibleError(failure, visibleFrom(error));
     }
+  }
+
+  async function runAction(token: string, action: TokenAction, result: HTMLElement, failure: HTMLElement): Promise<void> {
+    try {
+      renderFeedback(result, tokenActionFeedback(formatTokenAction(await postTokenAction(token, action)), action));
+    } catch (error) {
+      renderFeedback(failure, tokenErrorFeedback(visibleFrom(error)));
+    }
+  }
+
+  function inboxEntry(message: InboxMessage): HTMLElement {
+    const view = inboxMessageView(message);
+    const entry = document.createElement('article');
+    const header = document.createElement('strong');
+    const outcome = document.createElement('div');
+    const failure = document.createElement('div');
+
+    header.textContent = view.header;
+    entry.append(header);
+
+    if (view.appointment !== null) {
+      const appointment = document.createElement('p');
+
+      appointment.textContent = view.appointment;
+      entry.append(appointment);
+    }
+
+    if (view.token !== null) {
+      const token = view.token;
+      const actions = document.createElement('div');
+      const buttons: Array<[string, () => void]> = [
+        ['Ver estado del turno', () => void showStatus(token, outcome, failure)],
+        ['Confirmar turno', () => void runAction(token, 'confirm', outcome, failure)],
+        ['Cancelar turno', () => void runAction(token, 'cancel', outcome, failure)]
+      ];
+
+      for (const [label, handler] of buttons) {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          clear(outcome);
+          clear(failure);
+          handler();
+        });
+        actions.append(button);
+      }
+
+      entry.append(actions);
+    }
+
+    outcome.setAttribute('aria-live', 'polite');
+    failure.setAttribute('role', 'alert');
+    entry.append(outcome, failure);
+
+    return entry;
+  }
+
+  inboxLoad.addEventListener('click', async () => {
+    clear(inboxList);
+    clear(inboxError);
+    inboxStatus.textContent = 'Cargando mensajes...';
 
     try {
-      const status = await getTokenStatus(token, selectedTokenAction());
+      const messages = await fetchInbox(inboxEmail.value);
 
-      activeToken = token;
-      renderFeedback(tokenStatus, tokenStatusFeedback(formatStatus(status)));
-      tokenSubmit.hidden = false;
+      inboxStatus.textContent =
+        messages.length === 0 ? INBOX_EMPTY_MESSAGE : `${messages.length} ${messages.length === 1 ? 'mensaje' : 'mensajes'}`;
+
+      for (const message of messages) {
+        inboxList.append(inboxEntry(message));
+      }
     } catch (error) {
-      renderVisibleError(tokenError, visibleFrom(error));
-    }
-  });
+      inboxStatus.textContent = '';
+      const message =
+        error instanceof ApiError ? inboxErrorMessage(error.status, error.body) : inboxErrorMessage(0, null);
 
-  tokenSubmit.addEventListener('click', async () => {
-    if (activeToken === null) {
-      return;
-    }
-
-    clear(tokenResult);
-    clear(tokenError);
-
-    const action = selectedTokenAction();
-
-    try {
-      const result = await postTokenAction(activeToken, action);
-
-      renderFeedback(tokenResult, tokenActionFeedback(formatTokenAction(result), action));
-    } catch (error) {
-      renderFeedback(tokenError, tokenErrorFeedback(visibleFrom(error)));
+      renderFeedback(inboxError, { tone: 'error', title: 'No se pudo abrir la bandeja simulada', message, hint: '' });
     }
   });
 }

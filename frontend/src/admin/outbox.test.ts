@@ -5,7 +5,6 @@ import {
   NO_MESSAGES_MESSAGE,
   outboxErrorMessage,
   outboxView,
-  tokenActionText,
   tokenInfoText,
   type OutboxMessage
 } from './outbox.js';
@@ -19,7 +18,9 @@ const message: OutboxMessage = {
   status: 'PENDING',
   type: 'CONFIRMATION',
   createdAt: '2026-11-24T09:00:00Z',
-  sentAt: null
+  sentAt: null,
+  patientName: null,
+  patientDni: null
 };
 
 test('only relative confirm and cancel links are extracted from body text', () => {
@@ -65,11 +66,32 @@ test('an empty outbox has a visible state and no test links', () => {
   assert.deepEqual(view.links, []);
 });
 
-test('token GET is informative and POST shows the returned message and status', () => {
-  assert.equal(tokenInfoText({ startAt: '2026-11-24T10:00:00Z', status: 'PENDING' }), 'Inicio: 2026-11-24T10:00:00Z · Estado: PENDING');
-  assert.equal(tokenActionText({ message: 'confirmación exitosa', status: 'CONFIRMED' }), 'confirmación exitosa · Estado: CONFIRMED');
-  assert.equal(tokenActionText({ message: 'cancelación exitosa', status: 'CANCELLED' }), 'cancelación exitosa · Estado: CANCELLED');
-  assert.equal(tokenActionText({ message: 'ya cancelado', status: 'CANCELLED' }), 'ya cancelado · Estado: CANCELLED');
+test('token GET is informative and shows the start in Buenos Aires local time', () => {
+  const text = tokenInfoText({ startAt: '2026-11-26T17:30:00Z', status: 'PENDING' });
+
+  assert.match(text, /^Inicio: 26\/11\/(20)?26/);
+  assert.equal(text.includes('2026-11-26T17:30:00Z'), false);
+  assert.equal(text.endsWith(' · Estado: PENDING'), true);
+});
+
+test('outbox view offers one status lookup token per message even with confirm and cancel links', () => {
+  const view = outboxView([
+    {
+      id: 'message-1',
+      appointmentId: 'appointment-1',
+      recipientEmail: 'paciente@demo.invalid',
+      subject: 'Confirma tu turno',
+      body: 'Confirmar: /api/public/appointments/tok_123/confirm Cancelar: /api/public/appointments/tok_123/cancel',
+      status: 'PENDING',
+      type: 'CONFIRMATION',
+      createdAt: '2026-11-24T03:00:00Z',
+      sentAt: null,
+      patientName: 'Paciente Demo',
+      patientDni: '30111222'
+    }
+  ]);
+
+  assert.deepEqual(view.statusLookups, [{ messageId: 'message-1', token: 'tok_123' }]);
 });
 
 test('token errors keep the exact 404, 410 and four 409 messages', () => {

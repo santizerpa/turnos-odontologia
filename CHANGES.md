@@ -388,7 +388,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 6 — Calidad y cierre
 
 ### [C-14] `test-suite-and-hardening`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Suite de pruebas y endurecimiento final
   - JUnit 5 + H2 en modo PostgreSQL
   - Cobertura de reglas: solapamiento 409, ventana 24hs-30 días, DNI, token vencido, confirmación y cancelación idempotentes, cancelación con menos de 24hs, transiciones de estado y FIFO

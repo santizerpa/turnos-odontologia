@@ -20,6 +20,11 @@ public class AppointmentExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", exception.getMessage()));
     }
 
+    @ExceptionHandler(DentistConfirmationNotAllowedException.class)
+    public ResponseEntity<Map<String, Object>> dentistConfirmation(DentistConfirmationNotAllowedException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("error", exception.getMessage()));
+    }
+
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<Map<String, Object>> invalid(Exception exception) {
         String message = "Solicitud inválida";

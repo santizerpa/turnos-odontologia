@@ -12,19 +12,25 @@ public record OutboxMessageDto(
     OutboxStatus status,
     OutboxMessageType type,
     Instant createdAt,
-    Instant sentAt
+    Instant sentAt,
+    String patientName,
+    String patientDni
 ) {
     public static OutboxMessageDto from(OutboxMessage message) {
+        var appointment = message.getAppointment();
+        var patient = appointment == null ? null : appointment.getPatient();
         return new OutboxMessageDto(
             message.getId(),
-            message.getAppointment() == null ? null : message.getAppointment().getId(),
+            appointment == null ? null : appointment.getId(),
             message.getRecipientEmail(),
             message.getSubject(),
             message.getBody(),
             message.getStatus(),
             message.getType(),
             message.getCreatedAt(),
-            message.getSentAt()
+            message.getSentAt(),
+            patient == null ? null : patient.getFirstName() + " " + patient.getLastName(),
+            patient == null ? null : patient.getDni()
         );
     }
 }

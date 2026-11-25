@@ -35,6 +35,23 @@ test('patient query builds the exact dni, page and size parameters', () => {
   assert.deepEqual(patientQuery({ dni: '   ', page: 0, size: 0 }), { page: 0, size: 0 });
 });
 
+test('patient query sends only the chosen criterion, dni or nombre, never both', () => {
+  assert.deepEqual(patientQuery({ criterion: 'nombre', term: '  ana  ', page: '0', size: '10' }), {
+    nombre: 'ana',
+    page: 0,
+    size: 10
+  });
+  assert.deepEqual(patientQuery({ criterion: 'dni', term: '12.345.678' }), { dni: '12.345.678', page: 0, size: 10 });
+  assert.deepEqual(patientQuery({ criterion: 'nombre', term: '   ' }), { page: 0, size: 10 });
+  assert.equal('dni' in patientQuery({ criterion: 'nombre', term: 'ana', dni: '12345678' }), false);
+});
+
+test('patient page view keeps the visible filter for either criterion', () => {
+  const query = patientQuery({ criterion: 'nombre', term: 'ana' });
+
+  assert.equal(viewPatientPage(page, query).filter, 'ana');
+});
+
 test('detail keeps only the five fields returned by the patient list', () => {
   const extra = { ...record, passwordHash: 'hidden', extra: 'hidden' } as unknown as PatientRecord;
 

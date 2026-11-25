@@ -29,6 +29,9 @@ public class AppointmentController {
     @PatchMapping("/{id}/status")
     public Map<String, Object> changeStatus(@PathVariable UUID id,
                                             @RequestBody AppointmentStatusRequest request) {
+        if (request.status() == AppointmentStatus.CONFIRMED) {
+            throw new DentistConfirmationNotAllowedException();
+        }
         if (request.status() == AppointmentStatus.CANCELLED) {
             CancelAppointmentResult result = appointments.cancel(id, Actor.DENTIST, request.reason());
             return Map.of("cancelled", result.cancelled(), "message", result.message());

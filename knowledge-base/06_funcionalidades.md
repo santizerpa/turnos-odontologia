@@ -33,7 +33,10 @@ El odontólogo ve turnos diarios/semanales y estados.
 No existe carga manual por el odontólogo. El paciente crea el turno desde la página pública y el sistema rechaza solapamientos.
 
 ### US-012 — Marcar estado
-El odontólogo marca confirmado, ausente o atendido, conservando historial.
+El odontólogo marca ausente o atendido, o cancela, conservando historial. No confirma turnos: la confirmación es del paciente por su enlace (RN-CF-06).
+
+### US-013 — Buscar pacientes por DNI o nombre
+El odontólogo elige buscar por DNI o por nombre (coincidencia parcial sin distinguir mayúsculas sobre nombre o apellido), nunca por ambos a la vez.
 
 ## Épica 4: Reserva pública
 
@@ -65,9 +68,18 @@ El paciente abre la página del link y confirma con un `POST`; el estado pasa `P
 **Criterios:** el estado pasa `PENDING → CANCELLED` o `CONFIRMED → CANCELLED` hasta 24hs antes; se conserva el historial y se dispara la lista de espera una sola vez. Si ya estaba `CANCELLED`, responde "ya cancelado" sin repetir efectos. Con menos de 24hs se rechaza y se deriva al odontólogo.
 
 ### US-033 — Visualizar bandeja
-El odontólogo ve los mensajes simulados y puede abrir el link público de prueba.
+El odontólogo ve los mensajes simulados como historial, del más reciente al más antiguo, con asunto, email, nombre y DNI del paciente y fecha de envío (sin el estado del mensaje), y puede consultar el estado del turno de cada mensaje; no confirma ni cancela desde la bandeja de salida.
+
+### US-034 — Bandeja de entrada simulada del paciente
+**Como** paciente de la demo
+**Quiero** ver los correos simulados que recibí, ingresando mi email
+**Para** ver, confirmar o cancelar mi turno sin conocer el token
+
+**Criterios:** cada mensaje muestra asunto, email, DNI y fecha de envío, el inicio del turno en hora de Buenos Aires y los botones "Ver estado del turno", "Confirmar turno" y "Cancelar turno". Es la única forma de gestionar el turno desde la página pública: no se pide escribir un token o enlace. Solo disponible con la bandera de demo activa (SU-05).
 
 ## Épica 6: Lista de espera
+
+La lista de espera es un mecanismo interno del backend para avisar al siguiente paciente cuando se cancela un turno; no se muestra en el frontend.
 
 ### US-040 — Registrar paciente
 El paciente se inscribe sin sesión mediante `POST /api/public/waiting-list`; el odontólogo consulta la cola privada mediante `GET /api/waiting-list`. El DNI identifica al paciente, no se modifica un perfil existente y no se permiten entradas `WAITING` duplicadas para el mismo paciente.

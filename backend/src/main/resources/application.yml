@@ -24,3 +24,6 @@ server:
       cookie:
         http-only: true
         same-site: lax
+
+# Bandeja de entrada simulada del paciente (GET /api/public/inbox). Solo demo: apagada por defecto.
+app.demo.inbox.enabled: false

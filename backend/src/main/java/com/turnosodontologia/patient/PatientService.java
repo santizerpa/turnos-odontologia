@@ -40,8 +40,21 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public PatientPageResponse list(String dni, int page, int size) {
+        return list(dni, null, page, size);
+    }
+
+    public PatientPageResponse list(String dni, String nombre, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        if (dni == null || dni.isBlank()) {
+        boolean byDni = dni != null && !dni.isBlank();
+        boolean byName = nombre != null && !nombre.isBlank();
+        if (byDni && byName) {
+            throw new InvalidPatientDataException();
+        }
+        if (byName) {
+            String term = nombre.trim().toLowerCase(java.util.Locale.ROOT);
+            return PatientPageResponse.from(patientRepository.searchByName(term, pageable).map(PatientResponse::from));
+        }
+        if (!byDni) {
             return PatientPageResponse.from(patientRepository.findAll(pageable).map(PatientResponse::from));
         }
 

@@ -64,7 +64,7 @@ test('authenticated GETs use only existing routes with exact query parameters', 
   const { fetch, calls } = fakeFetch([
     { status: 200, body: [] },
     { status: 200, body: { content: [] } },
-    { status: 200, body: [] },
+    { status: 200, body: { content: [] } },
     { status: 200, body: [] },
     { status: 200, body: { id: 'dentist-1' } }
   ]);
@@ -73,16 +73,16 @@ test('authenticated GETs use only existing routes with exact query parameters', 
   await api.appointments('2026-11-24T00:00:00Z', '2026-11-25T00:00:00Z');
   await api.patients({ page: 0, size: 100 });
   await api.patients({ dni: '12.345.678', page: 2, size: 10 });
+  await api.patients({ nombre: 'ana demo', page: 0, size: 10 });
   await api.outbox();
-  await api.waitingList();
   await api.me();
 
   assert.deepEqual(calls.map((call) => call.url), [
     '/api/appointments?from=2026-11-24T00%3A00%3A00Z&to=2026-11-25T00%3A00%3A00Z',
     '/api/patients?page=0&size=100',
     '/api/patients?dni=12.345.678&page=2&size=10',
+    '/api/patients?nombre=ana%20demo&page=0&size=10',
     '/api/outbox/messages',
-    '/api/waiting-list',
     '/api/auth/me'
   ]);
   assert.equal(calls.every((call) => call.init?.credentials === 'same-origin'), true);
@@ -125,7 +125,7 @@ test('authenticated 401 notifies session handling once and never retries or redi
   const api = createAdminApi({ fetch, onSessionExpired: (status, body) => expired.push({ status, body }) });
 
   await assert.rejects(
-    api.waitingList(),
+    api.outbox(),
     (error: unknown) => error instanceof ApiError && error.status === 401
   );
 

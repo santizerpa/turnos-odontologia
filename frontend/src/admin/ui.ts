@@ -18,21 +18,9 @@ import {
   type StatusOutcome
 } from './appointments.js';
 import { visibleError, INVALID_CREDENTIALS_MESSAGE } from './errors.js';
-import {
-  outboxErrorMessage,
-  outboxView,
-  tokenActionText,
-  tokenInfoText,
-  type OutboxMessage,
-  type TokenAction
-} from './outbox.js';
+import { localDateTime, localTimeRange } from './local-time.js';
+import { outboxErrorMessage, outboxView, tokenInfoText, type OutboxMessage } from './outbox.js';
 import { patientQuery, patientsErrorMessage, viewPatientPage } from './patients.js';
-import {
-  NO_ENTRIES_MESSAGE,
-  waitingListErrorMessage,
-  waitingListView,
-  type WaitingEntry
-} from './waiting-list.js';
 import {
   anonymousSession,
   authenticatedSession,
@@ -73,7 +61,7 @@ export function profileSummary(profile: DentistProfile): string {
 }
 
 export function screenSections(screen: 'login' | 'console'): string[] {
-  return screen === 'console' ? ['agenda', 'patients', 'outbox', 'waiting-list'] : [];
+  return screen === 'console' ? ['agenda', 'patients', 'outbox'] : [];
 }
 
 export function sessionUnavailableNotice(state: SessionState): string | null {
@@ -81,7 +69,14 @@ export function sessionUnavailableNotice(state: SessionState): string | null {
 }
 
 export function agendaEntryText(entry: AgendaEntry): string {
-  return `${entry.startAt} · ${entry.patientName} (${entry.patientId}) · ${entry.durationMinutes} min · ${entry.status} · franja: ${entry.activeSlot ?? 'sin franja activa'}`;
+  const start = localDateTime(entry.startAt);
+  const slot = entry.activeSlot === null ? 'franja libre' : localTimeRange(entry.activeSlot, entry.durationMinutes);
+
+  return `${start} · ${entry.patientName} · ${entry.durationMinutes} min · ${entry.status} · franja: ${slot}`;
+}
+
+export function agendaRowAttributes(entry: AgendaEntry): Record<'data-appointment-id' | 'data-status', string> {
+  return { 'data-appointment-id': entry.id, 'data-status': entry.status };
 }
 
 export function agendaEmptyText(): string {
@@ -89,8 +84,8 @@ export function agendaEmptyText(): string {
 }
 
 export function statusActionLabels(): Array<{ status: AppointmentStatus; label: string }> {
+  // Confirmation belongs to the patient (public token); the dentist only records outcomes or cancels.
   return [
-    { status: 'CONFIRMED', label: 'Confirmar' },
     { status: 'ABSENT', label: 'Marcar ausente' },
     { status: 'ATTENDED', label: 'Marcar atendido' },
     { status: 'CANCELLED', label: 'Cancelar' }
@@ -119,34 +114,20 @@ export function patientPageText(page: { page: number; size: number; totalElement
   return `Página ${page.page + 1} de ${page.totalPages} · ${page.totalElements} pacientes`;
 }
 
+// The message status is not shown: it never changes after sending and misled as the appointment status,
+// which is looked up with "Ver estado del turno".
 export function outboxRowText(message: OutboxMessage): string {
-  return [message.subject, message.recipientEmail, message.status, message.type, message.createdAt]
-    .filter((value) => value !== '' && value !== null)
+  return [message.subject, message.recipientEmail, message.patientName, message.patientDni, localDateTime(message.createdAt)]
+    .filter((value): value is string => typeof value === 'string' && value !== '')
     .join(' · ');
 }
 
-export function tokenUiLabels(): { info: string; confirm: string; cancel: string } {
-  return {
-    info: 'Ver estado del enlace',
-    confirm: 'Confirmar con token',
-    cancel: 'Cancelar con token'
-  };
+export function tokenUiLabels(): { info: string } {
+  return { info: 'Ver estado del turno' };
 }
 
 export function tokenDetailsText(response: { startAt: string; status: string }): string {
   return tokenInfoText(response);
-}
-
-export function tokenActionFeedbackText(response: { message: string; status: string }): string {
-  return tokenActionText(response);
-}
-
-export function waitingRowText(entry: WaitingEntry): string {
-  return `${entry.nombre} ${entry.apellido} · ${entry.email} · ${entry.requestedDateFrom} a ${entry.requestedDateTo} · ${entry.status}`;
-}
-
-export function waitingUiSummary(entries: WaitingEntry[]): string {
-  return entries.length === 0 ? NO_ENTRIES_MESSAGE : `${entries.length} entradas · sin asignación`;
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string): HTMLElementTagNameMap[K] {
@@ -238,7 +219,9 @@ function renderAgendaSection(section: HTMLElement, api: AdminApi, currentSession
         const actions = node('div');
 
         row.append(node('span', agendaEntryText(entry)), actions);
-        row.setAttribute('data-appointment-id', entry.id);
+        for (const [name, value] of Object.entries(agendaRowAttributes(entry))) {
+          row.setAttribute(name, value);
+        }
 
         for (const action of statusActionLabels()) {
           const button = node('button', action.label);
@@ -308,8 +291,10 @@ function renderAgendaSection(section: HTMLElement, api: AdminApi, currentSession
 
 function renderPatientsSection(section: HTMLElement, api: AdminApi, currentSession: () => SessionState): void {
   const heading = node('h2', 'Pacientes');
-  const dniLabel = node('label', 'DNI ');
-  const dniInput = node('input');
+  const criterionLabel = node('label', 'Buscar por ');
+  const criterionSelect = node('select');
+  const termLabel = node('label', 'Búsqueda ');
+  const termInput = node('input');
   const pageLabel = node('label', 'Página ');
   const pageInput = node('input');
   const sizeLabel = node('label', 'Tamaño ');
@@ -326,17 +311,30 @@ function renderPatientsSection(section: HTMLElement, api: AdminApi, currentSessi
   load.type = 'button';
   summary.setAttribute('role', 'status');
   error.setAttribute('role', 'alert');
-  dniLabel.append(dniInput);
+  for (const [value, text] of [['dni', 'DNI'], ['nombre', 'Nombre']] as const) {
+    const option = node('option', text);
+
+    option.value = value;
+    criterionSelect.append(option);
+  }
+
+  criterionLabel.append(criterionSelect);
+  termLabel.append(termInput);
   pageLabel.append(pageInput);
   sizeLabel.append(sizeInput);
-  section.append(heading, dniLabel, pageLabel, sizeLabel, load, summary, list, error);
+  section.append(heading, criterionLabel, termLabel, pageLabel, sizeLabel, load, summary, list, error);
 
   load.addEventListener('click', async () => {
     summary.textContent = '';
     list.replaceChildren();
     error.replaceChildren();
 
-    const query = patientQuery({ dni: dniInput.value, page: pageInput.value, size: sizeInput.value });
+    const query = patientQuery({
+      criterion: criterionSelect.value === 'nombre' ? 'nombre' : 'dni',
+      term: termInput.value,
+      page: pageInput.value,
+      size: sizeInput.value
+    });
 
     try {
       const response = await api.patients(query);
@@ -394,8 +392,9 @@ function renderOutboxSection(section: HTMLElement, api: AdminApi, currentSession
     );
   }
 
-  function tokenButton(label: string, token: string, action: TokenAction, explicit: boolean): HTMLButtonElement {
-    const button = node('button', label);
+  // The outbox is a read-only history: only the informative GET, never confirm/cancel POSTs.
+  function statusButton(token: string): HTMLButtonElement {
+    const button = node('button', labels.info);
 
     button.type = 'button';
     button.addEventListener('click', async () => {
@@ -403,18 +402,10 @@ function renderOutboxSection(section: HTMLElement, api: AdminApi, currentSession
       feedback.textContent = '';
 
       try {
-        if (explicit) {
-          const response = await api.tokenAction(token, action);
+        const response = await api.tokenInfo(token, 'confirm');
 
-          if (currentSession().kind === 'authenticated') {
-            feedback.textContent = tokenActionFeedbackText(response);
-          }
-        } else {
-          const response = await api.tokenInfo(token, action);
-
-          if (currentSession().kind === 'authenticated') {
-            feedback.textContent = tokenDetailsText(response);
-          }
+        if (currentSession().kind === 'authenticated') {
+          feedback.textContent = tokenDetailsText(response);
         }
       } catch (failure) {
         reportFailure(failure);
@@ -447,61 +438,16 @@ function renderOutboxSection(section: HTMLElement, api: AdminApi, currentSession
 
         row.append(node('span', outboxRowText(message)), actions);
 
-        for (const link of view.links.filter((candidate) => candidate.messageId === message.id)) {
-          actions.append(
-            tokenButton(labels.info, link.token, link.action, false),
-            tokenButton(labels.confirm, link.token, 'confirm', true),
-            tokenButton(labels.cancel, link.token, 'cancel', true)
-          );
+        const lookup = view.statusLookups.find((candidate) => candidate.messageId === message.id);
+
+        if (lookup !== undefined) {
+          actions.append(statusButton(lookup.token));
         }
 
         list.append(row);
       }
     } catch (failure) {
       reportFailure(failure);
-    }
-  });
-}
-
-function renderWaitingListSection(section: HTMLElement, api: AdminApi, currentSession: () => SessionState): void {
-  const heading = node('h2', 'Lista de espera');
-  const load = node('button', 'Cargar lista de espera');
-  const summary = node('p');
-  const list = node('div');
-  const error = node('div');
-
-  load.type = 'button';
-  summary.setAttribute('role', 'status');
-  error.setAttribute('role', 'alert');
-  section.append(heading, load, summary, list, error);
-
-  load.addEventListener('click', async () => {
-    summary.textContent = '';
-    list.replaceChildren();
-    error.replaceChildren();
-
-    try {
-      const entries = await api.waitingList();
-
-      if (currentSession().kind !== 'authenticated') {
-        return;
-      }
-
-      const view = waitingListView(entries);
-
-      summary.textContent = waitingUiSummary(view.rows);
-
-      for (const entry of view.rows) {
-        list.append(node('div', waitingRowText(entry)));
-      }
-    } catch (failure) {
-      if (currentSession().kind !== 'authenticated') {
-        return;
-      }
-
-      error.replaceChildren(
-        node('p', failure instanceof ApiError ? waitingListErrorMessage(failure.status, failure.body) : visibleError(0, null))
-      );
     }
   });
 }
@@ -592,8 +538,6 @@ export function mountAdminConsole(root: HTMLElement, api: AdminApi): AdminContro
         renderPatientsSection(section, api, () => session);
       } else if (id === 'outbox') {
         renderOutboxSection(section, api, () => session);
-      } else if (id === 'waiting-list') {
-        renderWaitingListSection(section, api, () => session);
       }
 
       root.append(section);

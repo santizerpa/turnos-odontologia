@@ -45,7 +45,7 @@ class PatientControllerTest {
 
     @Test
     void listsPatientsWithPagingMetadata() throws Exception {
-        when(patientService.list(null, 0, 2)).thenReturn(new PatientPageResponse(
+        when(patientService.list(null, null, 0, 2)).thenReturn(new PatientPageResponse(
             List.of(
                 new PatientResponse(PACIENTE_ID, "27123456", "Paciente", "Ficticio", "paciente.ficticio@example.com"),
                 new PatientResponse(UUID.fromString("00000000-0000-0000-0000-000000000002"), "27123457",
@@ -64,7 +64,7 @@ class PatientControllerTest {
             .andExpect(jsonPath("$.totalElements").value(3))
             .andExpect(jsonPath("$.totalPages").value(2));
 
-        verify(patientService).list(null, 0, 2);
+        verify(patientService).list(null, null, 0, 2);
     }
 
     @ParameterizedTest

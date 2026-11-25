@@ -1,0 +1,448 @@
+/*
+ * Turnos Odontología — estilos básicos.
+ * Una sola hoja para la reserva pública (index.html) y la consola del
+ * odontólogo (admin.html). Sin dependencias, sin JavaScript, sin fuentes externas.
+ * Los selectores se apoyan en el HTML que ya generan public-reservation/ui.ts
+ * y admin/ui.ts, por eso no hace falta tocar la lógica.
+ */
+
+:root {
+  --primary: #0f6f8f;
+  --primary-dark: #0b5a75;
+  --primary-soft: #e6f2f6;
+  --bg: #f4f7fa;
+  --surface: #ffffff;
+  --border: #d9e2ec;
+  --field-border: #bcccdc;
+  --text: #1f2933;
+  --muted: #52606d;
+  --success: #1b7f4b;
+  --success-bg: #e6f4ec;
+  --error: #b42318;
+  --error-bg: #fdecea;
+  --info: #175cd3;
+  --info-bg: #eaf2fe;
+  --warning: #8a5a00;
+  --warning-bg: #fff4db;
+  --radius: 8px;
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+h1,
+h2 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+/* Contenedores vacíos (mensajes y errores sin contenido) no ocupan espacio. */
+div:empty,
+p:empty {
+  display: none;
+}
+
+/* ---------- Estructura de página ---------- */
+
+/* Consola: el <h1> del admin.html cuelga directamente del body y hace de barra superior. */
+body > h1 {
+  padding: 14px 24px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+#app {
+  max-width: 1040px;
+  margin: 24px auto 48px;
+  padding: 0 20px;
+}
+
+/* Reserva pública. */
+main {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+main > h1 {
+  margin: 8px 0 20px;
+  color: var(--primary);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* Tarjetas: secciones de la reserva y de la consola. */
+main > section,
+section[data-section] {
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+main > section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+main > section > button {
+  align-self: flex-start;
+}
+
+/* ---------- Formularios ---------- */
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgba(15, 111, 143, 0.35);
+  outline-offset: 1px;
+}
+
+input:focus-visible,
+select:focus-visible {
+  border-color: var(--primary);
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+#booking-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 4px;
+}
+
+#booking-form button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+#booking-date {
+  max-width: 240px;
+}
+
+/* ---------- Botones ---------- */
+
+button {
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+button:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Botones secundarios: horarios, acciones de cada fila y cerrar sesión. */
+#slots-list button,
+section[data-section] > div > div > div > button,
+#app > div:first-child button {
+  padding: 5px 12px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 0.875rem;
+}
+
+#slots-list button:hover,
+section[data-section] > div > div > div > button:hover,
+#app > div:first-child button:hover {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+/* Horario elegido. */
+#slots-list button[aria-pressed="true"] {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Acciones destructivas: "Cancelar" (último botón de cada turno)
+   y "Cancelar con token" (tercer botón de cada enlace de la bandeja). */
+[data-section="agenda"] > div > div > div > button:last-child,
+[data-section="outbox"] > div > div > div > button:nth-child(3n) {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+[data-section="agenda"] > div > div > div > button:last-child:hover,
+[data-section="outbox"] > div > div > div > button:nth-child(3n):hover {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* ---------- Reserva pública ---------- */
+
+#slots-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+main p[role="status"],
+main div[role="status"] {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.feedback {
+  padding: 12px 14px;
+  border-left: 4px solid;
+  border-radius: 6px;
+}
+
+.feedback p {
+  margin-top: 4px;
+  color: var(--text);
+}
+
+.feedback-success {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.feedback-error {
+  background: var(--error-bg);
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.feedback-info {
+  background: var(--info-bg);
+  border-color: var(--info);
+  color: var(--info);
+}
+
+/* ---------- Consola: acceso ---------- */
+
+/* Mientras se muestra el login, #app contiene un formulario y se presenta como tarjeta centrada. */
+#app:has(> form) {
+  max-width: 400px;
+  margin: 48px auto;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+#app > h2 {
+  margin-bottom: 16px;
+}
+
+/* Aviso "Su sesión no está disponible". */
+#app > p {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-radius: 6px;
+}
+
+#app > form + div {
+  margin-top: 14px;
+}
+
+#app > form + div [role="alert"] {
+  padding: 10px 14px;
+  background: var(--error-bg);
+  color: var(--error);
+  border-left: 4px solid var(--error);
+  border-radius: 6px;
+}
+
+#app > form + div [role="alert"] p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* ---------- Consola: encabezado con la sesión ---------- */
+
+#app > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* ---------- Consola: secciones ---------- */
+
+/* Cada sección es una fila que se parte en líneas: filtros y botones lado a lado,
+   y títulos, mensajes y listados ocupando todo el ancho. */
+section[data-section] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+section[data-section] > h2,
+section[data-section] > p,
+section[data-section] > div {
+  flex: 1 1 100%;
+}
+
+section[data-section] > label {
+  flex: 0 1 200px;
+}
+
+section[data-section] > h2 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+section[data-section] p[role="status"] {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+/* Errores de la API dentro de la consola. */
+section[data-section] [role="alert"] {
+  padding: 10px 14px;
+  background: var(--error-bg);
+  color: var(--error);
+  border-left: 4px solid var(--error);
+  border-radius: 6px;
+}
+
+/* Listados: turnos, pacientes, mensajes de la bandeja y lista de espera. */
+section[data-section] > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+section[data-section] > div > div > span {
+  flex: 1 1 320px;
+}
+
+section[data-section] > div > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Color por estado del turno. Se activa si cada fila de la agenda lleva
+   data-status="<ESTADO>"; sin ese atributo no cambia nada. */
+section[data-section] > div > div[data-status="PENDING"] {
+  border-left-color: var(--warning);
+}
+
+section[data-section] > div > div[data-status="CONFIRMED"] {
+  border-left-color: var(--success);
+}
+
+section[data-section] > div > div[data-status="ATTENDED"] {
+  border-left-color: var(--info);
+}
+
+section[data-section] > div > div[data-status="ABSENT"] {
+  border-left-color: var(--error);
+}
+
+/* ---------- Pantallas chicas ---------- */
+
+@media (max-width: 640px) {
+  #app {
+    padding: 0 12px;
+  }
+
+  body > h1 {
+    padding: 12px 16px;
+  }
+
+  main > section,
+  section[data-section] {
+    padding: 16px;
+  }
+
+  #booking-form {
+    grid-template-columns: 1fr;
+  }
+
+  section[data-section] > label {
+    flex: 1 1 100%;
+  }
+
+  #app:has(> form) {
+    margin: 24px auto;
+    padding: 20px;
+  }
+}

@@ -1,4 +1,5 @@
-import { appointmentsPath, slotsPath, tokenActionPath, type TokenAction } from './endpoints.js';
+import { appointmentsPath, inboxPath, slotsPath, tokenActionPath, type TokenAction } from './endpoints.js';
+import type { InboxMessage } from './inbox.js';
 
 export interface BookingPayload {
   nombre: string;
@@ -78,4 +79,8 @@ export function getTokenStatus(token: string, action: TokenAction): Promise<Appo
 
 export function postTokenAction(token: string, action: TokenAction): Promise<TokenActionResult> {
   return request<TokenActionResult>(tokenActionPath(token, action), { method: 'POST' });
+}
+
+export function fetchInbox(email: string): Promise<InboxMessage[]> {
+  return request<InboxMessage[]>(inboxPath(email));
 }

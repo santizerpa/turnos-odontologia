@@ -1,4 +1,5 @@
 import { visibleError } from './errors.js';
+import { localDateTime } from './local-time.js';
 
 export const NO_MESSAGES_MESSAGE = 'Sin mensajes en la bandeja.';
 
@@ -14,6 +15,8 @@ export interface OutboxMessage {
   type: string;
   createdAt: string;
   sentAt: string | null;
+  patientName: string | null;
+  patientDni: string | null;
 }
 
 export interface TokenLink {
@@ -25,6 +28,8 @@ export interface TokenLink {
 export interface OutboxView {
   rows: OutboxMessage[];
   links: Array<TokenLink & { messageId: string }>;
+  /** One informative status lookup per message (the outbox is a read-only history). */
+  statusLookups: Array<{ messageId: string; token: string }>;
   empty: boolean;
   message: string | null;
 }
@@ -54,26 +59,31 @@ export function outboxView(messages: OutboxMessage[]): OutboxView {
     status: message.status,
     type: message.type,
     createdAt: message.createdAt,
-    sentAt: message.sentAt ?? null
+    sentAt: message.sentAt ?? null,
+    patientName: message.patientName ?? null,
+    patientDni: message.patientDni ?? null
   }));
   const links = messages.flatMap((message) =>
     extractTokenLinks(message.body).map((link) => ({ ...link, messageId: message.id }))
   );
 
+  const statusLookups = messages.flatMap((message) => {
+    const first = extractTokenLinks(message.body)[0];
+
+    return first === undefined ? [] : [{ messageId: message.id, token: first.token }];
+  });
+
   return {
     rows,
     links,
+    statusLookups,
     empty: rows.length === 0,
     message: rows.length === 0 ? NO_MESSAGES_MESSAGE : null
   };
 }
 
 export function tokenInfoText(response: { startAt: string; status: string }): string {
-  return `Inicio: ${response.startAt} · Estado: ${response.status}`;
-}
-
-export function tokenActionText(response: { message: string; status: string }): string {
-  return `${response.message} · Estado: ${response.status}`;
+  return `Inicio: ${localDateTime(response.startAt)} · Estado: ${response.status}`;
 }
 
 export function outboxErrorMessage(status: number, body: unknown): string {

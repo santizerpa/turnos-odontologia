@@ -9,3 +9,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+
+# Demo local: habilita la bandeja de entrada simulada del paciente en la página pública.
+app.demo.inbox.enabled: true

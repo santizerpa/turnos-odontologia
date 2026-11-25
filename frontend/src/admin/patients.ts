@@ -4,7 +4,12 @@ import { visibleError } from './errors.js';
 export type PatientPageResponse = PatientPage;
 export type PatientRecord = PatientSummary;
 
+export type PatientSearchCriterion = 'dni' | 'nombre';
+
 export interface PatientQueryInput {
+  /** Chosen criterion; when present, `term` is sent only under that parameter. */
+  criterion?: PatientSearchCriterion;
+  term?: string;
   dni?: string;
   page?: string | number;
   size?: string | number;
@@ -33,14 +38,17 @@ function numeric(value: string | number | undefined, fallback: number): number {
 }
 
 export function patientQuery(input: PatientQueryInput): PatientQuery {
-  const dni = typeof input.dni === 'string' ? input.dni.trim() : '';
+  const criterion: PatientSearchCriterion = input.criterion ?? 'dni';
+  const raw = input.criterion === undefined ? input.dni : input.term;
+  const term = typeof raw === 'string' ? raw.trim() : '';
   const query: PatientQuery = {
     page: numeric(input.page, 0),
     size: numeric(input.size, 10)
   };
 
-  if (dni.length > 0) {
-    query.dni = dni;
+  // dni and nombre are mutually exclusive on the API: only the chosen one is sent.
+  if (term.length > 0) {
+    query[criterion] = term;
   }
 
   return query;
@@ -66,7 +74,7 @@ export function viewPatientPage(response: PatientPage, query: PatientQuery): Pat
     totalElements: response.totalElements,
     totalPages: response.totalPages,
     empty: content.length === 0,
-    filter: query.dni ?? ''
+    filter: query.dni ?? query.nombre ?? ''
   };
 }
 

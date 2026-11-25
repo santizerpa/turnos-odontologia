@@ -24,8 +24,9 @@ public class OutboxController {
     }
 
     @GetMapping("/messages")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<OutboxMessageDto> messages() {
-        return outbox.findAll().stream().map(OutboxMessageDto::from).toList();
+        return outbox.findAllByOrderByCreatedAtDesc().stream().map(OutboxMessageDto::from).toList();
     }
 
     @PostMapping("/reminders/run")

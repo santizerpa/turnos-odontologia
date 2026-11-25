@@ -2,9 +2,9 @@
 
 **Mode:** system-only  
 **Revision:** 1  
-**Approval:** pending  
+**Approval:** approved (2026-11-25, by user)  
 **Decision source:** elección explícita del usuario en la primera intervención visual (2026-11-25).  
-**Status:** foundation review pending
+**Status:** foundation approved
 
 ## Propósito
 
@@ -55,4 +55,4 @@ Abrir `design-system/components.html` directamente en un navegador moderno. El c
 
 ## Aprobación
 
-`Approval: pending` hasta que el usuario revise la fundación y la apruebe explícitamente. La política `system-only` elimina solicitudes rutinarias de mockups por cambio, pero **no** elimina esta aprobación inicial. Ningún cambio visual de la aplicación debe tomar este sistema como aprobado mientras permanezca pendiente.
+`Approval: approved (2026-11-25, by user)` — Revision 1 aprobada explícitamente por el usuario, con nombre, logo y tipografía todavía `(TBD)`. La política `system-only` elimina solicitudes rutinarias de mockups por cambio, pero **no** elimina esta aprobación inicial. Ningún cambio visual de la aplicación debe tomar este sistema como aprobado mientras permanezca pendiente.

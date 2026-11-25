@@ -1,3 +1,4 @@
+import { localDateTime } from './local-time.js';
 import type {
   AppointmentStatus,
   BookingConfirmation,
@@ -45,7 +46,11 @@ export function buildBookingPayload(values: PatientFormValues, startAt: string):
 export function formatStartAt(value: string): string {
   const trimmed = value.trim();
 
-  return trimmed.length > 0 ? trimmed : '—';
+  if (trimmed.length === 0) {
+    return '—';
+  }
+
+  return localDateTime(trimmed) ?? trimmed;
 }
 
 export function formatConfirmation(value: BookingConfirmation): ConfirmationView {

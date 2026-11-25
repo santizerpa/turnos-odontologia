@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   agendaEmptyText,
   agendaEntryText,
+  agendaRowAttributes,
   loginFeedback,
   outboxRowText,
   patientPageText,
@@ -12,15 +13,11 @@ import {
   sessionUnavailableNotice,
   statusActionLabels,
   statusOutcomeText,
-  tokenActionFeedbackText,
   tokenDetailsText,
-  tokenUiLabels,
-  waitingRowText,
-  waitingUiSummary
+  tokenUiLabels
 } from './ui.js';
 import { NO_APPOINTMENTS_MESSAGE, type AgendaEntry, type PatientSummary } from './agenda.js';
 import { NO_MESSAGES_MESSAGE, type OutboxMessage } from './outbox.js';
-import { NO_ENTRIES_MESSAGE, type WaitingEntry } from './waiting-list.js';
 import { anonymousSession, authenticatedSession, sessionUnavailable, type DentistProfile } from './session.js';
 
 const profile: DentistProfile = {
@@ -50,72 +47,110 @@ test('profile summary uses only the four fields returned by login', () => {
   assert.equal(summary.includes('must-not-be-shown'), false);
 });
 
-test('agenda rows expose only the fields returned by the API', () => {
-  const entry: AgendaEntry = {
-    id: 'appointment-1',
-    patientId: 'patient-1',
-    patientName: 'Paciente Demo',
-    startAt: '2026-11-24T10:00:00Z',
-    durationMinutes: 30,
-    status: 'CONFIRMED',
-    activeSlot: '2026-11-24T10:00:00Z'
-  };
-  const text = agendaEntryText(entry);
+const agendaEntry: AgendaEntry = {
+  id: 'appointment-1',
+  patientId: 'patient-1',
+  patientName: 'Paciente Demo',
+  startAt: '2026-11-24T10:00:00Z',
+  durationMinutes: 30,
+  status: 'CONFIRMED',
+  activeSlot: '2026-11-24T10:00:00Z'
+};
 
-  assert.equal(text, '2026-11-24T10:00:00Z · Paciente Demo (patient-1) · 30 min · CONFIRMED · franja: 2026-11-24T10:00:00Z');
+test('agenda rows show local start, patient name without UUID, duration and kept active slot', () => {
+  const text = agendaEntryText(agendaEntry);
+  const localStart = '24/11/26 07:00';
 
-  const withoutName = agendaEntryText({ ...entry, patientId: 'patient-outside-map', patientName: 'patient-outside-map', activeSlot: null });
-
-  assert.equal(withoutName, '2026-11-24T10:00:00Z · patient-outside-map (patient-outside-map) · 30 min · CONFIRMED · franja: sin franja activa');
+  assert.equal(text, `${localStart} · Paciente Demo · 30 min · CONFIRMED · franja: 07:00–07:30`);
+  assert.equal(text.includes('(patient-1)'), false);
+  assert.equal(text.startsWith('2026-11-24T10:00:00Z'), false);
 });
 
-test('waiting list rows keep server order and preferences without DNI or assignment actions', () => {
-  const first: WaitingEntry = {
-    id: 'entry-1',
-    nombre: 'Paciente',
-    apellido: 'Uno',
-    email: 'uno@demo.invalid',
-    requestedDateFrom: '2026-11-25T09:00:00Z',
-    requestedDateTo: '2026-11-25T10:00:00Z',
-    status: 'WAITING'
-  };
-  const second: WaitingEntry = { ...first, id: 'entry-2', nombre: 'Paciente', apellido: 'Dos', email: 'dos@demo.invalid' };
+test('non-null active slot is shown as a Buenos Aires local range, never as a UTC Instant', () => {
+  const text = agendaEntryText({ ...agendaEntry, startAt: '2026-11-26T17:30:00Z', activeSlot: '2026-11-26T17:30:00Z' });
 
-  assert.equal(waitingRowText(first), 'Paciente Uno · uno@demo.invalid · 2026-11-25T09:00:00Z a 2026-11-25T10:00:00Z · WAITING');
-  assert.equal(waitingRowText(first).includes('DNI'), false);
-  assert.equal(waitingRowText(first).includes('Asignar'), false);
-  assert.equal(waitingUiSummary([first, second]), '2 entradas · sin asignación');
-  assert.equal(waitingUiSummary([]), NO_ENTRIES_MESSAGE);
+  assert.equal(text.endsWith('franja: 14:30–15:00'), true);
+  assert.equal(text.includes('2026-11-26T17:30:00Z'), false);
+  assert.equal(text.includes('17:30'), false);
 });
 
-test('outbox rows show only message fields and never DNI or token hashes', () => {
+test('agenda start is rendered in Buenos Aires local time, not UTC', () => {
+  const text = agendaEntryText({ ...agendaEntry, startAt: '2026-11-25T02:30:00Z' });
+
+  // 02:30Z on the 25th is 23:30 on the 24th in Buenos Aires, always in 24-hour format.
+  assert.equal(text.startsWith('24/11/26 23:30 · '), true);
+  assert.equal(text.includes('25/11'), false);
+  assert.equal(text.includes('p. m.'), false);
+});
+
+test('agenda rows use patientId as single fallback and show null active slot as franja libre', () => {
+  const withoutName = agendaEntryText({
+    ...agendaEntry,
+    patientId: 'patient-outside-map',
+    patientName: 'patient-outside-map',
+    activeSlot: null
+  });
+  const localStart = '24/11/26 07:00';
+
+  assert.equal(withoutName, `${localStart} · patient-outside-map · 30 min · CONFIRMED · franja: franja libre`);
+  assert.equal(withoutName.split('patient-outside-map').length - 1, 1);
+});
+
+test('agenda row attributes keep the appointment id and expose the exact received status', () => {
+  for (const status of ['PENDING', 'CONFIRMED', 'ATTENDED', 'ABSENT']) {
+    assert.deepEqual(agendaRowAttributes({ ...agendaEntry, id: `appointment-${status}`, status }), {
+      'data-appointment-id': `appointment-${status}`,
+      'data-status': status
+    });
+  }
+});
+
+test('outbox rows show patient name and DNI instead of the message status, never the token', () => {
   const message: OutboxMessage = {
     id: 'message-1',
     appointmentId: 'appointment-1',
     recipientEmail: 'paciente@demo.invalid',
     subject: 'Confirmación de turno',
-    body: 'DNI 12345678Z /api/public/appointments/abcdefghijklmnopqrstuvwxyz1234/confirm',
-    status: 'SENT',
+    body: 'Enlace /api/public/appointments/abcdefghijklmnopqrstuvwxyz1234/confirm',
+    status: 'PENDING',
     type: 'CONFIRMATION',
     createdAt: '2026-11-24T03:00:00Z',
-    sentAt: '2026-11-24T03:01:00Z'
+    sentAt: '2026-11-24T03:01:00Z',
+    patientName: 'Paciente Demo',
+    patientDni: '30111222'
   };
   const text = outboxRowText(message);
 
-  assert.equal(text, 'Confirmación de turno · paciente@demo.invalid · SENT · CONFIRMATION · 2026-11-24T03:00:00Z');
-  assert.equal(text.includes('12345678Z'), false);
+  assert.equal(text, 'Confirmación de turno · paciente@demo.invalid · Paciente Demo · 30111222 · 24/11/26 00:00');
+  assert.equal(text.includes('PENDING'), false);
   assert.equal(text.includes('abcdefghijklmnopqrstuvwxyz1234'), false);
   assert.equal(NO_MESSAGES_MESSAGE, 'Sin mensajes en la bandeja.');
 });
 
-test('token controls separate informative GET from explicit POST feedback', () => {
-  assert.deepEqual(tokenUiLabels(), {
-    info: 'Ver estado del enlace',
-    confirm: 'Confirmar con token',
-    cancel: 'Cancelar con token'
+test('outbox rows without a patient omit name and DNI without placeholders', () => {
+  const text = outboxRowText({
+    id: 'message-2',
+    appointmentId: null,
+    recipientEmail: 'aviso@demo.invalid',
+    subject: 'Aviso',
+    body: 'Sin enlace.',
+    status: 'PENDING',
+    type: 'CONFIRMATION',
+    createdAt: '2026-11-24T03:00:00Z',
+    sentAt: null,
+    patientName: null,
+    patientDni: null
   });
-  assert.equal(tokenDetailsText({ startAt: '2026-11-24T10:00:00Z', status: 'PENDING' }), 'Inicio: 2026-11-24T10:00:00Z · Estado: PENDING');
-  assert.equal(tokenActionFeedbackText({ message: 'Turno confirmado', status: 'CONFIRMED' }), 'Turno confirmado · Estado: CONFIRMED');
+
+  assert.equal(text, 'Aviso · aviso@demo.invalid · 24/11/26 00:00');
+});
+
+test('outbox history offers only the informative status lookup in local time', () => {
+  assert.deepEqual(tokenUiLabels(), { info: 'Ver estado del turno' });
+  assert.equal(
+    tokenDetailsText({ startAt: '2026-11-26T17:30:00Z', status: 'PENDING' }),
+    'Inicio: 26/11/26 14:30 · Estado: PENDING'
+  );
 });
 
 test('patient rows expose only the five fields returned by the list', () => {
@@ -138,9 +173,8 @@ test('patient page view reports only server pagination metadata', () => {
   assert.equal(patientPageText({ page: 3, size: 10, totalElements: 0, totalPages: 0 }), 'Página 4 de 0 · 0 pacientes');
 });
 
-test('status actions cover the four existing statuses and surface backend messages', () => {
+test('dentist status actions exclude confirmation and surface backend messages', () => {
   assert.deepEqual(statusActionLabels(), [
-    { status: 'CONFIRMED', label: 'Confirmar' },
     { status: 'ABSENT', label: 'Marcar ausente' },
     { status: 'ATTENDED', label: 'Marcar atendido' },
     { status: 'CANCELLED', label: 'Cancelar' }
@@ -161,7 +195,7 @@ test('console sections appear only after login and expired session reuses the lo
   const unavailable = sessionUnavailable(anonymousSession(), 401, { error: 'No autenticado' }).state;
 
   assert.deepEqual(screenSections('login'), []);
-  assert.deepEqual(screenSections('console'), ['agenda', 'patients', 'outbox', 'waiting-list']);
+  assert.deepEqual(screenSections('console'), ['agenda', 'patients', 'outbox']);
   assert.equal(sessionUnavailableNotice(unavailable), 'Su sesión no está disponible. Ingrese nuevamente.');
   assert.equal(sessionUnavailableNotice(anonymousSession()), null);
   assert.deepEqual(authenticatedSession(profile), { kind: 'authenticated', profile });

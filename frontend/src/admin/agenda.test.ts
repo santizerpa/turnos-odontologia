@@ -56,19 +56,36 @@ function fakeApi(options: {
   return { api, calls };
 }
 
-test('daily and weekly ranges are valid Instants with from before to', () => {
-  assert.deepEqual(dailyRange('2026-11-24'), {
-    from: '2026-11-24T00:00:00Z',
-    to: '2026-11-25T00:00:00Z'
+test('daily range uses Buenos Aires midnight boundaries with -03:00 offset', () => {
+  const range = dailyRange('2026-11-24');
+
+  assert.deepEqual(range, {
+    from: '2026-11-24T00:00:00-03:00',
+    to: '2026-11-25T00:00:00-03:00'
   });
+  assert.equal(validateAgendaRange(range.from, range.to), null);
+  assert.equal(Date.parse(range.from), Date.parse('2026-11-24T03:00:00Z'));
+});
+
+test('weekly range spans seven local days with -03:00 offset', () => {
   assert.deepEqual(weeklyRange('2026-11-24'), {
-    from: '2026-11-24T00:00:00Z',
-    to: '2026-12-01T00:00:00Z'
+    from: '2026-11-24T00:00:00-03:00',
+    to: '2026-12-01T00:00:00-03:00'
   });
-  assert.deepEqual(dailyRange('2026-12-31'), {
-    from: '2026-12-31T00:00:00Z',
-    to: '2027-01-01T00:00:00Z'
-  });
+});
+
+test('ranges crossing the year boundary keep day count, year change and offset without Z', () => {
+  const daily = dailyRange('2026-12-31');
+  const weekly = weeklyRange('2026-12-28');
+
+  assert.deepEqual(daily, { from: '2026-12-31T00:00:00-03:00', to: '2027-01-01T00:00:00-03:00' });
+  assert.deepEqual(weekly, { from: '2026-12-28T00:00:00-03:00', to: '2027-01-04T00:00:00-03:00' });
+
+  for (const value of [daily.from, daily.to, weekly.from, weekly.to]) {
+    assert.equal(value.endsWith('Z'), false);
+  }
+
+  assert.equal(Date.parse(weekly.to) - Date.parse(weekly.from), 7 * 24 * 60 * 60 * 1000);
 });
 
 test('range validation rejects from >= to, missing and unparseable parameters', () => {
@@ -124,7 +141,7 @@ test('agenda load performs exactly one patient list call with page 0 and size 10
   const result = await loadAgenda(api, dailyRange('2026-11-24'));
 
   assert.deepEqual(calls, [
-    { method: 'appointments', args: ['2026-11-24T00:00:00Z', '2026-11-25T00:00:00Z'] },
+    { method: 'appointments', args: ['2026-11-24T00:00:00-03:00', '2026-11-25T00:00:00-03:00'] },
     { method: 'patients', args: [{ page: 0, size: 100 }] }
   ]);
   assert.deepEqual(Object.keys(calls[1].args[0] as object), ['page', 'size']);

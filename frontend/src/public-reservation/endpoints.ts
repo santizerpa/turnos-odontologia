@@ -11,3 +11,7 @@ export function appointmentsPath(): string {
 export function tokenActionPath(token: string, action: TokenAction): string {
   return `${appointmentsPath()}/${encodeURIComponent(token)}/${action}`;
 }
+
+export function inboxPath(email: string): string {
+  return `/api/public/inbox?email=${encodeURIComponent(email.trim())}`;
+}

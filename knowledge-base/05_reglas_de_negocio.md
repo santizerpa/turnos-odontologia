@@ -29,6 +29,7 @@
 - **RN-CF-02:** el token vence al inicio del turno o a los 7 días, lo que ocurra primero, y no funciona en turnos pasados.
 - **RN-CF-03:** confirmar y cancelar aplican el primer cambio válido; si la operación llega a un turno ya `CONFIRMED` responde "ya confirmado" y si llega a `CANCELLED` responde "ya cancelado", sin repetir efectos ni avisos.
 - **RN-CF-04:** un turno `CANCELLED` no se puede confirmar.
+- **RN-CF-06:** la confirmación la realiza solo el paciente mediante su token público. El odontólogo no confirma turnos: `PATCH /api/appointments/{id}/status` con `CONFIRMED` responde 422 "La confirmación del turno la realiza el paciente". El odontólogo solo marca `ABSENT`, `ATTENDED` o cancela.
 - **RN-CF-05:** el recordatorio se crea cuando `now + 24h < startAt <= now + 48h` y el turno está `PENDING` o `CONFIRMED`; queda visible en la bandeja de salida y existe un único recordatorio por turno.
 
 ## Dominio: Lista de espera (RN-LE)

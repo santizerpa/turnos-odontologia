@@ -39,9 +39,9 @@ Lista de comprobación (marcar solo con resultado observado):
 - [X] Login del odontólogo ficticio, `GET /api/auth/me`, logout y 401 posterior.
 - [X] `GET /api/schedule` responde 200 y la agenda por defecto existe desde el arranque.
 - [X] Reserva pública, y segunda reserva de la misma franja con 409 (unicidad de `active_slot`).
-- [ ] Cancelación (`active_slot` queda `NULL`) y nueva reserva de la misma franja.
-- [ ] Cancelación con una entrada `WAITING` elegible: la entrada pasa a `NOTIFIED` y aparece un mensaje en la bandeja.
-- [ ] `POST /api/outbox/reminders/run` y `POST /api/outbox/dispatch` sobre turnos de 24 a 48 horas.
+- [X] Cancelación (`active_slot` queda `NULL`) y nueva reserva de la misma franja.
+- [X] Cancelación con una entrada `WAITING` elegible: la entrada pasa a `NOTIFIED` y aparece un mensaje en la bandeja.
+- [X] `POST /api/outbox/reminders/run` y `POST /api/outbox/dispatch` sobre turnos de 24 a 48 horas.
 - [ ] Carga de demo (`APP_DEMO_SEED=true`) sobre una base limpia y segundo arranque el mismo día.
 
 Mientras haya casillas sin marcar, no se afirma paridad H2/PostgreSQL en la documentación ni en el video.

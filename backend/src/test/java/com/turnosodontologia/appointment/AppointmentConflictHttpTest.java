@@ -31,13 +31,13 @@ class AppointmentConflictHttpTest {
     @Test
     void patchConflictMapsToHttp409() throws Exception {
         UUID appointmentId = UUID.fromString("00000000-0000-0000-0000-000000000409");
-        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.CONFIRMED),
+        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.ATTENDED),
             eq(Actor.DENTIST), any())).thenThrow(new AppointmentConflictException());
 
         mockMvc.perform(patch("/api/appointments/{id}/status", appointmentId)
                 .with(user("dentista")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"status\":\"CONFIRMED\",\"reason\":\"franja ficticia\"}"))
+                .content("{\"status\":\"ATTENDED\",\"reason\":\"franja ficticia\"}"))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.error").value("La franja solicitada ya está ocupada"));
     }
@@ -47,14 +47,14 @@ class AppointmentConflictHttpTest {
         UUID appointmentId = UUID.fromString("00000000-0000-0000-0000-000000000410");
         String token = "integrity-token-sentinel";
         String dni = "integrity-dni-sentinel";
-        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.CONFIRMED),
+        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.ATTENDED),
             eq(Actor.DENTIST), any())).thenThrow(new DataIntegrityViolationException(
                 "SQL driver detail " + token + " " + dni + " org.hibernate at com.example.Driver"));
 
         var result = mockMvc.perform(patch("/api/appointments/{id}/status", appointmentId)
                 .with(user("dentista")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"status\":\"CONFIRMED\",\"reason\":\"franja ficticia\"}"))
+                .content("{\"status\":\"ATTENDED\",\"reason\":\"franja ficticia\"}"))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.error").value("No se pudo completar la operación"))
             .andReturn();
@@ -66,14 +66,14 @@ class AppointmentConflictHttpTest {
     void unexpectedIllegalArgumentAndIllegalStateUseFixed422Body() throws Exception {
         String sentinel = "SQL org.hibernate Exception at com.fake.Token DNI-UNICO";
         UUID appointmentId = UUID.fromString("00000000-0000-0000-0000-000000000411");
-        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.CONFIRMED),
+        when(appointmentService.changeStatus(eq(appointmentId), eq(AppointmentStatus.ATTENDED),
             eq(Actor.DENTIST), any()))
             .thenThrow(new IllegalArgumentException(sentinel))
             .thenThrow(new IllegalStateException(sentinel));
         var invalidArgument = mockMvc.perform(patch("/api/appointments/{id}/status", appointmentId)
                 .with(user("dentista")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"status\":\"CONFIRMED\",\"reason\":\"franja ficticia\"}"))
+                .content("{\"status\":\"ATTENDED\",\"reason\":\"franja ficticia\"}"))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.error").value("Solicitud inválida"))
             .andReturn();
@@ -82,7 +82,7 @@ class AppointmentConflictHttpTest {
         var invalidState = mockMvc.perform(patch("/api/appointments/{id}/status", appointmentId)
                 .with(user("dentista")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"status\":\"CONFIRMED\",\"reason\":\"franja ficticia\"}"))
+                .content("{\"status\":\"ATTENDED\",\"reason\":\"franja ficticia\"}"))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.error").value("Solicitud inválida"))
             .andReturn();

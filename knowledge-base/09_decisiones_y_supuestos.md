@@ -86,3 +86,9 @@
 **Origen:** demo local.
 **Riesgo si es falso:** enlaces vencidos o agenda vacía.
 **Cómo validar:** script seed relativo a fecha/hora local.
+
+### SU-05 — Bandeja de entrada simulada accesible por email
+**Supuesto:** en la demo, el correo del paciente se simula en la página pública: quien ingresa un email ve sus mensajes y puede confirmar o cancelar con los enlaces que contienen. Se acepta porque no hay correo real ni cuentas de paciente.
+**Origen:** decisión del usuario en la revisión de `ui-polish` (2026-11-25).
+**Riesgo si es falso:** fuera de la demo, cualquiera que conozca un email podría confirmar o cancelar turnos ajenos y ver su DNI.
+**Cómo validar:** `app.demo.inbox.enabled` está en `false` por defecto y solo se activa en el perfil `local`; desactivada, `GET /api/public/inbox` responde 404.

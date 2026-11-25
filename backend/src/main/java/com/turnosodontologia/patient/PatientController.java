@@ -27,9 +27,10 @@ public class PatientController {
 
     @GetMapping
     public PatientPageResponse list(@RequestParam(required = false) String dni,
+                                    @RequestParam(required = false) String nombre,
                                     @RequestParam(defaultValue = "0") @Min(0) int page,
                                     @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
-        return patientService.list(dni, page, size);
+        return patientService.list(dni, nombre, page, size);
     }
 
     @PostMapping
