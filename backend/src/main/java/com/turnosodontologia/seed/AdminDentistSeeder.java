@@ -2,6 +2,7 @@ package com.turnosodontologia.seed;
 
 import com.turnosodontologia.dentist.Dentist;
 import com.turnosodontologia.dentist.DentistRepository;
+import com.turnosodontologia.schedule.ScheduleConfigurationService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -13,11 +14,14 @@ import org.springframework.stereotype.Component;
 public class AdminDentistSeeder implements ApplicationRunner {
     public static final int ORDER = 10;
     private final DentistRepository dentists;
+    private final ScheduleConfigurationService schedules;
     private final AdminSeedConfiguration configuration;
     private final Environment environment;
 
-    public AdminDentistSeeder(DentistRepository dentists, Environment environment) {
+    public AdminDentistSeeder(DentistRepository dentists, Environment environment,
+                              ScheduleConfigurationService schedules) {
         this.dentists = dentists;
+        this.schedules = schedules;
         this.configuration = new AdminSeedConfiguration(environment);
         this.environment = environment;
     }
@@ -27,7 +31,9 @@ public class AdminDentistSeeder implements ApplicationRunner {
         if (!configurationEnabled()) return;
         var resolved = configuration.resolve();
         String email = resolved.get("email");
-        dentists.findByEmail(email).orElseGet(() -> dentists.save(new Dentist(email, resolved.get("password"), "Admin", "Demostración")));
+        Dentist dentist = dentists.findByEmail(email)
+                .orElseGet(() -> dentists.save(new Dentist(email, resolved.get("password"), "Admin", "Demostración")));
+        schedules.getOrCreate(dentist);
     }
 
     private boolean configurationEnabled() {

@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,18 +18,24 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(ScheduleHttpSecurityTests.TestClock.class)
 class ScheduleHttpSecurityTests {
+    private static final Instant TEST_NOW = Instant.parse("2026-11-25T12:00:00Z");
+    private static final Clock TEST_CLOCK = Clock.fixed(TEST_NOW, ZoneOffset.UTC);
     @Autowired MockMvc mockMvc;
     @Autowired DentistRepository dentists;
+    @Autowired ScheduleConfigurationRepository configurations;
     @Autowired PasswordEncoder passwordEncoder;
 
     private Dentist dentist;
@@ -81,10 +90,23 @@ class ScheduleHttpSecurityTests {
     }
 
     @Test
+    void authenticatedGetCreatesMissingScheduleConfiguration() throws Exception {
+        MockHttpSession session = login(dentist.getEmail(), "demo-ficticia-123");
+        long scheduleCountBefore = configurations.count();
+        assertTrue(configurations.findByDentistId(dentist.getId()).isEmpty());
+
+        mockMvc.perform(get("/api/schedule").session(session))
+                .andExpect(status().isOk());
+
+        assertTrue(configurations.findByDentistId(dentist.getId()).isPresent());
+        assertEquals(scheduleCountBefore + 1, configurations.count());
+    }
+
+    @Test
     void availabilityAndAdviceForBadRanges() throws Exception {
         MockHttpSession session = login(dentist.getEmail(), "demo-ficticia-123");
         mockMvc.perform(get("/api/schedule").session(session)).andExpect(status().isOk());
-        Instant testNow = Instant.now();
+        Instant testNow = TEST_CLOCK.instant();
         String validFrom = testNow.plusSeconds(3 * 86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
         String validTo = testNow.plusSeconds(4 * 86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
         String beforeMinimumFrom = testNow.minusSeconds(86400L).atOffset(ZoneOffset.ofHours(-3)).toString();
@@ -110,5 +132,14 @@ class ScheduleHttpSecurityTests {
                         .content("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
                 .andExpect(status().isOk()).andReturn();
         return (MockHttpSession) result.getRequest().getSession(false);
+    }
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        @org.springframework.context.annotation.Primary
+        Clock fixedClock() {
+            return TEST_CLOCK;
+        }
     }
 }

@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(AppointmentTokenEndToEndTest.TestClock.class)
 @Transactional
 class AppointmentTokenEndToEndTest {
-    private static final Instant NOW = Instant.now().plusSeconds(12 * 60 * 60);
+    private static final Instant NOW = Instant.parse("2026-11-25T12:00:00Z");
 
     @Autowired MockMvc mockMvc;
     @Autowired DentistRepository dentists;
@@ -134,7 +134,7 @@ class AppointmentTokenEndToEndTest {
 
         mockMvc.perform(get("/api/public/appointments/{token}/confirm", token))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.startAt").value(NOW.plusSeconds(96 * 60 * 60).toString()))
+            .andExpect(jsonPath("$.startAt").value("2026-11-29T12:00:00Z"))
             .andExpect(jsonPath("$.status").value("PENDING"))
             .andExpect(jsonPath("$.patient").doesNotExist())
             .andExpect(jsonPath("$.token").doesNotExist());

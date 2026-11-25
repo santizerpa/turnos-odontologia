@@ -51,17 +51,30 @@ class CoreModelsIntegrityTests {
             org.hibernate.exception.ConstraintViolationException.class);
         em.clear();
 
+        assertThat(em.createQuery("select count(a) from Appointment a", Long.class).getSingleResult()).isEqualTo(1L);
+        Appointment persisted = em.createQuery("select a from Appointment a", Appointment.class)
+            .getSingleResult();
+        assertThat(persisted.getId()).isEqualTo(a.getId());
+        assertThat(persisted.getStatus()).isEqualTo(AppointmentStatus.PENDING);
+        assertThat(persisted.getActiveSlot()).isEqualTo(slot);
+
         Appointment c = em.find(Appointment.class, a.getId());
         c.cancelForFutureDomainService(Instant.parse("2029-12-01T12:00:00Z"));
         em.flush();
+        assertThat(em.find(Appointment.class, c.getId()).getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
         assertThat(c.getActiveSlot()).isNull();
 
         Appointment d = Appointment.create(dentist, two, slot, 30, CreatedBy.PATIENT);
         em.persist(d); em.flush();
+        assertThat(em.createQuery("select count(a) from Appointment a", Long.class).getSingleResult()).isEqualTo(2L);
+        Appointment replacement = em.find(Appointment.class, d.getId());
+        assertThat(replacement.getStatus()).isEqualTo(AppointmentStatus.PENDING);
+        assertThat(replacement.getActiveSlot()).isEqualTo(slot);
         d.cancelForFutureDomainService(Instant.parse("2029-12-02T12:00:00Z"));
         em.flush();
         assertThat(c.getActiveSlot()).isNull();
         assertThat(d.getActiveSlot()).isNull();
+        assertThat(em.createQuery("select count(a) from Appointment a", Long.class).getSingleResult()).isEqualTo(2L);
     }
 
     @Test

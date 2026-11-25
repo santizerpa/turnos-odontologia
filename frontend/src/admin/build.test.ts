@@ -23,8 +23,8 @@ test('build emits the public bundle under /js and the admin bundle under /js/adm
 test('test script compiles both projects and keeps the public test suite in the run', () => {
   const pkg = readJson('package.json');
 
-  assert.match(pkg.scripts.test, /tsc -p tsconfig\.json/);
-  assert.match(pkg.scripts.test, /tsc -p tsconfig\.admin\.json/);
+  assert.match(pkg.scripts.test, /npm run build/);
   assert.match(pkg.scripts.test, /node --test/);
+  assert.equal(pkg.engines.node, '>=22');
   assert.equal(existsSync('dist/js/public-reservation/errors.test.js'), true);
 });

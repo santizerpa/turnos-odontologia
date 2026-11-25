@@ -40,6 +40,7 @@ public class WaitingListNotificationService {
         Appointment appointment = appointments.findById(event.appointmentId()).orElse(null);
         if (appointment == null) return false;
         if (!publicBookingWindow.isWithin(appointment.getStartAt(), scheduleClock)) return false;
+        if (outbox.existsByAppointmentIdAndTypeIsNull(appointment.getId())) return false;
 
         return selection.selectFirstEligible(event.startAt(), appointment.getPatient().getId()).map(entry -> {
             if (!entry.markNotified()) return false;

@@ -3,6 +3,7 @@ package com.turnosodontologia.waiting;
 import com.turnosodontologia.appointment.Appointment;
 import com.turnosodontologia.appointment.AppointmentCancelledEvent;
 import com.turnosodontologia.appointment.AppointmentRepository;
+import com.turnosodontologia.appointment.AppointmentStatus;
 import com.turnosodontologia.appointment.CreatedBy;
 import com.turnosodontologia.appointment.Actor;
 import com.turnosodontologia.dentist.Dentist;
@@ -19,21 +20,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(WaitingListNotificationIntegrationTest.TestClock.class)
 class WaitingListNotificationIntegrationTest {
+    private static final Clock TEST_CLOCK = Clock.fixed(
+        Instant.parse("2026-11-25T15:00:00Z"), ZoneOffset.UTC);
 
     @Autowired WaitingListNotificationService notifications;
     @Autowired WaitingListCancelledListener listener;
@@ -63,8 +73,8 @@ class WaitingListNotificationIntegrationTest {
         Patient appointmentPatient = patients.save(new Patient(
             "70123456", "Paciente Turno", "Ficticio", "turno@example.invalid"));
         cancelledAppointment = appointments.saveAndFlush(Appointment.create(dentist, appointmentPatient,
-            Instant.now().plusSeconds(48 * 3600L), 30, CreatedBy.DENTIST));
-        cancelledAppointment.cancelForFutureDomainService(Instant.now());
+            TEST_CLOCK.instant().plusSeconds(48 * 3600L), 30, CreatedBy.DENTIST));
+        cancelledAppointment.cancelForFutureDomainService(TEST_CLOCK.instant());
         appointments.saveAndFlush(cancelledAppointment);
     }
 
@@ -86,9 +96,42 @@ class WaitingListNotificationIntegrationTest {
         assertThat(message.getRecipientEmail()).isEqualTo("espera@example.invalid");
         assertThat(message.getStatus()).isEqualTo(OutboxStatus.PENDING);
         assertThat(message.getType()).isNull();
-        assertThat(message.getBody()).contains(cancelledAppointment.getStartAt()
-            .atZone(ZoneId.of("America/Argentina/Buenos_Aires"))
-            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        assertThat(message.getBody()).isEqualTo(
+            "Aviso ficticio: se liberó un turno para el 27/11/2026 12:00. "
+                + "El paciente debe reservarlo desde la disponibilidad pública.");
+    }
+
+    @Test
+    void repeatedCancellationEventDoesNotNotifyAnotherEntryOrAssignTheReleasedAppointment() {
+        Patient firstPatient = patients.save(new Patient(
+            "70123462", "Paciente FIFO", "Primero", "primero.fifo@example.invalid"));
+        Patient secondPatient = patients.save(new Patient(
+            "70123463", "Paciente FIFO", "Segundo", "segundo.fifo@example.invalid"));
+        WaitingListEntry firstEntry = waitingEntries.saveAndFlush(new WaitingListEntry(
+            firstPatient, null, null, WaitingListStatus.WAITING));
+        WaitingListEntry secondEntry = waitingEntries.saveAndFlush(new WaitingListEntry(
+            secondPatient, null, null, WaitingListStatus.WAITING));
+        jdbcTemplate.update("UPDATE waiting_list_entries SET created_at = ? WHERE id = ?",
+            Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")), firstEntry.getId());
+        jdbcTemplate.update("UPDATE waiting_list_entries SET created_at = ? WHERE id = ?",
+            Timestamp.from(Instant.parse("2026-01-01T10:00:01Z")), secondEntry.getId());
+        AppointmentCancelledEvent event = new AppointmentCancelledEvent(
+            cancelledAppointment.getId(), cancelledAppointment.getStartAt(), Actor.DENTIST);
+
+        assertThat(notifications.notifyFirstEligible(event)).isTrue();
+        assertThat(notifications.notifyFirstEligible(event)).isFalse();
+
+        assertThat(waitingEntries.findById(firstEntry.getId()).orElseThrow().getStatus())
+            .isEqualTo(WaitingListStatus.NOTIFIED);
+        assertThat(waitingEntries.findById(secondEntry.getId()).orElseThrow().getStatus())
+            .isEqualTo(WaitingListStatus.WAITING);
+        assertThat(outbox.findAll()).singleElement()
+            .extracting(OutboxMessage::getRecipientEmail)
+            .isEqualTo("primero.fifo@example.invalid");
+        assertThat(appointments.findAll()).singleElement().satisfies(appointment -> {
+            assertThat(appointment.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
+            assertThat(appointment.getActiveSlot()).isNull();
+        });
     }
 
     @Test
@@ -169,5 +212,14 @@ class WaitingListNotificationIntegrationTest {
         assertThat(outbox.findAll().stream().filter(message -> message.getType() == OutboxMessageType.REMINDER))
             .hasSize(1);
         assertThat(outbox.findAll().stream().filter(message -> message.getType() == null)).hasSize(1);
+    }
+
+    @TestConfiguration
+    static class TestClock {
+        @Bean
+        @Primary
+        Clock fixedClock() {
+            return TEST_CLOCK;
+        }
     }
 }

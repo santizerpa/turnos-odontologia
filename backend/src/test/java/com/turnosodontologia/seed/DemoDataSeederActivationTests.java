@@ -3,9 +3,14 @@ package com.turnosodontologia.seed;
 import com.turnosodontologia.dentist.Dentist;
 import com.turnosodontologia.dentist.DentistRepository;
 import com.turnosodontologia.patient.PatientRepository;
+import com.turnosodontologia.schedule.ScheduleConfigurationRepository;
+import com.turnosodontologia.schedule.ScheduleConfigurationService;
+import com.turnosodontologia.schedule.config.ScheduleProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -19,15 +24,19 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(ScheduleConfigurationService.class)
+@EnableConfigurationProperties(ScheduleProperties.class)
 class DemoDataSeederActivationTests {
 
     @Autowired DentistRepository dentists;
     @Autowired PatientRepository patients;
+    @Autowired ScheduleConfigurationRepository schedules;
+    @Autowired ScheduleConfigurationService scheduleConfigurations;
 
     @Test
     void disabledDemoKeepsAdminSeedBehaviorAndDoesNotLoadDemoData() {
         MockEnvironment environment = adminEnvironment();
-        new AdminDentistSeeder(dentists, environment).run(null);
+        new AdminDentistSeeder(dentists, environment, scheduleConfigurations).run(null);
         assertThat(dentists.findByEmail("demo.odontologia@example.invalid")).isPresent();
 
         DemoDataLoader loader = mock(DemoDataLoader.class);
@@ -35,6 +44,22 @@ class DemoDataSeederActivationTests {
 
         verifyNoInteractions(loader);
         assertThat(patients.count()).isZero();
+    }
+
+    @Test
+    void adminSeedCreatesOneScheduleAndIsIdempotent() {
+        MockEnvironment environment = adminEnvironment();
+        AdminDentistSeeder seeder = new AdminDentistSeeder(dentists, environment, scheduleConfigurations);
+
+        seeder.run(null);
+        Dentist dentist = dentists.findByEmail("demo.odontologia@example.invalid").orElseThrow();
+        assertThat(schedules.findByDentistId(dentist.getId())).isPresent();
+        assertThat(schedules.count()).isEqualTo(1);
+
+        seeder.run(null);
+
+        assertThat(schedules.findByDentistId(dentist.getId())).isPresent();
+        assertThat(schedules.count()).isEqualTo(1);
     }
 
     @Test
@@ -85,7 +110,7 @@ class DemoDataSeederActivationTests {
     void enabledDemoWithValidConfigurationLoadsForTheConfiguredDentist() {
         MockEnvironment environment = adminEnvironment();
         environment.setProperty("APP_DEMO_SEED", "true");
-        new AdminDentistSeeder(dentists, environment).run(null);
+        new AdminDentistSeeder(dentists, environment, scheduleConfigurations).run(null);
         DemoDataLoader loader = mock(DemoDataLoader.class);
 
         new DemoDataSeeder(environment, dentists, loader).run(null);

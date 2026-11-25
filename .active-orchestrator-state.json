@@ -185,13 +185,20 @@
     },
     "decisions": {
       "visual-design": {
-        "status": "deferred",
-        "note": "Se pregunta una vez en el primer change visual. Registra politica en design-system/README.md."
+        "status": "system-only",
+        "note": "El usuario eligió system-only explícitamente el 2026-11-25: crear y revisar la fundación; sin mockups rutinarios por change."
       },
       "task-management": {
         "status": "skipped",
         "note": "ClickUp no disponible (falta active-roadmap). Tracking local se puede correr standalone."
       }
     }
+  },
+  "visual_design": {
+    "created_by": "design-system",
+    "mode": "system-only",
+    "status": "pending",
+    "revision": 1,
+    "path": "design-system/README.md"
   }
 }

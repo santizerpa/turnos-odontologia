@@ -77,6 +77,12 @@ class AppointmentPersistenceTest {
         assertThatThrownBy(() -> service.create(dentist.getId(), two.getId(), slot, CreatedBy.DENTIST))
             .isInstanceOf(AppointmentConflictException.class);
         assertThat(appointments.count()).isEqualTo(1);
+        assertThat(appointments.findAll()).singleElement().satisfies(persisted -> {
+            assertThat(persisted.getStatus()).isEqualTo(AppointmentStatus.PENDING);
+            assertThat(persisted.getActiveSlot()).isEqualTo(slot);
+            assertThat(persisted.getPatient().getId()).isEqualTo(one.getId());
+        });
+        assertThat(appointmentEvents.count()).isZero();
     }
 
     @Test
@@ -160,10 +166,22 @@ class AppointmentPersistenceTest {
 
         Appointment first = service.create(dentist.getId(), one.getId(), slot, CreatedBy.DENTIST);
         service.cancel(first.getId(), Actor.DENTIST, "franja ficticia");
+        assertThat(appointments.count()).isEqualTo(1);
+        assertThat(appointments.findById(first.getId())).get().satisfies(cancelled -> {
+            assertThat(cancelled.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
+            assertThat(cancelled.getActiveSlot()).isNull();
+        });
         Appointment replacement = service.create(dentist.getId(), two.getId(), slot, CreatedBy.DENTIST);
 
         assertThat(first.getActiveSlot()).isNull();
         assertThat(replacement.getActiveSlot()).isEqualTo(slot);
+        assertThat(appointments.count()).isEqualTo(2);
+        assertThat(appointments.findById(replacement.getId())).get().satisfies(rebooked -> {
+            assertThat(rebooked.getStatus()).isEqualTo(AppointmentStatus.PENDING);
+            assertThat(rebooked.getActiveSlot()).isEqualTo(slot);
+            assertThat(rebooked.getPatient().getId()).isEqualTo(two.getId());
+        });
+        assertThat(appointmentEvents.count()).isEqualTo(1);
     }
 
     @org.springframework.boot.test.context.TestConfiguration

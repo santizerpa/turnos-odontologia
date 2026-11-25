@@ -12,12 +12,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -35,6 +37,19 @@ class PublicAppointmentTokenHttpTest {
         mockMvc.perform(post("/api/public/appointments/{token}/confirm", plain).with(csrf()))
             .andExpect(status().isNotFound());
         verify(tokenService).resolve(plain);
+    }
+
+    @Test
+    void malformedTokenReturnsFixedNotFoundWithoutEchoingToken() throws Exception {
+        String malformed = "malformed-token-sentinel";
+        when(tokenService.resolve(malformed)).thenThrow(new PublicTokenInvalidException());
+
+        var result = mockMvc.perform(post("/api/public/appointments/{token}/confirm", malformed).with(csrf()))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Token inexistente o inválido"))
+            .andReturn();
+
+        assertSanitizedErrorBody(result.getResponse().getContentAsString(), malformed);
     }
 
     @Test
@@ -248,5 +263,11 @@ class PublicAppointmentTokenHttpTest {
 
         mockMvc.perform(post("/api/public/appointments/{token}/confirm", plain).with(csrf()))
             .andExpect(status().isGone());
+        verifyNoInteractions(appointmentService);
+    }
+
+    private void assertSanitizedErrorBody(String body, String... sentinels) {
+        assertThat(body).doesNotContain("Exception", "org.springframework", "org.hibernate", "SQL", "at com.");
+        assertThat(body).doesNotContain(sentinels);
     }
 }

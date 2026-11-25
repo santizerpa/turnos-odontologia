@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,9 +59,12 @@ class AppointmentApiTests {
                 .param("from", "2030-01-02T09:00:00Z").param("to", "2030-01-02T12:00:00Z"))
             .andExpect(status().isOk()).andExpect(jsonPath("$[0].startAt").value("2030-01-02T10:00:00Z"));
 
-        mockMvc.perform(get("/api/appointments").session(session)
+        MvcResult invalidRange = mockMvc.perform(get("/api/appointments").session(session)
                 .param("from", "2030-01-02T12:00:00Z").param("to", "2030-01-02T09:00:00Z"))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.error").value("Rango de agenda inválido"))
+            .andReturn();
+        assertSanitizedErrorBody(invalidRange, "32345671");
         mockMvc.perform(get("/api/appointments")
                 .param("from", "2030-01-02T09:00:00Z").param("to", "2030-01-02T12:00:00Z"))
             .andExpect(status().isUnauthorized());
@@ -80,9 +84,12 @@ class AppointmentApiTests {
                 .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CANCELLED\",\"reason\":\"Ficticio\"}"))
             .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("ya cancelado"));
 
-        mockMvc.perform(patch("/api/appointments/{id}/status", appointment.getId()).session(session)
+        MvcResult invalidTransition = mockMvc.perform(patch("/api/appointments/{id}/status", appointment.getId()).session(session)
                 .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"PENDING\",\"reason\":\"volver\"}"))
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(jsonPath("$.error").value("Transición de estado inválida"))
+            .andReturn();
+        assertSanitizedErrorBody(invalidTransition, "32345672");
         mockMvc.perform(patch("/api/appointments/{id}/status", "00000000-0000-0000-0000-000000000999").session(session)
                 .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CONFIRMED\",\"reason\":\"n/a\"}"))
             .andExpect(status().isNotFound());
@@ -96,5 +103,11 @@ class AppointmentApiTests {
             .content("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
             .andExpect(status().isOk()).andReturn();
         return (MockHttpSession) result.getRequest().getSession(false);
+    }
+
+    private void assertSanitizedErrorBody(MvcResult result, String... sentinels) throws Exception {
+        String body = result.getResponse().getContentAsString();
+        assertThat(body).doesNotContain("Exception", "org.springframework", "org.hibernate", "SQL", "at com.");
+        assertThat(body).doesNotContain(sentinels);
     }
 }

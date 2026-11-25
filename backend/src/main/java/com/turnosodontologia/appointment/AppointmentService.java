@@ -40,9 +40,9 @@ public class AppointmentService {
     @Transactional
     public Appointment create(UUID dentistId, UUID patientId, Instant startAt, CreatedBy createdBy) {
         var dentist = dentists.findById(dentistId).orElseThrow(() ->
-            new IllegalArgumentException("Odontólogo inexistente"));
+            new AppointmentDentistNotFoundException());
         var patient = patients.findById(patientId).orElseThrow(() ->
-            new IllegalArgumentException("Paciente inexistente"));
+            new AppointmentPatientNotFoundException());
         if (startAt == null) throw new IllegalArgumentException("Hora de inicio requerida");
         if (appointments.existsByDentistIdAndActiveSlot(dentistId, startAt)) {
             throw new AppointmentConflictException();
@@ -57,7 +57,7 @@ public class AppointmentService {
 
     public java.util.List<Appointment> agenda(UUID dentistId, Instant from, Instant to) {
         if (from == null || to == null || !from.isBefore(to)) {
-            throw new IllegalArgumentException("Rango de agenda inválido");
+            throw new InvalidAppointmentRangeException();
         }
         return appointments.findByDentistIdAndDeletedAtIsNullAndActiveSlotIsNotNullAndStartAtGreaterThanEqualAndStartAtLessThan(dentistId, from, to)
             .stream().sorted(java.util.Comparator.comparing(Appointment::getStartAt)).toList();
@@ -119,7 +119,7 @@ public class AppointmentService {
             || (from == AppointmentStatus.CONFIRMED &&
             (target == AppointmentStatus.CANCELLED || target == AppointmentStatus.ABSENT
                 || target == AppointmentStatus.ATTENDED));
-        if (!valid) throw new IllegalStateException("Transición de estado inválida");
+        if (!valid) throw new InvalidAppointmentTransitionException();
     }
 
 }

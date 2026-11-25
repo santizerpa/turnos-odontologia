@@ -4,4 +4,5 @@ import java.util.UUID;
 
 public interface OutboxMessageRepository extends JpaRepository<OutboxMessage, UUID> {
     boolean existsByAppointmentIdAndType(UUID appointmentId, OutboxMessageType type);
+    boolean existsByAppointmentIdAndTypeIsNull(UUID appointmentId);
 }

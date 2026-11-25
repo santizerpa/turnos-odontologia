@@ -1,10 +1,14 @@
 package com.turnosodontologia.seed;
 
 import com.turnosodontologia.dentist.DentistRepository;
+import com.turnosodontologia.schedule.ScheduleConfigurationService;
+import com.turnosodontologia.schedule.config.ScheduleProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -22,9 +26,12 @@ import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(ScheduleConfigurationService.class)
+@EnableConfigurationProperties(ScheduleProperties.class)
 class DemoDataSeederOrderTests {
 
     @Autowired DentistRepository dentists;
+    @Autowired ScheduleConfigurationService scheduleConfigurations;
 
     @Test
     void bothRunnersDeclareExplicitOrderWithAdminFirst() {
@@ -44,7 +51,7 @@ class DemoDataSeederOrderTests {
         environment.setProperty("APP_DEMO_SEED", "true");
         DemoDataLoader loader = mock(DemoDataLoader.class);
 
-        AdminDentistSeeder admin = new AdminDentistSeeder(dentists, environment);
+        AdminDentistSeeder admin = new AdminDentistSeeder(dentists, environment, scheduleConfigurations);
         DemoDataSeeder demo = new DemoDataSeeder(environment, dentists, loader);
         List<ApplicationRunner> runners = new ArrayList<>(List.of(demo, admin));
         AnnotationAwareOrderComparator.sort(runners);

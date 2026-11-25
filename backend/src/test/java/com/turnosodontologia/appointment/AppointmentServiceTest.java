@@ -1,7 +1,9 @@
 package com.turnosodontologia.appointment;
 
 import com.turnosodontologia.dentist.Dentist;
+import com.turnosodontologia.dentist.DentistRepository;
 import com.turnosodontologia.patient.Patient;
+import com.turnosodontologia.patient.PatientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,8 @@ class AppointmentServiceTest {
 
     @Mock AppointmentRepository appointments;
     @Mock AppointmentEventRepository appointmentEvents;
+    @Mock DentistRepository dentists;
+    @Mock PatientRepository patients;
     @Mock ApplicationEventPublisher eventPublisher;
 
     private AppointmentService service;
@@ -37,7 +41,7 @@ class AppointmentServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AppointmentService(appointments, appointmentEvents, null, null, eventPublisher,
+        service = new AppointmentService(appointments, appointmentEvents, dentists, patients, eventPublisher,
             Clock.fixed(NOW, ZoneOffset.UTC));
         dentist = new Dentist("ana.demo@example.invalid", "hash-ficticio", "Ana", "Demo");
         patient = new Patient("12345678", "Paciente", "Ficticio", "paciente@example.invalid");
@@ -62,6 +66,35 @@ class AppointmentServiceTest {
     }
 
     @Test
+    void invalidAgendaRangeUsesControlledDomainException() {
+        assertThatThrownBy(() -> service.agenda(UUID.randomUUID(), NOW, NOW))
+            .isInstanceOfSatisfying(IllegalArgumentException.class, exception -> {
+                assertThat(exception.getClass().getSimpleName()).isEqualTo("InvalidAppointmentRangeException");
+                assertThat(exception).hasMessage("Rango de agenda inválido");
+            });
+    }
+
+    @Test
+    void missingDentistAndPatientUseControlledDomainExceptions() {
+        UUID dentistId = UUID.randomUUID();
+        UUID patientId = UUID.randomUUID();
+        when(dentists.findById(dentistId)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.create(dentistId, patientId, NOW, CreatedBy.DENTIST))
+            .isInstanceOfSatisfying(IllegalArgumentException.class, exception -> {
+                assertThat(exception.getClass().getSimpleName()).isEqualTo("AppointmentDentistNotFoundException");
+                assertThat(exception).hasMessage("Odontólogo inexistente");
+            });
+
+        when(dentists.findById(dentistId)).thenReturn(Optional.of(dentist));
+        when(patients.findById(patientId)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.create(dentistId, patientId, NOW, CreatedBy.DENTIST))
+            .isInstanceOfSatisfying(IllegalArgumentException.class, exception -> {
+                assertThat(exception.getClass().getSimpleName()).isEqualTo("AppointmentPatientNotFoundException");
+                assertThat(exception).hasMessage("Paciente inexistente");
+            });
+    }
+
+    @Test
     void validStateMatrixTransitionsWithoutInvalidMutation() {
         for (AppointmentStatus from : new AppointmentStatus[]{AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED}) {
             for (AppointmentStatus to : matrixTargets(from)) {
@@ -83,9 +116,41 @@ class AppointmentServiceTest {
 
         org.mockito.Mockito.clearInvocations(appointmentEvents);
         assertThatThrownBy(() -> service.changeStatus(cancelledId, AppointmentStatus.PENDING, Actor.DENTIST, "volver"))
-            .isInstanceOf(IllegalStateException.class);
+            .isInstanceOfSatisfying(IllegalStateException.class, exception -> {
+                assertThat(exception.getClass().getSimpleName()).isEqualTo("InvalidAppointmentTransitionException");
+                assertThat(exception).hasMessage("Transición de estado inválida");
+            });
         assertThat(cancelled.getStatus()).isEqualTo(AppointmentStatus.CANCELLED);
         verify(appointmentEvents, never()).save(any(AppointmentEvent.class));
+    }
+
+    @Test
+    void invalidTransitionsRejectWithoutMutationOrEffects() {
+        int id = 200;
+        for (AppointmentStatus from : AppointmentStatus.values()) {
+            for (AppointmentStatus to : AppointmentStatus.values()) {
+                if (isValidTransition(from, to)) continue;
+
+                Appointment appointment = appointmentAtStatus(from);
+                UUID appointmentId = new UUID(0, id++);
+                setId(appointment, appointmentId);
+                when(appointments.findById(appointmentId)).thenReturn(Optional.of(appointment));
+                AppointmentStatus beforeStatus = appointment.getStatus();
+                Instant beforeActiveSlot = appointment.getActiveSlot();
+
+                assertThatThrownBy(() -> service.changeStatus(
+                        appointmentId, to, Actor.DENTIST, "transición inválida ficticia"))
+                    .isInstanceOfSatisfying(IllegalStateException.class, exception -> {
+                        assertThat(exception.getClass().getSimpleName()).isEqualTo("InvalidAppointmentTransitionException");
+                        assertThat(exception).hasMessage("Transición de estado inválida");
+                    });
+                assertThat(appointment.getStatus()).isEqualTo(beforeStatus);
+                assertThat(appointment.getActiveSlot()).isEqualTo(beforeActiveSlot);
+            }
+        }
+
+        verify(appointmentEvents, never()).save(any(AppointmentEvent.class));
+        verify(eventPublisher, never()).publishEvent(any(AppointmentCancelledEvent.class));
     }
 
     @Test
@@ -130,6 +195,8 @@ class AppointmentServiceTest {
             .isInstanceOf(IllegalStateException.class);
         assertThat(appointment.getStatus()).isEqualTo(AppointmentStatus.CONFIRMED);
         assertThat(appointment.getActiveSlot()).isEqualTo(NOW.plusSeconds(48 * 60 * 60));
+        verify(appointmentEvents, never()).save(any(AppointmentEvent.class));
+        verify(eventPublisher, never()).publishEvent(any(AppointmentCancelledEvent.class));
     }
 
     @Test
@@ -159,23 +226,27 @@ class AppointmentServiceTest {
         return new AppointmentStatus[0];
     }
 
+    private boolean isValidTransition(AppointmentStatus from, AppointmentStatus to) {
+        if (from == AppointmentStatus.PENDING) {
+            return to == AppointmentStatus.CONFIRMED || to == AppointmentStatus.CANCELLED
+                || to == AppointmentStatus.ABSENT;
+        }
+        if (from == AppointmentStatus.CONFIRMED) {
+            return to == AppointmentStatus.CANCELLED || to == AppointmentStatus.ABSENT
+                || to == AppointmentStatus.ATTENDED;
+        }
+        return from == AppointmentStatus.CANCELLED && to == AppointmentStatus.CANCELLED;
+    }
+
     private Appointment appointmentAtStatus(AppointmentStatus status) {
         Appointment appointment = Appointment.create(dentist, patient, NOW.plusSeconds(48 * 60 * 60), 30, CreatedBy.PATIENT);
-        if (status != AppointmentStatus.PENDING) {
-            while (appointment.getStatus() != status) {
-                if (appointment.getStatus() == AppointmentStatus.PENDING && status == AppointmentStatus.CONFIRMED) {
-                    appointment.confirmForFutureDomainService();
-                } else {
-                    break;
-                }
-            }
-        }
+        if (status == AppointmentStatus.CONFIRMED || status == AppointmentStatus.ABSENT
+                || status == AppointmentStatus.ATTENDED) appointment.confirmForFutureDomainService();
         if (status == AppointmentStatus.CANCELLED) {
             appointment.cancelForFutureDomainService(NOW);
         }
         if (status == AppointmentStatus.ABSENT || status == AppointmentStatus.ATTENDED) {
-            if (status == AppointmentStatus.ATTENDED) appointment.confirmForFutureDomainService();
-            // El estado de estas trayectorias se prueba mediante el servicio.
+            appointment.changeStatusForFutureDomainService(status);
         }
         return appointment;
     }

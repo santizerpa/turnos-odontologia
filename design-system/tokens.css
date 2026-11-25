@@ -1,0 +1,71 @@
+:root {
+  /* Palette sourced from the user-provided styles.css; approval pending. */
+  --color-primary: #0f6f8f;
+  --color-primary-strong: #0b5a75;
+  --color-primary-soft: #e6f2f6;
+  --color-page: #f4f7fa;
+  --color-surface: #ffffff;
+  --color-border: #d9e2ec;
+  --color-field-border: #bcccdc;
+  --color-text: #1f2933;
+  --color-muted: #52606d;
+  --color-success: #1b7f4b;
+  --color-success-soft: #e6f4ec;
+  --color-error: #b42318;
+  --color-error-soft: #fdecea;
+  --color-info: #175cd3;
+  --color-info-soft: #eaf2fe;
+  --color-warning: #8a5a00;
+  --color-warning-soft: #fff4db;
+
+  /* System font stack follows the supplied stylesheet; final brand font TBD. */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-title: 1.75rem;
+  --line-height: 1.5;
+  --line-height-heading: 1.25;
+
+  /* Consistency scale normalized from the supplied 4/6/8/10/12/14/16/20/24px patterns. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  --radius-control: 0.375rem;
+  --radius-card: 0.5rem;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgb(31 41 51 / 6%), 0 8px 24px rgb(31 41 51 / 5%);
+  --focus-ring: 0 0 0 3px rgb(15 111 143 / 35%);
+  --duration-fast: 150ms;
+  --ease-ui: ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 3px solid rgb(15 111 143 / 55%);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

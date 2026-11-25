@@ -172,6 +172,18 @@ class PublicBookingApiTests {
     }
 
     @Test
+    void slotsWithoutScheduleReturnFixedInvalidRequestWithoutInternalMessage() throws Exception {
+        configurations.deleteAll();
+
+        MvcResult result = mockMvc.perform(get("/api/public/slots").param("date", "2026-11-24"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("Solicitud inválida"))
+                .andReturn();
+
+        assertSanitizedErrorBody(result, "Configuración de agenda inexistente");
+    }
+
+    @Test
     void publicEndpointsReturn503WithMultipleDentists() throws Exception {
         dentists.save(new Dentist("publicbooking.second@odontologia.invalid", "hash-ficticio", "Ana", "Demo"));
         mockMvc.perform(get("/api/public/slots").param("date", "2026-11-24"))
@@ -222,6 +234,43 @@ class PublicBookingApiTests {
                 .andExpect(jsonPath("$.error").value("La fecha solicitada está fuera de la ventana pública"));
         assertThat(appointments.findAll()).isEmpty();
         assertThat(patients.findByDni("12345678")).isEmpty();
+    }
+
+    @Test
+    void bookAcceptsExactWindowBoundariesAndRejectsAdjacentInstants() throws Exception {
+        postBooking(bookingJson("1234567", "limite.inferior@odontologia.invalid", "2026-11-24T15:00:00Z"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.startAt").value("2026-11-24T15:00:00Z"));
+
+        postBooking(bookingJson("12345678", "antes.limite@odontologia.invalid", "2026-11-24T14:59:59Z"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("La fecha solicitada está fuera de la ventana pública"));
+
+        postBooking(bookingJson("87654321", "limite.superior@odontologia.invalid", "2026-12-23T14:30:00Z"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.startAt").value("2026-12-23T14:30:00Z"));
+
+        postBooking(bookingJson("87654320", "despues.limite@odontologia.invalid", "2026-12-23T14:30:01Z"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("La fecha solicitada está fuera de la ventana pública"));
+
+        assertThat(appointments.findAll()).hasSize(2);
+        assertThat(patients.findAll()).extracting(Patient::getDni)
+                .containsExactlyInAnyOrder("1234567", "87654321");
+    }
+
+    @Test
+    void bookRejectsDniLengthsOutsideSevenOrEightDigitsWithoutPersistence() throws Exception {
+        for (String[] invalidDniAndSlot : new String[][]{
+                {"123456", "2026-11-24T15:00:00Z"},
+                {"123456789", "2026-11-24T15:30:00Z"}}) {
+            postBooking(bookingJson(invalidDniAndSlot[0], "dni.limite@odontologia.invalid", invalidDniAndSlot[1]))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.error").value("Datos de reserva inválidos"));
+        }
+
+        assertThat(appointments.findAll()).isEmpty();
+        assertThat(patients.findAll()).isEmpty();
     }
 
     @Test
@@ -306,14 +355,22 @@ class PublicBookingApiTests {
         postBooking("{\"nombre\":\"Paciente\",\"apellido\":\"Ficticio\",\"dni\":\"12345678\",\"startAt\":\"2026-11-24T15:00:00Z\"}")
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.error").value("Datos de reserva inválidos"));
-        postBooking(bookingJson("noesvaliddni", "publicbooking.paciente@odontologia.invalid", SLOT_X.toString()))
+        MvcResult invalidDni = postBooking(bookingJson("dni-sentinel-123", "publicbooking.paciente@odontologia.invalid", SLOT_X.toString()))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.error").value("Datos de reserva inválidos"));
+                .andExpect(jsonPath("$.error").value("Datos de reserva inválidos"))
+                .andReturn();
+        assertSanitizedErrorBody(invalidDni, "dni-sentinel-123");
         postBooking(bookingJson("12345678", "pepe", SLOT_X.toString()))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.error").value("Datos de reserva inválidos"));
         assertThat(appointments.findAll()).isEmpty();
         assertThat(patients.findByDni("12345678")).isEmpty();
+    }
+
+    private void assertSanitizedErrorBody(MvcResult result, String... sentinels) throws Exception {
+        String body = result.getResponse().getContentAsString();
+        assertThat(body).doesNotContain("Exception", "org.springframework", "org.hibernate", "SQL", "at com.");
+        assertThat(body).doesNotContain(sentinels);
     }
 
     @Test

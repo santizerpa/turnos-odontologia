@@ -1,9 +1,8 @@
 .env
-
 .env.*
+!.env.example
 
 *.key
-
 *.pem
 
 node_modules/
@@ -12,4 +11,5 @@ frontend/dist/
 build/
 backend/build/
 
+.playwright-mcp/
 .DS_Store

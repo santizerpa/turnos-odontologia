@@ -49,7 +49,7 @@ public class ScheduleConfigurationService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ScheduleConfigurationResponse get(Dentist dentist) {
         ScheduleConfiguration configuration = getOrCreate(dentist);
         return response(configuration);
