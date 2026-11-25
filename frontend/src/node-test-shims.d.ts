@@ -14,6 +14,7 @@ declare module 'node:assert/strict' {
     ok(value: unknown, message?: string): void;
     match(value: string, regexp: RegExp, message?: string): void;
     throws(fn: () => unknown, expected?: unknown, message?: string): void;
+    rejects(fn: Promise<unknown> | (() => unknown), expected?: unknown, message?: string): Promise<void>;
   }
 
   const assert: AssertStrict;

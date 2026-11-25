@@ -2,7 +2,8 @@
   "name": "turnos-odontologia-frontend",
   "private": true,
   "scripts": {
-    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs'); fs.copyFileSync('index.html','dist/index.html'); fs.copyFileSync('admin.html','dist/admin.html'); fs.writeFileSync('dist/package.json', JSON.stringify({type:'module'}))\""
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.admin.json && node -e \"const fs=require('fs'); fs.copyFileSync('index.html','dist/index.html'); fs.copyFileSync('admin.html','dist/admin.html'); fs.writeFileSync('dist/package.json', JSON.stringify({type:'module'}))\"",
+    "test": "tsc -p tsconfig.json && tsc -p tsconfig.admin.json && node -e \"require('fs').writeFileSync('dist/package.json', JSON.stringify({type:'module'}))\" && node --test \"dist/**/*.test.js\""
   },
   "devDependencies": {
     "typescript": "^5.9.3"
