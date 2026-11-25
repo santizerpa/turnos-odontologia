@@ -39,7 +39,7 @@
 ## 4. Verificación integral y evidencia de cierre
 
 - [x] 4.1 Ejecutar toda la suite mediante Gradle Wrapper (`.\gradlew.bat test` en Windows o `./gradlew test` en macOS/Linux), guardar salida e informe HTML y confirmar `BUILD SUCCESSFUL` sin flags que omitan tests.
-- [ ] 4.2 Ejecutar el build completo con el wrapper (`.\gradlew.bat build` o `./gradlew build`), revisar el diff de código/tests/documentación y registrar resultados H2, PostgreSQL (o pendiente), errores HTTP y demo; solicitar la revisión/sign-off correspondiente a gobernanza HIGH sin modificar `CHANGES.md`.
+- [x] 4.2 Ejecutar el build completo con el wrapper (`.\gradlew.bat build` o `./gradlew build`), revisar el diff de código/tests/documentación y registrar resultados H2, PostgreSQL (o pendiente), errores HTTP y demo; solicitar la revisión/sign-off correspondiente a gobernanza HIGH sin modificar `CHANGES.md`. Tests y build: `BUILD SUCCESSFUL`, confirmado por el usuario; sign-off y demo realizados por Santi, según reporte del usuario. PostgreSQL real permanece pendiente/no verificado según `verify.md`.
 
 ## Workflow follow-up
 
