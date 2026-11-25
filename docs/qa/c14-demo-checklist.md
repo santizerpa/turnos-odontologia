@@ -23,12 +23,12 @@ Se reutilizan los tests existentes indicados arriba. Las brechas abiertas están
 
 ## Checklist manual de demo end-to-end (tarea 3.3)
 
-Este procedimiento complementa la matriz anterior: describe una demo manual de la bandeja local, no una prueba automatizada ni evidencia de PostgreSQL. Las rutas y cuerpos se contrastaron con `README.md` §§3.4–3.5, `PublicBookingController`, `PublicAppointmentTokenController`, `WaitingListController`, `OutboxController` y los tests HTTP de reserva, lista de espera y outbox.
+Este procedimiento complementa la matriz anterior: describe una demo manual de la bandeja local, no una prueba automatizada ni evidencia de PostgreSQL. Las rutas y cuerpos se contrastaron con `README.md` §§3.4–3.6, `PublicBookingController`, `PublicAppointmentTokenController`, `WaitingListController`, `OutboxController` y los tests HTTP de reserva, lista de espera y outbox.
 
 ### Precondiciones y datos
 
 - [ ] Usar una base local de desarrollo autorizada y descartable, preparada según [database/README.md](../../database/README.md); no apuntar a una base desconocida ni a producción.
-- [ ] Configurar localmente el perfil `local`, PostgreSQL y el usuario inicial ficticio según [README.md](../../README.md) §§3.1–3.2. Usar `APP_ADMIN_SEED=true` y `APP_DEMO_SEED=false` para este recorrido manual. No copiar credenciales a esta documentación, al repositorio ni a capturas.
+- [ ] Configurar localmente el perfil `local`, PostgreSQL y el usuario inicial ficticio según [README.md](../../README.md) §§3.1–3.3. Usar `APP_ADMIN_SEED=true` y `APP_DEMO_SEED=false` para este recorrido manual. No copiar credenciales a esta documentación, al repositorio ni a capturas.
 - [ ] Usar exclusivamente personas/DNI ficticios y correos `@example.invalid`; no reutilizar datos reales. Registrar dos turnos públicos: uno para confirmar y luego cancelar, y otro que quede `PENDING` para el recordatorio.
 - [ ] Para el turno de recordatorio, elegir un slot disponible cuyo inicio sea **posterior a 24 horas y no posterior a 48 horas** desde el momento de la prueba. Si no hay slot disponible en esa ventana, no afirmar que se generó un recordatorio.
 - [ ] Abrir dos consolas PowerShell. En la primera, desde `backend`, arrancar como indica README §3.4:
