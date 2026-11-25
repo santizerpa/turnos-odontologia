@@ -89,7 +89,8 @@ Spring Boot no lee el archivo `.env` por sí solo. Copiá `.env.example` como re
 | `SPRING_DATASOURCE_PASSWORD` | Contraseña de la base | `local-only` |
 | `APP_ADMIN_EMAIL` | Email del odontólogo inicial | `demo@odontologia.local` |
 | `APP_ADMIN_PASSWORD` | Contraseña inicial (ficticia, solo demo) | `demo-segura-123` |
-| `APP_ADMIN_SEED` | Ejecuta el seed del odontólogo ficticio solo si es `true` | `true` |
+| `APP_ADMIN_SEED` | Crea el odontólogo ficticio al arrancar solo si es `true`; la demo lo requiere | `true` |
+| `APP_DEMO_SEED` | Carga el conjunto completo de demo solo si es `true`; ausente equivale a `false` | `false` |
 | `APP_PUBLIC_URL` | URL base para los links de la bandeja | `http://localhost:8080` |
 | `APP_TOKEN_MAX_DAYS` | Vigencia máxima del token, en días | `7` |
 
@@ -101,20 +102,80 @@ $env:SPRING_DATASOURCE_USERNAME = "odontologia"
 $env:SPRING_DATASOURCE_PASSWORD = "local-only"
 $env:APP_ADMIN_EMAIL = "demo@odontologia.local"
 $env:APP_ADMIN_PASSWORD = "demo-segura-123"
+$env:APP_ADMIN_SEED = "true"
+$env:APP_DEMO_SEED = "false"   # cambiá a "true" solo para cargar la demo
 $env:APP_PUBLIC_URL = "http://localhost:8080"
 $env:APP_TOKEN_MAX_DAYS = "7"
 ```
 
-### 3.3 Arrancar
+En macOS y Linux (shell Unix):
+
+```bash
+export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/odontologia"
+export SPRING_DATASOURCE_USERNAME="odontologia"
+export SPRING_DATASOURCE_PASSWORD="local-only"
+export APP_ADMIN_EMAIL="demo@odontologia.local"
+export APP_ADMIN_PASSWORD="demo-segura-123"
+export APP_ADMIN_SEED="true"
+export APP_DEMO_SEED="false"   # cambiá a "true" solo para cargar la demo
+export APP_PUBLIC_URL="http://localhost:8080"
+export APP_TOKEN_MAX_DAYS="7"
+```
+
+### 3.3 Demo completa (opcional)
+
+La carga de demo es un opt-in separado del seed administrativo. Requiere una base local **limpia** (sin un conjunto de demo previo), `APP_ADMIN_SEED=true`, `APP_ADMIN_EMAIL`, `APP_ADMIN_PASSWORD` y `APP_DEMO_SEED=true`. Usá siempre datos y credenciales ficticias; nunca cargues datos reales de pacientes.
+
+Para preparar una base local de demo limpia, recreá la base de desarrollo (por ejemplo, `DROP DATABASE odontologia;` y volvé a ejecutar los `CREATE` de la sección 3.1) o usá otra base vacía. El seed no borra ni mueve datos automáticamente.
+
+Con la base limpia, cargá las variables y cambiá `APP_DEMO_SEED` a `true`.
+
+PowerShell:
+
+```powershell
+$env:APP_ADMIN_SEED = "true"
+$env:APP_ADMIN_EMAIL = "demo@odontologia.local"
+$env:APP_ADMIN_PASSWORD = "demo-segura-123"
+$env:APP_DEMO_SEED = "true"
+```
+
+macOS y Linux:
+
+```bash
+export APP_ADMIN_SEED="true"
+export APP_ADMIN_EMAIL="demo@odontologia.local"
+export APP_ADMIN_PASSWORD="demo-segura-123"
+export APP_DEMO_SEED="true"
+```
+
+Después arrancá con el perfil local como en la sección 3.4. El seed:
+
+- crea o reutiliza el odontólogo administrativo y carga 7 pacientes ficticios;
+- deja 2 turnos `CONFIRMED`, 1 `PENDING` y 1 `CANCELLED`, 3 entradas `WAITING`, un bloqueo de agenda y 3 mensajes `BOOKING` visibles en la bandeja;
+- ubica los turnos activos entre 24 horas y 30 días desde el arranque, en los días y horarios de la agenda configurada, sin solaparse con el bloqueo ni entre sí;
+- deja los mensajes de outbox en `PENDING` con destinatarios `@example.invalid`. Son locales: el seeder nunca envía correos, WhatsApp ni invoca el despacho. Solo una acción explícita posterior (`POST /api/outbox/dispatch`) los marca como `SIMULATED_SENT`, sin entrega real.
+
+**Repetir el seed:** si volvés a arrancar el mismo día local, el seed reutiliza los mismos registros sin duplicarlos, moverlos ni sobrescribirlos. Si la fecha efectiva cambió (por ejemplo, de lunes a martes), el seed **no** desplaza los fixtures existentes: falla con un mensaje claro y deja los datos intactos. En ese caso prepará una base local de demo limpia y volvé a arrancar con `APP_DEMO_SEED=true`.
+
+Los tests del seed usan H2 en modo PostgreSQL y no requieren PostgreSQL instalado; alcanza con los comandos de la sección 2.
+
+### 3.4 Arrancar
 
 ```powershell
 cd backend
 .\gradlew.bat bootRun --args="--spring.profiles.active=local"
 ```
 
+En macOS y Linux:
+
+```bash
+cd backend
+./gradlew bootRun --args="--spring.profiles.active=local"
+```
+
 <!-- VERIFICAR tras aplicar C-01: que este comando y el perfil por defecto coincidan con lo implementado. -->
 
-### 3.4 Comprobar que está vivo
+### 3.5 Comprobar que está vivo
 
 ```powershell
 curl http://localhost:8080/api/health

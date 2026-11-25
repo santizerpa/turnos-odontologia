@@ -4,11 +4,14 @@ import com.turnosodontologia.dentist.Dentist;
 import com.turnosodontologia.dentist.DentistRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(AdminDentistSeeder.ORDER)
 public class AdminDentistSeeder implements ApplicationRunner {
+    public static final int ORDER = 10;
     private final DentistRepository dentists;
     private final AdminSeedConfiguration configuration;
     private final Environment environment;

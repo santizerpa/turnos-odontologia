@@ -349,7 +349,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 ## FASE 5 — Interfaces y demo
 
 ### [C-12] `admin-agenda-ui`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Interfaz administrativa del odontólogo
   - Pantalla de login con email y contraseña
   - Agenda diaria y semanal con estado de cada turno
@@ -367,7 +367,7 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
   - `knowledge-base/02_descripcion_general.md` §API REST
 
 ### [C-13] `seed-and-demo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**: Datos ficticios y arranque reproducible
   - Seed determinista relativo a la fecha de ejecución
   - 1 odontólogo ficticio, 5-10 pacientes, turnos en distintos estados
