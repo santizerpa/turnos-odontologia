@@ -46,7 +46,10 @@ class DemoDataLoaderCancelledFixtureTests extends DemoLoaderTestSupport {
             .isEqualTo(WaitingListStatus.WAITING);
 
         assertThat(appointmentEvents.count()).isZero();
-        assertThat(tokens.count()).isZero();
+        // One confirm/cancel token per booking message (the three active appointments), none for the cancelled one.
+        assertThat(tokens.count()).isEqualTo(3);
+        assertThat(tokens.findAll()).noneSatisfy(token ->
+            assertThat(token.getAppointment().getActiveSlot()).isNull());
         assertThat(outbox.findAll()).allSatisfy(message -> {
             assertThat(message.getType()).isEqualTo(OutboxMessageType.BOOKING);
             assertThat(message.getType()).isNotEqualTo(OutboxMessageType.REMINDER);

@@ -51,7 +51,7 @@ Los compact rules se resuelven desde [`.atl/skill-registry.md`](.atl/skill-regis
 
 El plan completo está en [CHANGES.md](CHANGES.md).
 
-- **Total:** 14 changes, C-01 a C-14, distribuidos en 7 fases.
+- **Total:** 14 changes, C-01 a C-14, distribuidos en 7 fases, más el paso extra `ui-polish`, surgido al cierre y aceptado por el equipo.
 - **Camino crítico:** `C-01 → C-02 → C-03 → C-05 → C-09 → C-10 → C-11 → C-12 → C-14`.
 - **Primer change:** `C-01 foundation-setup`.
 - **Plan confirmado:** 5 personas en paralelo, según el paso 1–9 documentado en `CHANGES.md`.

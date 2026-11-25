@@ -22,7 +22,6 @@ import java.util.List;
 
 @Service
 public class PublicBookingService {
-    private static final String SUBJECT = "Confirma tu turno";
 
     private final DentistRepository dentists;
     private final AvailabilityService availability;
@@ -75,17 +74,12 @@ public class PublicBookingService {
                 request.startAt(), CreatedBy.PATIENT);
         String token = tokenService.issue(appointment);
         outbox.save(new OutboxMessage(appointment, appointment.getPatient().getEmail(),
-                SUBJECT, confirmAndCancelLinks(token), OutboxStatus.PENDING));
+                BookingMessage.SUBJECT, BookingMessage.body(token), OutboxStatus.PENDING));
         return minimalResponse(appointment);
     }
 
     private PublicBookingResponse minimalResponse(Appointment appointment) {
         return new PublicBookingResponse(appointment.getStartAt(), appointment.getDurationMinutes(), appointment.getStatus());
-    }
-
-    private String confirmAndCancelLinks(String token) {
-        return "Para confirmar tu turno, visita /api/public/appointments/" + token + "/confirm. "
-                + "Para cancelarlo, visita /api/public/appointments/" + token + "/cancel.";
     }
 
     public Dentist publicDentist() {

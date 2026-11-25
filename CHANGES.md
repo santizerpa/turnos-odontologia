@@ -407,6 +407,31 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 
 ---
 
+## PASO EXTRA — Surgido al cierre de los changes
+
+> No formaba parte del roadmap original de 14 changes. Surgió al final, durante la revisión manual de la demo, y el equipo lo aceptó (2026-11-25).
+
+### [EXTRA] `ui-polish`
+- **Estado**: `[x]` completado (archivado como `openspec/changes/archive/2026-11-25-ui-polish`)
+- **Origen**: paso extra posterior a C-14, aceptado por el equipo; no altera el camino crítico ni la numeración de C-01 a C-14.
+- **Scope**: Presentación legible y ajustes de la demo detectados al probarla
+  - Hoja de estilos local, viewport y design system `system-only` (Revision 1 aprobada)
+  - Fechas y horas en hora de Buenos Aires (`dd/MM/yy HH:mm`) y rangos de agenda con `-03:00`
+  - Bandeja de entrada simulada del paciente (`GET /api/public/inbox`, solo con `app.demo.inbox.enabled`) con ver estado, confirmar y cancelar
+  - El odontólogo no confirma turnos (422); solo marca ausente, atendido o cancela
+  - Búsqueda de pacientes por DNI o nombre (excluyentes)
+  - Bandeja de salida como historial: nombre y DNI del paciente, más reciente primero
+  - Lista de espera fuera del frontend (sigue activa en el backend)
+  - Tests: `npm test` (107) y `gradlew build` (247) en verde
+- **Dependencias**: C-08, C-12, C-13, C-14
+- **Governance**: ALTO (bandeja de entrada pública por email, aceptada como simulación de demo; ver SU-05)
+- **Leer antes**:
+  - `openspec/changes/archive/2026-11-25-ui-polish/design.md`
+  - `design-system/README.md`
+  - `knowledge-base/09_decisiones_y_supuestos.md` §SU-05
+
+---
+
 ## Resumen
 
 | Fase | Changes | IDs |
@@ -418,7 +443,8 @@ Paso │ Persona A (Cimientos/Cierre) │ Persona B (Turnos)        │ Persona 
 | 4 — Validación por mail y lista de espera | 3 | C-09, C-10, C-11 |
 | 5 — Interfaces y demo | 2 | C-12, C-13 |
 | 6 — Calidad y cierre | 1 | C-14 |
+| Paso extra (post-roadmap) | 1 | `ui-polish` |
 
-**Total:** 14 changes.
+**Total:** 14 changes del roadmap + 1 paso extra surgido al cierre (`ui-polish`).
 **Camino crítico:** 9 changes.
 **Primer item elegible:** `C-01` (`foundation-setup`).

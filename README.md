@@ -151,7 +151,7 @@ export APP_DEMO_SEED="true"
 Después arrancá con el perfil local como en la sección 3.4. El seed:
 
 - crea o reutiliza el odontólogo administrativo y carga 7 pacientes ficticios;
-- deja 2 turnos `CONFIRMED`, 1 `PENDING` y 1 `CANCELLED`, 3 entradas `WAITING`, un bloqueo de agenda y 3 mensajes `BOOKING` visibles en la bandeja;
+- deja 2 turnos `CONFIRMED`, 1 `PENDING` y 1 `CANCELLED`, 3 entradas `WAITING`, un bloqueo de agenda y 3 mensajes `BOOKING` visibles en la bandeja, con el mismo asunto ("Confirma tu turno") y los mismos enlaces de confirmar y cancelar que una reserva real, para usarlos desde la bandeja de entrada simulada;
 - ubica los turnos activos entre 24 horas y 30 días desde el arranque, en los días y horarios de la agenda configurada, sin solaparse con el bloqueo ni entre sí;
 - deja los mensajes de outbox en `PENDING` con destinatarios `@example.invalid`. Son locales: el seeder nunca envía correos, WhatsApp ni invoca el despacho. Solo una acción explícita posterior (`POST /api/outbox/dispatch`) los marca como `SIMULATED_SENT`, sin entrega real.
 

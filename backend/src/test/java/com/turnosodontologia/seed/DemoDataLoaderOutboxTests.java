@@ -17,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +44,26 @@ class DemoDataLoaderOutboxTests extends DemoLoaderTestSupport {
         assertThat(messages).allSatisfy(message ->
             assertThat(outbox.existsByAppointmentIdAndType(message.getAppointment().getId(),
                 OutboxMessageType.BOOKING)).isTrue());
+    }
+
+    @Test
+    void demoMessagesLookLikeRealBookingMessagesWithWorkingLinks() {
+        Dentist dentist = createDentist();
+
+        loader().loadOrReuse(dentist);
+
+        AppointmentTokenService tokenService = new AppointmentTokenService(tokens, Clock.fixed(NOW, ZONE));
+        Pattern link = Pattern.compile("/api/public/appointments/([A-Za-z0-9_-]+)/confirm");
+        assertThat(outbox.findAll()).hasSize(3).allSatisfy(message -> {
+            assertThat(message.getSubject()).isEqualTo("Confirma tu turno");
+            assertThat(message.getSubject()).doesNotContainIgnoringCase("demo");
+            Matcher matcher = link.matcher(message.getBody());
+            assertThat(matcher.find()).isTrue();
+            String token = matcher.group(1);
+            assertThat(message.getBody()).contains("/api/public/appointments/" + token + "/cancel");
+            assertThat(tokenService.resolve(token).getAppointment().getId())
+                .isEqualTo(message.getAppointment().getId());
+        });
     }
 
     @Test

@@ -2,6 +2,8 @@ package com.turnosodontologia.seed;
 
 import com.turnosodontologia.appointment.Appointment;
 import com.turnosodontologia.appointment.AppointmentRepository;
+import com.turnosodontologia.appointment.AppointmentTokenService;
+import com.turnosodontologia.appointment.BookingMessage;
 import com.turnosodontologia.appointment.CreatedBy;
 import com.turnosodontologia.dentist.Dentist;
 import com.turnosodontologia.dentist.DentistRepository;
@@ -27,7 +29,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +44,6 @@ import java.util.Optional;
 public class DemoDataLoader {
     public enum Result { CREATED, REUSED }
 
-    private static final DateTimeFormatter MESSAGE_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
     private final DentistRepository dentists;
     private final PatientRepository patients;
     private final AppointmentRepository appointments;
@@ -52,6 +51,7 @@ public class DemoDataLoader {
     private final ScheduleConfigurationRepository configurations;
     private final WaitingListEntryRepository waitingEntries;
     private final OutboxMessageRepository outbox;
+    private final AppointmentTokenService tokens;
     private final ScheduleProperties properties;
     private final Clock clock;
     private final ZoneId zone;
@@ -64,6 +64,7 @@ public class DemoDataLoader {
                           ScheduleConfigurationRepository configurations,
                           WaitingListEntryRepository waitingEntries,
                           OutboxMessageRepository outbox,
+                          AppointmentTokenService tokens,
                           ScheduleProperties properties,
                           Clock scheduleClock,
                           ZoneId scheduleZoneId) {
@@ -74,6 +75,7 @@ public class DemoDataLoader {
         this.configurations = configurations;
         this.waitingEntries = waitingEntries;
         this.outbox = outbox;
+        this.tokens = tokens;
         this.properties = properties;
         this.clock = scheduleClock;
         this.zone = scheduleZoneId;
@@ -179,14 +181,13 @@ public class DemoDataLoader {
             booking(pending, demoPatients.get(2))));
     }
 
+    // Same subject and links as a real public booking, so the demo inbox can view, confirm or cancel it.
     private OutboxMessage booking(Appointment appointment, Patient patient) {
-        String when = appointment.getStartAt().atZone(zone).format(MESSAGE_DATE);
         return new OutboxMessage(
             appointment,
             patient.getEmail(),
-            "Turno demo " + appointment.getStatus().name().toLowerCase(),
-            "Mensaje ficticio de demo para " + patient.getFirstName() + " el " + when
-                + ". Queda en la bandeja local y no se envía externamente.",
+            BookingMessage.SUBJECT,
+            BookingMessage.body(tokens.issue(appointment)),
             OutboxStatus.PENDING,
             OutboxMessageType.BOOKING);
     }

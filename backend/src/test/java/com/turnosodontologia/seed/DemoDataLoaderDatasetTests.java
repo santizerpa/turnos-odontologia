@@ -88,7 +88,10 @@ class DemoDataLoaderDatasetTests extends DemoLoaderTestSupport {
         });
 
         assertThat(appointmentEvents.count()).isZero();
-        assertThat(tokens.count()).isZero();
+        // One confirm/cancel token per booking message (the three active appointments), none for the cancelled one.
+        assertThat(tokens.count()).isEqualTo(3);
+        assertThat(tokens.findAll()).noneSatisfy(token ->
+            assertThat(token.getAppointment().getActiveSlot()).isNull());
     }
 
     @Test

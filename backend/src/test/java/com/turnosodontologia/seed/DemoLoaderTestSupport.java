@@ -3,6 +3,7 @@ package com.turnosodontologia.seed;
 import com.turnosodontologia.appointment.AppointmentEventRepository;
 import com.turnosodontologia.appointment.AppointmentRepository;
 import com.turnosodontologia.appointment.AppointmentTokenRepository;
+import com.turnosodontologia.appointment.AppointmentTokenService;
 import com.turnosodontologia.dentist.Dentist;
 import com.turnosodontologia.dentist.DentistRepository;
 import com.turnosodontologia.outbox.OutboxMessageRepository;
@@ -48,7 +49,8 @@ abstract class DemoLoaderTestSupport {
 
     DemoDataLoader loader(Instant now) {
         return new DemoDataLoader(dentists, patients, appointments, blocks, configurations,
-            waitingEntries, outbox, properties(), Clock.fixed(now, ZONE), ZONE);
+            waitingEntries, outbox, new AppointmentTokenService(tokens, Clock.fixed(now, ZONE)),
+            properties(), Clock.fixed(now, ZONE), ZONE);
     }
 
     ScheduleProperties properties() {
