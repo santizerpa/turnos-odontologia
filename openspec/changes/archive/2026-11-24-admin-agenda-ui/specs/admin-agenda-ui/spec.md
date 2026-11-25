@@ -52,7 +52,7 @@ Ante un 401 con `{"error":"No autenticado"}` en cualquier llamada autenticada, l
 
 ### Requirement: La consola muestra la agenda diaria y semanal con el estado de cada turno
 
-La consola SHALL construir la vista diaria y semanal únicamente con `GET /api/appointments?from=&to=`, mostrando los campos devueltos para cada turno y un estado vacío o de error cuando corresponda.
+La consola SHALL construir la agenda diaria y semanal solo con `GET /api/appointments?from=&to=`, con estados vacío o de error. Para los nombres SHALL hacer una sola llamada `GET /api/patients?page=0&size=100` al cargar la agenda (`100` es el máximo), construir un mapa `patientId → nombre y apellido` sin más páginas ni reutilizar la vista de pacientes, y usar el `patientId` si el id no está. Un fallo distinto de 401 no es error de agenda; el 401 aplica el manejo de sesión vencida.
 
 #### Scenario: Agenda diaria con turnos
 - **DADO (GIVEN)** un rango `from`/`to` válido en formato `Instant` ISO-8601 y turnos ficticios activos
@@ -60,9 +60,19 @@ La consola SHALL construir la vista diaria y semanal únicamente con `GET /api/a
 - **ENTONCES (THEN)** la consola muestra `id`, `patientId`, `startAt`, `durationMinutes`, `status` y `activeSlot` de cada turno, sin inventar datos adicionales
 
 #### Scenario: Nombre del paciente en la agenda
-- **DADO (GIVEN)** un turno cuyo `patientId` coincide con un paciente de `GET /api/patients`
-- **CUANDO (WHEN)** la consola carga la agenda y tiene disponible el listado de pacientes
-- **ENTONCES (THEN)** muestra `nombre` y `apellido` de ese paciente en el turno; si `patientId` no está en el listado, muestra `patientId` en su lugar, sin inventar datos ni invocar `GET /api/patients/{id}`
+- **DADO (GIVEN)** una agenda con turnos ficticios y un listado de hasta 100 pacientes disponible
+- **CUANDO (WHEN)** la consola carga la agenda y realiza exactamente una llamada `GET /api/patients?page=0&size=100`
+- **ENTONCES (THEN)** construye un mapa `patientId → nombre y apellido` con esos pacientes, muestra `nombre` y `apellido` en cada turno, no solicita más páginas, no reutiliza lo cargado en la vista de pacientes y no invoca `GET /api/patients/{id}`
+
+#### Scenario: Paciente fuera del mapa
+- **DADO (GIVEN)** un turno cuyo `patientId` no está entre los primeros 100 pacientes devueltos por `GET /api/patients?page=0&size=100` (por ejemplo, hay más de 100 pacientes)
+- **CUANDO (WHEN)** la consola renderiza ese turno con el mapa `patientId → nombre y apellido`
+- **ENTONCES (THEN)** muestra el `patientId` en lugar de un nombre, sin solicitar páginas adicionales ni inventar datos
+
+#### Scenario: Fallo del listado de pacientes (distinto de 401)
+- **DADO (GIVEN)** un fallo en `GET /api/patients?page=0&size=100` distinto de 401
+- **CUANDO (WHEN)** la consola carga la agenda con turnos ficticios
+- **ENTONCES (THEN)** la agenda se renderiza igual, mostrando el `patientId` de cada turno y sin presentar el fallo como error de la agenda; si esa llamada responde 401, se aplica el manejo de sesión vencida ya especificado, sin redirigir
 
 #### Scenario: Agenda semanal
 - **DADO (GIVEN)** un rango de siete días con turnos ficticios
@@ -139,8 +149,8 @@ La consola SHALL obtener pacientes solo desde `GET /api/patients?dni=&page=&size
 
 #### Scenario: Parámetros de paciente inválidos
 - **DADO (GIVEN)** un `dni` inválido o `page`/`size` fuera de rango
-- **CUANDO (WHEN)** la API responde 400 con `{"type":"about:blank","title":"Bad Request","status":400,"detail":"Datos de paciente inválidos."}` y sin `instance`
-- **ENTONCES (THEN)** la consola muestra `detail` y no interpreta el cuerpo como un objeto con campo `error`
+- **CUANDO (WHEN)** la API responde 400 con `{"type":"about:blank","title":"Bad Request","status":400,"detail":"Datos de paciente inválidos."}`, con o sin `instance`
+- **ENTONCES (THEN)** la consola muestra `detail`, con o sin `instance`, y no interpreta el cuerpo como un objeto con campo `error`
 
 ### Requirement: La consola muestra la bandeja simulada y permite probar sus enlaces
 
@@ -183,12 +193,12 @@ La consola SHALL listar mensajes con `GET /api/outbox/messages`, SHALL extraer l
 
 #### Scenario: Error interno de la bandeja
 - **DADO (GIVEN)** un fallo interno al consultar los mensajes
-- **CUANDO (WHEN)** `GET /api/outbox/messages` responde 500 con `{"type":"about:blank","title":"Error interno","status":500,"detail":"Error interno al procesar la bandeja"}` y sin `instance`
+- **CUANDO (WHEN)** la consola recibe una respuesta 500 de `GET /api/outbox/messages` con `{"type":"about:blank","title":"Error interno","status":500,"detail":"Error interno al procesar la bandeja"}`, con o sin `instance` (respuesta controlada en navegador, no generada por el backend en la verificación)
 - **ENTONCES (THEN)** la consola muestra `detail`, sin mensajes internos ni trazas de excepción
 
 ### Requirement: La consola muestra la lista de espera visible
 
-La consola SHALL consultar `GET /api/waiting-list` con sesión y SHALL mostrar las entradas en el orden FIFO devuelto, con estado y preferencias de fecha pero sin DNI.
+La consola SHALL consultar `GET /api/waiting-list` con sesión y SHALL mostrar las entradas en el orden FIFO devuelto, con estado y preferencias de fecha pero sin DNI. El alta en `POST /api/public/waiting-list` es un endpoint público y queda fuera del alcance de esta consola.
 
 #### Scenario: Lista de espera con entradas
 - **DADO (GIVEN)** entradas ficticias ordenadas por `created_at` ascendente y por `id` en empate
@@ -210,9 +220,9 @@ La consola SHALL reconocer los cuerpos `{"error":"<mensaje>"}` y `ProblemDetail`
 - **ENTONCES (THEN)** muestra el valor exacto de `error` y no busca un campo `detail`
 
 #### Scenario: Errores `ProblemDetail`
-- **DADO (GIVEN)** el cuerpo `{"type":"about:blank","title":"Bad Request","status":400,"detail":"Datos de paciente inválidos."}` o `{"type":"about:blank","title":"Error interno","status":500,"detail":"Error interno al procesar la bandeja"}`, sin `instance`
+- **DADO (GIVEN)** el cuerpo `{"type":"about:blank","title":"Bad Request","status":400,"detail":"Datos de paciente inválidos."}` o `{"type":"about:blank","title":"Error interno","status":500,"detail":"Error interno al procesar la bandeja"}`, con o sin `instance`
 - **CUANDO (WHEN)** la consola procesa la respuesta
-- **ENTONCES (THEN)** muestra el valor exacto de `detail`, trata la ausencia de `instance` como un cuerpo válido y no muestra campos internos
+- **ENTONCES (THEN)** muestra el valor exacto de `detail`, con o sin `instance`, y no muestra campos internos
 
 #### Scenario: Cuerpo de error no legible
 - **DADO (GIVEN)** una respuesta sin JSON o sin `error` ni `detail` aprovechables
