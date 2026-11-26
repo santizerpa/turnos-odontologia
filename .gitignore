@@ -1,15 +1,38 @@
+# Secretos y configuración local (solo se versiona el ejemplo ficticio)
 .env
 .env.*
 !.env.example
-
 *.key
 *.pem
 
+# Dependencias
 node_modules/
+
+# Compilados y salida de build
 frontend/dist/
 .gradle/
 build/
 backend/build/
+out/
+bin/
+*.class
 
-.playwright-mcp/
+# Logs
+*.log
+npm-debug.log*
+
+# IDE y editores
+.idea/
+*.iml
+.vscode/
+.vs/
+
+# Sistema operativo
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Respaldos y herramientas locales
+*.bak*
+.playwright-mcp/
+.claude/settings.local.json
